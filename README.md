@@ -1,5 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/XTHBxU7a)
-# Team 00
+# Team 20
 
 > Please fill in this Readme with the required information, and delete this box.
 >
@@ -30,4 +30,4 @@ No additional instructions required.
 
 Name | Email | Development OS/Toolchain
 -:|:-|-|
-John Doe | john@doe.com | 
+Zhang Zhikai | e0543603@u.nus.edu | macOS
