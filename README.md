@@ -18,7 +18,7 @@
 
 Item | Version
 -|-
-OS |
+OS | 
 Toolchain |
 C++ Standard | C++17
 
@@ -31,3 +31,4 @@ No additional instructions required.
 Name | Email | Development OS/Toolchain
 -:|:-|-|
 Zhang Zhikai | e0543603@u.nus.edu | macOS
+Glenn Lim | glennljw@u.nus.edu | macOS
