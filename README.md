@@ -15,9 +15,10 @@ No additional instructions required.
 
 # Team Members
 
-Name | Email | Development OS/Toolchain
--:|:-|-|
+Name | Email              | Development OS/Toolchain
+-:|:-------------------|-|
 Zhang Zhikai | e0543603@u.nus.edu | macOS
 Glenn Lim | glennljw@u.nus.edu | macOS
-Cai Zhibin | czhibin@u.nus.edu | macOS, CMake 3.27.8, Make 3.81
+Cai Zhibin | czhibin@u.nus.edu  | macOS, CMake 3.27.8, Make 3.81
 Phua Jun Heng | e0559947@u.nus.edu | windows 11
+Ng Choon Siong | choon.ng@u.nus.edu | macOS
