@@ -1,4 +1,4 @@
-#include "TNode.h"
+#include "SP/TNode.h"
 #include "catch.hpp"
 using namespace std;
 void require(bool b) {
