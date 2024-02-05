@@ -1,17 +1,14 @@
-#include <stdio.h>
 #include <iostream>
 #include <string>
 #include <vector>
-
-using namespace std;
+#include <memory>
 
 #include "PKB.h"
 #include "SP/TNode.h"
 
-int PKB::setProcToAST(PROC p, TNode* r) {
-	return 0;
-}
 
-TNode* PKB::getRootAST (PROC p){
-	return nullptr;
+PKB::PKB() {
+    // Initialize PKB with Database and PKBFacade
+    auto db = std::make_shared<Database>();
+    pkbFacade = std::make_shared<PKBFacade>(db);
 }

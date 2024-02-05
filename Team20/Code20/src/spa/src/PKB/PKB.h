@@ -5,17 +5,15 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-typedef short PROC;
+// Need to initialize Database and PKBFacade to interact with Database from SP and QPS
 
-class TNode;
-
-class VarTable;  // no need to #include "VarTable.h" as all I need is pointer
+#include "PKB/Database.h"
+#include "PKB/facade/PKBFacade.h"
 
 class PKB {
-public:
-	static VarTable* varTable; 
-	static int setProcToAST(PROC p, TNode* r);
-	static TNode* getRootAST (PROC p);
 
+public:
+    PKB();
+
+    std::shared_ptr<PKBFacade> pkbFacade;
 };
