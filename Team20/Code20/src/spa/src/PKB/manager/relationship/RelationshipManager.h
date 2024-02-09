@@ -3,7 +3,7 @@
 # include <unordered_map>
 # include <string>
 # include <memory>
-# include <vector>
+# include <unordered_set>
 
 
 /*
@@ -18,35 +18,30 @@ class RelationshipManager {
 
     // Only accessible by derived classes
     private:
-        // E.g: Follows or Followed relationship
-        // map of key to vector of values
-        // Statements that follow 1 directly
-        // E.g: Follows(1, s) -> Follower[1] = [2, 3]
-        std::unordered_map<T, std::vector<U> > data;
-        // E.g: Follows(1, 2) -> Following[2] = [1]
-        std::unordered_map<U, std::vector<T> > reverseData;
+        std::unordered_map<T, std::unordered_set<U> > data;
+        std::unordered_map<U, std::unordered_set<T> > reverseData;
 
-    // WHERE DO I ADD VIRTUAL FUNCTIONS?
     public:
 
         // Insert a record into the table
         void insert(const T& key, const U& value) {
-            data[key].push_back(value);
-            reverseData[value].push_back(key);
+            data[key].insert(value);
+            reverseData[value].insert(key);
         };
 
         // Get the value associated with a key
-        std::vector<U> get(const T &key) {
+        std::unordered_set<U> get(const T &key) {
             if (data.find(key) == data.end()) {
-                return std::vector<U>();
+                return std::unordered_set<U>();
             }
             return data.at(key);
         };
 
         // Get the key associated with a value
-        std::vector<T> getReverse(const U& value) {
+        std::unordered_set<T> getReverse(const U& value) {
+            // No such key exists for reverse data
             if (reverseData.find(value) == reverseData.end()) {
-                return std::vector<T>();
+                return std::unordered_set<T>();
             }
             return reverseData.at(value);
         };
@@ -59,7 +54,15 @@ class RelationshipManager {
         // Check if a value exists in the table
         bool containsReverse(const U& value) {
             return reverseData.find(value) != reverseData.end();
-        };;
+        };
+
+        bool containsValueInKeySet(const T& key, const U& value) {
+            if (contains(key)) {
+                const auto &valueSet= data[key];
+                return (valueSet.find(value) != valueSet.end());
+            }
+            return false; // key does not exist
+        }
 
 
 };
