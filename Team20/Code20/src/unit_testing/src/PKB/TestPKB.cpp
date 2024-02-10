@@ -287,6 +287,59 @@ TEST_CASE("PKB Test") {
 
     }
 
+    // int type: Assign, statement, while, if, call, print, read, constant
+    SECTION("Test PKB - EntityManager<int>") {
+        std::cout << "Section: EntityManager<int>" << std::endl;
+        // Create an instance of PKB
+        auto intEntityManager = std::make_shared<EntityManager<int>>();
+
+
+        // insert
+        intEntityManager->insert(1);
+        intEntityManager->insert(2);
+        intEntityManager->insert(3);
+        // insert duplicate
+        intEntityManager->insert(1);
+
+        // a can be assign, statement, while, if, call, print, read
+        // Query: Select a
+        // get
+        auto values = intEntityManager->get();
+        std::unordered_set<int> expectedValues = {1, 2, 3};
+        REQUIRE(values == expectedValues);
+        REQUIRE(intEntityManager->contains(1) == true);
+    }
+
+    // string type: procedure, variable
+    SECTION("Test PKB - EntityManager<string>") {
+        std::cout << "Section: EntityManager<string>" << std::endl;
+        // Create an instance of PKB
+        auto stringEntityManager = std::make_shared<EntityManager<std::string>>();
+        auto procedureManager = std::make_shared<ProcedureManager>();
+
+        // insert
+        stringEntityManager->insert("main");
+        stringEntityManager->insert("function1");
+        stringEntityManager->insert("function2");
+
+        procedureManager->insert("main");
+        procedureManager->insert("function1");
+        procedureManager->insert("function2");
+
+        // insert duplicate
+        stringEntityManager->insert("main");
+
+        // a can be procedure, variable
+        // Query: Select a
+        // get
+        auto stringEntitySet = stringEntityManager->get();
+        auto procedureSet = procedureManager->get();
+
+        REQUIRE(stringEntitySet == procedureSet);
+        REQUIRE(stringEntityManager->contains("main") == true);
+        REQUIRE(procedureManager->contains("hello") == false);
+    }
+
 
     SECTION("Test PKB - PKBFacade - insertAssign - getAllAssignStmtNum - AssignManager") {
         std::cout << "Section: PKBFacade - AssignManager" << std::endl;

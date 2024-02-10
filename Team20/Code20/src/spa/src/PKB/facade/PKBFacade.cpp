@@ -8,7 +8,20 @@
 // What is the std::move warning
 PKBFacade::PKBFacade(std::shared_ptr<Database> db) : db(std::move(db)) {}
 
-// Variables
+// Procedure
+void PKBFacade::insertProcedure(std::string const & procedure) {
+    db->getProcedureManager()->insert(procedure);
+}
+
+std::unordered_set<std::string> PKBFacade::getAllProcedures() {
+    return db->getProcedureManager()->get();
+}
+
+bool PKBFacade::containsProcedure(std::string const & procedure) {
+    return db->getProcedureManager()->contains(procedure);
+}
+
+// Variable
 void PKBFacade::insertVariable(std::string const & variable) {
     db->getVariableManager()->insert(variable);
 };
@@ -21,6 +34,32 @@ std::unordered_set<std::string> PKBFacade::getAllVariables() {
     return db->getVariableManager()->get();
 }
 
+// Constant
+void PKBFacade::insertConstant(int constant) {
+    db->getConstantManager()->insert(constant);
+}
+
+std::unordered_set<int> PKBFacade::getAllConstants() {
+    return db->getConstantManager()->get();
+}
+
+bool PKBFacade::containsConstant(int constant) {
+    return db->getConstantManager()->contains(constant);
+}
+
+// Statement
+void PKBFacade::insertStatement(int stmtNum) {
+    db->getStatementManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllStatementNum() {
+    return db->getStatementManager()->get();
+}
+
+bool PKBFacade::containsStatement(int stmtNum) {
+    return db->getStatementManager()->contains(stmtNum);
+}
+
 // Assign
 void PKBFacade::insertAssign(int stmtNum) {
     db->getAssignManager()->insert(stmtNum);
@@ -30,6 +69,74 @@ std::unordered_set<int> PKBFacade::getAllAssignStmtNum() {
     return db->getAssignManager()->get();
 }
 
+bool PKBFacade::containsAssign(int stmtNum) {
+    return db->getAssignManager()->contains(stmtNum);
+}
+
+// Read
+void PKBFacade::insertRead(int stmtNum) {
+    db->getReadManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllReadStmtNum() {
+    return db->getReadManager()->get();
+}
+
+bool PKBFacade::containsRead(int stmtNum) {
+    return db->getReadManager()->contains(stmtNum);
+}
+
+// Print
+void PKBFacade::insertPrint(int stmtNum) {
+    db->getPrintManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllPrintStmtNum() {
+    return db->getPrintManager()->get();
+}
+
+bool PKBFacade::containsPrint(int stmtNum) {
+    return db->getPrintManager()->contains(stmtNum);
+}
+
+// Call
+void PKBFacade::insertCall(int stmtNum) {
+    db->getCallManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllCallStmtNum() {
+    return db->getCallManager()->get();
+}
+
+bool PKBFacade::containsCall(int stmtNum) {
+    return db->getCallManager()->contains(stmtNum);
+}
+
+// While
+void PKBFacade::insertWhile(int stmtNum) {
+    db->getWhileManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllWhileStmtNum() {
+    return db->getWhileManager()->get();
+}
+
+bool PKBFacade::containsWhile(int stmtNum) {
+    return db->getWhileManager()->contains(stmtNum);
+}
+
+// If
+void PKBFacade::insertIf(int stmtNum) {
+    db->getIfManager()->insert(stmtNum);
+}
+
+std::unordered_set<int> PKBFacade::getAllIfStmtNum() {
+    return db->getIfManager()->get();
+}
+
+bool PKBFacade::containsIf(int stmtNum) {
+    return db->getIfManager()->contains(stmtNum);
+}
 
 // Follows
 void PKBFacade::insertFollows(int followeeStmtNum, int followerStmtNum) {

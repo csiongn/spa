@@ -12,15 +12,15 @@ class EntityManager {
 
     public:
         void insert(T entity) {
-            // Add the entity to the list
+            // Add the entity to the set
             entityStmtNumSet.insert(entity);
         };
         std::unordered_set<T> get() {
-            // Return the list
+            // Return the set
             return entityStmtNumSet;
         };
         bool contains(T const & entity) {
-            // Check if the entity is in the list
+            // Check if the entity is in the set
             return entityStmtNumSet.find(entity) != entityStmtNumSet.end();
         };
 };
