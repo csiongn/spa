@@ -4,6 +4,7 @@
 # include <string>
 # include <memory>
 # include <unordered_set>
+# include <vector>
 
 
 /*
@@ -30,20 +31,21 @@ class RelationshipManager {
         };
 
         // Get the value associated with a key
-        std::unordered_set<U> get(const T &key) {
+        std::vector<U> get(const T &key) {
             if (data.find(key) == data.end()) {
-                return std::unordered_set<U>();
+                return std::vector<U>();
             }
-            return data.at(key);
+            // convert set at data to vector
+            return std::vector(data.at(key).begin(), data.at(key).end());
         };
 
         // Get the key associated with a value
-        std::unordered_set<T> getReverse(const U& value) {
+        std::vector<T> getReverse(const U& value) {
             // No such key exists for reverse data
             if (reverseData.find(value) == reverseData.end()) {
-                return std::unordered_set<T>();
+                return std::vector<T>();
             }
-            return reverseData.at(value);
+            return std::vector(reverseData.at(value).begin(), reverseData.at(value).end());
         };
 
         // Check if a key exists in the table

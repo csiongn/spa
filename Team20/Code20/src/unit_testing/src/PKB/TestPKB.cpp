@@ -3,6 +3,7 @@
 #include "catch.hpp"
 #include "PKB/Database.h"
 #include "PKB/PKB.h"
+#include "TestUtils.h"
 
 
 TEST_CASE("PKB Test") {
@@ -21,14 +22,14 @@ TEST_CASE("PKB Test") {
         sampleRelationshipManager.insert(3, "apple");
 
         // Get values associated with a key
-        std::unordered_set<std::string> values = sampleRelationshipManager.get(1);
-        std::unordered_set<std::string> expectedValues = {"apple", "orange"};
-        REQUIRE(values == expectedValues);
+        std::vector<std::string> values = sampleRelationshipManager.get(1);
+        std::vector<std::string> expectedValues = {"apple", "orange"};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
 
         // Get keys associated with a value
-        std::unordered_set<int> keys = sampleRelationshipManager.getReverse("apple");
-        std::unordered_set<int> expectedKeys = {1, 3};
-        REQUIRE(keys == expectedKeys);
+        std::vector<int> keys = sampleRelationshipManager.getReverse("apple");
+        std::vector<int> expectedKeys = {1, 3};
+        REQUIRE(checkVecValuesEqual(keys, expectedKeys));
 
         // Check if a key exists
         bool containsKey = sampleRelationshipManager.contains(2);
@@ -43,8 +44,8 @@ TEST_CASE("PKB Test") {
         REQUIRE(containsValueInKeySet == true);
         // Will not be able to insert the same value again and return normally, list should be the same
         sampleRelationshipManager.insert(1, "apple");
-        std::unordered_set<std::string> valuesAfterInsert = sampleRelationshipManager.get(1);
-        REQUIRE(valuesAfterInsert == expectedValues);
+        std::vector<std::string> valuesAfterInsert = sampleRelationshipManager.get(1);
+        REQUIRE(checkVecValuesEqual(valuesAfterInsert, expectedValues));
     }
 
     SECTION("FollowsManager") {
@@ -58,14 +59,13 @@ TEST_CASE("PKB Test") {
         followsManager.insert(3, 4);
 
         // Get values associated with a key
-        std::unordered_set<int> values = followsManager.get(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(values == expectedValues);
-
+        std::vector<int> values = followsManager.get(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
         // Get keys associated with a value
-        std::unordered_set<int> keys = followsManager.getReverse(3);
-        std::unordered_set<int> expectedKeys = {2};
-        REQUIRE(keys == expectedKeys);
+        std::vector<int> keys = followsManager.getReverse(3);
+        std::vector<int> expectedKeys = {2};
+        REQUIRE(checkVecValuesEqual(keys, expectedKeys));
 
         // Check if a key exists
         bool containsKey = followsManager.contains(2);
@@ -86,14 +86,14 @@ TEST_CASE("PKB Test") {
         followsManager -> insert(3, 4);
 
         // Get values associated with a key: get
-        std::unordered_set<int> values = followsManager -> get(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = followsManager -> get(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
 
         // Get keys associated with a value: getReverse
-        std::unordered_set<int> keys = followsManager -> getReverse(3);
-        std::unordered_set<int> expectedKeys = {2};
-        REQUIRE(keys == expectedKeys);
+        std::vector<int> keys = followsManager -> getReverse(3);
+        std::vector<int> expectedKeys = {2};
+        REQUIRE(checkVecValuesEqual(keys, expectedKeys));
 
         // Check if a key exists: contains
         bool containsKey = followsManager -> contains(2);
@@ -116,9 +116,9 @@ TEST_CASE("PKB Test") {
         pkbWriter->insertFollows(2, 3);
 
         // getFollows
-        std::unordered_set<int> values = pkb->pkbFacade->getFollows(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = pkb->pkbFacade->getFollows(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
         // interact with only IPKBReader
@@ -134,9 +134,9 @@ TEST_CASE("PKB Test") {
         std::shared_ptr<IPKBReader> pkbReader = pkb->pkbFacade;
 
         // Get values associated with a key
-        std::unordered_set<int> values = pkbReader->getFollows(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = pkbReader->getFollows(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
     SECTION("PKB - PKBFacade - insertFollows - getFollows - containsFollows - containsFollowing - FollowsManager") {
@@ -153,9 +153,9 @@ TEST_CASE("PKB Test") {
         // Get values associated with a key
         // Query: Select s such that Follows(1, s)
         // getFollows
-        std::unordered_set<int> values = pkbFacade->getFollows(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = pkbFacade->getFollows(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
 
         // containsFollows
         bool containsFollows = pkbFacade->containsFollows(10);
@@ -181,9 +181,9 @@ TEST_CASE("PKB Test") {
 
         // Query: select s such that Follows*(1, s)
         // getFollowsT
-        std::unordered_set<int> values = pkbFacade->getFollowsT(1);
-        std::unordered_set<int> expectedValues = {2, 3, 4, 5, 6, 7, 8, 9};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = pkbFacade->getFollowsT(1);
+        std::vector<int> expectedValues = {2, 3, 4, 5, 6, 7, 8, 9};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
         std::cout << "\tFollower set: " <<  " ";
         for (const auto& element : values) {
             std::cout <<  element << " ";
@@ -192,10 +192,10 @@ TEST_CASE("PKB Test") {
 
         // Query: select s such that Follows*(s, 3)
         // getFollowingT, 3 follows after 1, 2 transitively
-        std::unordered_set<int> valuesFollowingT = pkbFacade->getFollowingT(3);
-        std::unordered_set<int> expectedValuesFollowingT = {1, 2};
+        std::vector<int> valuesFollowingT = pkbFacade->getFollowingT(3);
+        std::vector<int> expectedValuesFollowingT = {1, 2};
 
-        REQUIRE(valuesFollowingT == expectedValuesFollowingT);
+        REQUIRE(checkVecValuesEqual(valuesFollowingT, expectedValuesFollowingT));
         std::cout << "\tFollowing set: " <<  " ";
         for (const auto& element : valuesFollowingT) {
             std::cout << element << " ";
@@ -224,25 +224,25 @@ TEST_CASE("PKB Test") {
 
         // select s such that Parent(1, s)
         // getChild
-        std::unordered_set<int> childSet = pkbFacade->getChild(1);
-        std::unordered_set<int> expectedValues = {2};
-        REQUIRE(childSet == expectedValues);
+        std::vector<int> childVec = pkbFacade->getChild(1);
+        std::vector<int> expectedValues = {2};
+        REQUIRE(checkVecValuesEqual(childVec, expectedValues));
 
         std::cout << "\tChild set: " <<  " ";
-        for (const auto& element : childSet) {
+        for (const auto& element : childVec) {
             std::cout <<  element << " ";
         }
         std::cout << std::endl;
 
         // select s such that Parent(s, 3)
         // getParent
-        std::unordered_set<int> parentSet = pkbFacade->getParent(3);
-        std::unordered_set<int> expectedValuesFollowingT = {2};
+        std::vector<int> parentVec = pkbFacade->getParent(3);
+        std::vector<int> expectedValuesFollowingT = {2};
 
-        REQUIRE(parentSet == expectedValuesFollowingT);
+        REQUIRE(checkVecValuesEqual(parentVec, expectedValuesFollowingT));
 
         std::cout << "\tParent set: " <<  " ";
-        for (const auto& element : parentSet) {
+        for (const auto& element : parentVec) {
             std::cout << element << " ";
         }
         std::cout << std::endl;
@@ -268,9 +268,9 @@ TEST_CASE("PKB Test") {
 
         // Query: select v
         // getAllVariables
-        std::unordered_set<std::string> values = pkbFacade->getAllVariables();
-        std::unordered_set<std::string> expectedValues = {"x", "y"};
-        REQUIRE(values == expectedValues);
+        std::vector<std::string> values = pkbFacade->getAllVariables();
+        std::vector<std::string> expectedValues = {"x", "y"};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
 
         std::cout << "\tVariable set: " <<  " ";
         for (const auto& element : values) {
@@ -305,8 +305,8 @@ TEST_CASE("PKB Test") {
         // Query: Select a
         // get
         auto values = intEntityManager->get();
-        std::unordered_set<int> expectedValues = {1, 2, 3};
-        REQUIRE(values == expectedValues);
+        std::vector<int> expectedValues = {1, 2, 3};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
         REQUIRE(intEntityManager->contains(1) == true);
     }
 
@@ -332,10 +332,9 @@ TEST_CASE("PKB Test") {
         // a can be procedure, variable
         // Query: Select a
         // get
-        auto stringEntitySet = stringEntityManager->get();
-        auto procedureSet = procedureManager->get();
-
-        REQUIRE(stringEntitySet == procedureSet);
+        auto stringEntityVec = stringEntityManager->get();
+        auto procedureVec = procedureManager->get();
+        REQUIRE(checkVecValuesEqual(stringEntityVec, procedureVec));
         REQUIRE(stringEntityManager->contains("main") == true);
         REQUIRE(procedureManager->contains("hello") == false);
     }
@@ -352,9 +351,9 @@ TEST_CASE("PKB Test") {
         pkbFacade->insertAssign(2);
         // Query: Select a
         // getAllAssignStmtNum
-        std::unordered_set<int> values = pkbFacade->getAllAssignStmtNum();
-        std::unordered_set<int> expectedValues = {1, 2};
-        REQUIRE(values == expectedValues);
+        std::vector<int> values = pkbFacade->getAllAssignStmtNum();
+        std::vector<int> expectedValues = {1, 2};
+        REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
 }

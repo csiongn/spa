@@ -15,9 +15,10 @@ class EntityManager {
             // Add the entity to the set
             entityStmtNumSet.insert(entity);
         };
-        std::unordered_set<T> get() {
+        std::vector<T> get() {
             // Return the set
-            return entityStmtNumSet;
+            // convert set to vector and return
+            return std::vector<T>(entityStmtNumSet.begin(), entityStmtNumSet.end());
         };
         bool contains(T const & entity) {
             // Check if the entity is in the set

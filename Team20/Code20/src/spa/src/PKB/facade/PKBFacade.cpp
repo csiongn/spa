@@ -1,5 +1,5 @@
 #include <utility>
-#include <unordered_set>
+#include <vector>
 #include <string>
 
 #include "PKBFacade.h"
@@ -13,7 +13,7 @@ void PKBFacade::insertProcedure(std::string const & procedure) {
     db->getProcedureManager()->insert(procedure);
 }
 
-std::unordered_set<std::string> PKBFacade::getAllProcedures() {
+std::vector<std::string> PKBFacade::getAllProcedures() {
     return db->getProcedureManager()->get();
 }
 
@@ -30,7 +30,7 @@ bool PKBFacade::containsVariable(std::string const & variable) {
     return db->getVariableManager()->contains(variable);
 }
 
-std::unordered_set<std::string> PKBFacade::getAllVariables() {
+std::vector<std::string> PKBFacade::getAllVariables() {
     return db->getVariableManager()->get();
 }
 
@@ -39,7 +39,7 @@ void PKBFacade::insertConstant(int constant) {
     db->getConstantManager()->insert(constant);
 }
 
-std::unordered_set<int> PKBFacade::getAllConstants() {
+std::vector<int> PKBFacade::getAllConstants() {
     return db->getConstantManager()->get();
 }
 
@@ -52,7 +52,7 @@ void PKBFacade::insertStatement(int stmtNum) {
     db->getStatementManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllStatementNum() {
+std::vector<int> PKBFacade::getAllStatementNum() {
     return db->getStatementManager()->get();
 }
 
@@ -65,7 +65,7 @@ void PKBFacade::insertAssign(int stmtNum) {
     db->getAssignManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllAssignStmtNum() {
+std::vector<int> PKBFacade::getAllAssignStmtNum() {
     return db->getAssignManager()->get();
 }
 
@@ -78,7 +78,7 @@ void PKBFacade::insertRead(int stmtNum) {
     db->getReadManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllReadStmtNum() {
+std::vector<int> PKBFacade::getAllReadStmtNum() {
     return db->getReadManager()->get();
 }
 
@@ -91,7 +91,7 @@ void PKBFacade::insertPrint(int stmtNum) {
     db->getPrintManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllPrintStmtNum() {
+std::vector<int> PKBFacade::getAllPrintStmtNum() {
     return db->getPrintManager()->get();
 }
 
@@ -104,7 +104,7 @@ void PKBFacade::insertCall(int stmtNum) {
     db->getCallManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllCallStmtNum() {
+std::vector<int> PKBFacade::getAllCallStmtNum() {
     return db->getCallManager()->get();
 }
 
@@ -117,7 +117,7 @@ void PKBFacade::insertWhile(int stmtNum) {
     db->getWhileManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllWhileStmtNum() {
+std::vector<int> PKBFacade::getAllWhileStmtNum() {
     return db->getWhileManager()->get();
 }
 
@@ -130,7 +130,7 @@ void PKBFacade::insertIf(int stmtNum) {
     db->getIfManager()->insert(stmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getAllIfStmtNum() {
+std::vector<int> PKBFacade::getAllIfStmtNum() {
     return db->getIfManager()->get();
 }
 
@@ -152,11 +152,11 @@ bool PKBFacade::containsFollowing(int followerStmtNum) {
     return db->getFollowsManager()->containsReverse(followerStmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getFollows(int followeeStmtNum) {
+std::vector<int> PKBFacade::getFollows(int followeeStmtNum) {
     return db->getFollowsManager()->get(followeeStmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getFollowing(int followerStmtNum) {
+std::vector<int> PKBFacade::getFollowing(int followerStmtNum) {
     return db->getFollowsManager()->getReverse(followerStmtNum);
 }
 
@@ -173,11 +173,11 @@ bool PKBFacade::containsFollowingT(int followerStmtNum) {
     return db->getFollowsTManager()->containsReverse(followerStmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getFollowsT(int followeeStmtNum) {
+std::vector<int> PKBFacade::getFollowsT(int followeeStmtNum) {
     return db->getFollowsTManager()->get(followeeStmtNum);
 }
 
-std::unordered_set<int> PKBFacade::getFollowingT(int followerStmtNum) {
+std::vector<int> PKBFacade::getFollowingT(int followerStmtNum) {
     return db->getFollowsTManager()->getReverse(followerStmtNum);
 }
 
@@ -195,12 +195,12 @@ bool PKBFacade::containsChild(int childStmtNum) {
 }
 
 // Parent: set(child) : data
-std::unordered_set<int> PKBFacade::getChild(int parentStmtNum) {
+std::vector<int> PKBFacade::getChild(int parentStmtNum) {
     return db->getParentManager()->get(parentStmtNum);
 }
 
 // Child: set(parent) : reverseData
-std::unordered_set<int> PKBFacade::getParent(int childStmtNum) {
+std::vector<int> PKBFacade::getParent(int childStmtNum) {
     return db->getParentManager()->getReverse(childStmtNum);
 }
 
@@ -218,11 +218,11 @@ bool PKBFacade::containsChildT(int childStmtNum) {
 }
 
 // Parent: set(child) : data
-std::unordered_set<int> PKBFacade::getChildT(int parentStmtNum) {
+std::vector<int> PKBFacade::getChildT(int parentStmtNum) {
     return db->getParentTManager()->get(parentStmtNum);
 }
 
 // Child: set(parent) : reverseData
-std::unordered_set<int> PKBFacade::getParentT(int childStmtNum) {
+std::vector<int> PKBFacade::getParentT(int childStmtNum) {
     return db->getParentTManager()->getReverse(childStmtNum);
 }
