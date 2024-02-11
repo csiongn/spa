@@ -17,7 +17,11 @@ namespace QueryEvaluator {
 
         // add by columns
         Result(const std::string &colName, const std::vector<std::string> &values);
+        Result(const std::string &colName, const std::vector<int> &values);
         Result(const std::unordered_map<std::string, std::vector<std::string>> &t,
                std::unordered_set<std::string> &cols);
+        Result() = default;
+
+        bool isEmpty() const;
     };
 }

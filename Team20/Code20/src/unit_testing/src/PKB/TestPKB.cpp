@@ -3,7 +3,7 @@
 #include "catch.hpp"
 #include "PKB/Database.h"
 #include "PKB/PKB.h"
-#include "TestUtils.h"
+#include "../TestUtils.h"
 
 
 TEST_CASE("PKB Test") {

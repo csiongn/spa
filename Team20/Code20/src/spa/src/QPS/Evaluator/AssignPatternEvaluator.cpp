@@ -2,7 +2,7 @@
 
 namespace QueryEvaluator {
 
-    Result evaluate() {
+    Result ClauseEvaluator::evaluate() {
         // TODO
 
         return Result("test", {"test"});
