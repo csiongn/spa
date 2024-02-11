@@ -8,7 +8,7 @@
 #include "QuerySyntaxError.h"
 
 // Start sending query throught tokenizer.tokenize, so that we can reuse tokenizer
-std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(std::string &query) {
+std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::string &query) {
     std::vector<std::shared_ptr<QueryToken>> queryTokens;
     auto iss = std::istringstream(query);
     std::string line;

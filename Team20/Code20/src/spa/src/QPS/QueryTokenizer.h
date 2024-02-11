@@ -8,7 +8,7 @@ protected:
 public:
     explicit QueryTokenizer() = default;
     // Cannot send in query here, need to return the tokenizer
-    std::vector<std::shared_ptr<QueryToken> > tokenize(std::string &query);
+    std::vector<std::shared_ptr<QueryToken> > tokenize(const std::string &query);
 
     std::vector<QueryToken> tokenizeIndividualStr(const std::string &individualStr);
 
