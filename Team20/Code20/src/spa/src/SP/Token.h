@@ -6,9 +6,9 @@
 
 // Fixed TokenTypes, to change this enum, do change tokenMapping
 enum class TokenType {
-    NAME, INTEGER, EQUAL, PLUS, MINUS, TIMES, SLASH, PERCENT, // Equal used for assignment
-    AND, OR, NOT, 
-    LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL, DOUBLE_EQUAL, // Double equal used as comparator
+    NAME, INTEGER, EQUAL, PLUS, MINUS, TIMES, SLASH, PERCENT, EOFILE, // Equal used for assignment
+    AND, OR, NOT,
+    LESS_THAN, LESS_THAN_EQUAL, GREATER_THAN, GREATER_THAN_EQUAL, DOUBLE_EQUAL, NOT_EQUAL, // Double equal used as comparator
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, SEMICOLON,
     KEYWORD_PROCEDURE, KEYWORD_CALL, KEYWORD_PRINT, KEYWORD_READ, KEYWORD_WHILE, KEYWORD_IF, KEYWORD_THEN, KEYWORD_ELSE
 };
@@ -32,6 +32,7 @@ const std::unordered_map<std::string, TokenType> tokenMapping = {
     {">", TokenType::GREATER_THAN},
     {">=", TokenType::GREATER_THAN_EQUAL},
     {"==", TokenType::DOUBLE_EQUAL},
+    {"!=", TokenType::NOT_EQUAL},
     {"(", TokenType::LEFT_PAREN},
     {")", TokenType::RIGHT_PAREN},
     {"{", TokenType::LEFT_BRACE},
@@ -48,10 +49,13 @@ const std::unordered_map<std::string, TokenType> tokenMapping = {
 };
 
 struct Token {
+    // Attributes
     TokenType type;
     std::string value;
     std::int16_t line_num;
 
+    // Constructor
+    Token(TokenType type, std::string text) : type(type), value(std::move(text)) {}
     Token(TokenType type, std::string text, std::int16_t line_num)
         : type(type), value(std::move(text)), line_num(line_num) {}
 
