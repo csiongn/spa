@@ -83,7 +83,7 @@ std::vector<QueryToken> QueryTokenizer::tokenizeIndividualStr(const std::string&
         tokens.emplace_back(QueryToken(TokenType::NAME, individualStr));
         currentStr.clear();
     }
-    // error if issa string which start with number
+        // error if issa string which start with number
     else {
 
         // Follows(1,s) , would be one line
@@ -151,7 +151,6 @@ bool QueryTokenizer::containsSpecialChar(const std::string &str) const {
         return c == '\n' || c == ' ' || c == '_' || c == '*' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')';
     });
 }
-
 
 
 
