@@ -15,8 +15,9 @@ public:
     PQL::Query parse();
 private:
     static SimpleProgram::DesignEntity getEntityType(const std::shared_ptr<QueryToken>& token);
-    static PQL::Synonym createSynonym(std::shared_ptr<QueryToken>& token);
-    static std::tuple<bool, SimpleProgram::DesignEntity> verifyDeclarationExists(const std::string& synonym, const std::vector<PQL::Synonym>& declarations);
+    SimpleProgram::DesignEntity getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations);
+    PQL::Synonym createSynonym(std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations);
+    static std::tuple<bool, SimpleProgram::DesignEntity> verifyDeclarationExists(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations);
     bool isValidRelationship(int start);
     bool isValidRelationshipArguments(int pos1, int pos2, const std::vector<PQL::Synonym>& declarations);
     bool isValidAssignSynonym(std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations);

@@ -19,9 +19,13 @@ PQL::Query QueryParser::parse() {
 }
 
 
-std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::string& synonym, const std::vector<PQL::Synonym>& declarations) {
+std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations) {
+    std::string tokenId = token->getValue();
+    if (token->getType() == TokenType::INTEGER) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT);
+    }
     for (const auto& syn : declarations) {
-        if (syn.identity == synonym) {
+        if (syn.identity == tokenId) {
             return std::make_tuple(true, syn.entityType);
         }
     }
@@ -59,10 +63,10 @@ bool QueryParser::isValidRelationship(int start) {
 }
 
 bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, const std::vector<PQL::Synonym>& declarations) {
-    auto firstArgVerification = verifyDeclarationExists(tokens[pos1]->getValue(), declarations);
+    auto firstArgVerification = verifyDeclarationExists(tokens[pos1], declarations);
     bool isFirstArgValid = std::get<0>(firstArgVerification);
 
-    auto secondArgVerification = verifyDeclarationExists(tokens[pos2]->getValue(), declarations);
+    auto secondArgVerification = verifyDeclarationExists(tokens[pos2], declarations);
     bool isSecondArgValid = std::get<0>(secondArgVerification);
 
     return isFirstArgValid && isSecondArgValid;
@@ -127,8 +131,8 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, declarations);
                 if (areArgumentsValid) {
-                    auto arg1 = createSynonym(tokens[nextPos + 1]);
-                    auto arg2 = createSynonym(tokens[nextPos + 3]);
+                    auto arg1 = createSynonym(tokens[nextPos + 1], declarations);
+                    auto arg2 = createSynonym(tokens[nextPos + 3], declarations);
                     args.push_back(arg1);
                     args.push_back(arg2);
                     pos = nextPos + 5;
@@ -175,8 +179,22 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
     }
 }
 
-PQL::Synonym QueryParser::createSynonym(std::shared_ptr<QueryToken>& token) {
-    auto entityType = getEntityType(token);
+SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations) {
+    if (token->getType() == TokenType::INTEGER) {
+        return SimpleProgram::DesignEntity::STMT;
+    }
+
+    for (const auto& dec : declarations) {
+        std::string currTokenId = token->getValue();
+        if (dec.identity == currTokenId) {
+            return dec.entityType;
+        }
+    }
+    return SimpleProgram::DesignEntity{};
+}
+
+PQL::Synonym QueryParser::createSynonym(std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations) {
+    auto entityType = getEntityTypeFromSynonym(token, declarations);
     std::string id = token->getValue();
     PQL::Synonym synonym = PQL::Synonym(entityType, id);
     return synonym;
@@ -192,14 +210,15 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
             break;
         }
 
-        auto token1 = tokens[counter++];
-        auto token2 = tokens[counter++];
-        auto token3 = tokens[counter++];
+        auto token1 = tokens[counter];
+        auto token2 = tokens[counter+1];
+        auto token3 = tokens[counter+2];
         if (token1->getType() == TokenType::NAME && token2->getType() == TokenType::NAME && token3->getValue() == ";") {
             SimpleProgram::DesignEntity entityType = getEntityType(token1);
             const std::string id = token2->getValue();
             PQL::Synonym declaration = PQL::Synonym(entityType, id);
             declarations.push_back(declaration);
+            counter += 3;
         } else {
             // declarations are of the form 'design_entity_type' 'id' ';'
             // if batch size > 3, no more declarations at this point.
@@ -210,7 +229,6 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
             break;
         }
     }
-
     return declarations;
 }
 
@@ -259,7 +277,7 @@ PQL::Synonym QueryParser::parseSelectClause(const std::vector<PQL::Synonym>& dec
 
     auto selectSynonymToken = tokens[++pos];
     std::string id = selectSynonymToken->getValue();
-    auto results = verifyDeclarationExists(id, declarations);
+    auto results = verifyDeclarationExists(selectSynonymToken, declarations);
     bool isSynonymValid = std::get<0>(results);
     if (!isSynonymValid) {
         throw QuerySemanticError("Synonym used has not been declared");
