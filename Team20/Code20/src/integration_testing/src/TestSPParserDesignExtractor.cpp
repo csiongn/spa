@@ -242,6 +242,16 @@ SCENARIO("Parser correctly parses procedure with lecture example", "[parser]") {
                     REQUIRE(parentT_2.size() == 9); // nine statements are transitive children of statement 2
                     REQUIRE(parentT_6.size() == 4);
                 }
+
+                THEN("The variables should be correctly extracted") {
+                    auto& variables = extractor.getVariables();
+                    REQUIRE(variables.size() == 5);
+                    REQUIRE(variables.count("x"));
+                    REQUIRE(variables.count("y"));
+                    REQUIRE(variables.count("z"));
+                    REQUIRE(variables.count("v"));
+                    REQUIRE(variables.count("t"));
+                }
             }
         }
     }

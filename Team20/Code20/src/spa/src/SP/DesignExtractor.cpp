@@ -16,16 +16,20 @@ void DesignExtractor::pushToPKB() {
         pkbFacade->insertParent(pair.second, pair.first);
     }
 
-    for (const auto& pair : followsT) { // Iterate through the map of all followsT relationships
-        for (const auto& followeeStmtNum : pair.second) { // Iterate through pair.second – the set of statements that the key statement transitively follows
-            pkbFacade->insertFollowsT(followeeStmtNum, pair.first);
+    for (const auto& pair: followsT) { // Iterate through the map of all followsT relationships
+        for (const auto& followerStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive follower of the key statement
+            pkbFacade->insertFollowsT(pair.first, followerStmtNum);
         }
     }
 
-    for (const auto& pair : parentT) { // Iterate through the map of all parentT relationships
-        for (const auto& parentStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive parent of the key statement
-            pkbFacade->insertParentT(parentStmtNum, pair.first);
+    for (const auto& pair: parentT) { // Iterate through the map of all parentT relationships
+        for (const auto& childStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive child of the key statement
+            pkbFacade->insertParentT(pair.first, childStmtNum);
         }
+    }
+
+    for (const auto& var: variables) {
+        pkbFacade->insertVariable(var);
     }
 }
 
@@ -55,6 +59,8 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
 
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
         visitIfNode(*ifNode, stmtNumber);
+    } else if (const auto* assignNode = dynamic_cast<const AssignNode*>(&node)) {
+        visitExprNode(*assignNode->value, stmtNumber);
     }
 }
 
@@ -87,10 +93,37 @@ void DesignExtractor::updateParent(int childStmtNumber, int parentStmtNumber) {
     }
 }
 
+void DesignExtractor::insertVariable(const std::string& var) {
+    variables.insert(var);
+}
+
 void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
     std::vector<int> thenStmtList, elseStmtList;
     visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
     if (node.elseBranch) { // If 'else' branch exists
         visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
     }
+}
+
+void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
+    // Binary nodes
+    if (const auto* binaryExprNode = dynamic_cast<const BinaryExprNode*>(&node)) {
+        // Recursively visit left and right sub-expressions
+        visitExprNode(*binaryExprNode->left, stmtNumber);
+        visitExprNode(*binaryExprNode->right, stmtNumber);
+    }
+    else if (const auto* logicalOpNode = dynamic_cast<const LogicalOpNode*>(&node)) {
+        visitExprNode(*logicalOpNode->left, stmtNumber);
+        visitExprNode(*logicalOpNode->right, stmtNumber);
+    }
+    else if (const auto* relExprNode = dynamic_cast<const RelExprNode*>(&node)) {
+        visitExprNode(*relExprNode->left, stmtNumber);
+        visitExprNode(*relExprNode->right, stmtNumber);
+    }
+
+    // Unary nodes (variable nodes)
+    else if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
+        insertVariable(varNode->name);
+    }
+
 }

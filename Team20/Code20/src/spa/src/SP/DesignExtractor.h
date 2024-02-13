@@ -29,6 +29,10 @@ public:
         return parentT;
     }
 
+    const std::unordered_set<std::string>& getVariables() const {
+        return variables;
+    }
+
 private:
 
     std::shared_ptr<PKBFacade> pkbFacade;
@@ -36,6 +40,7 @@ private:
     std::unordered_map<int, std::unordered_set<int>> followsT;
     std::unordered_map<int, int> parent;
     std::unordered_map<int, std::unordered_set<int>> parentT;
+    std::unordered_set<std::string> variables;
 
     // Methods to traverse the AST
     void visitProgramNode(const ProgramNode& node);
@@ -43,10 +48,12 @@ private:
     void visitBlockNode(const BlockNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitStmtNode(const StmtNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitIfNode(const IfNode& node, int stmtNumber);
+    void visitExprNode(const ExprNode& node, int stmtNumber);
 
     // Utility Methods
     void updateFollows(int stmtNumber, std::vector<int>& stmtList);
     void updateParent(int childStmtNumber, int parentStmtNumber);
+    void insertVariable(const std::string& var);
     void pushToPKB();
 
     int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
