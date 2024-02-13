@@ -1,6 +1,7 @@
 #pragma once
-#include "Token.h"
+
 #include "AST.h"
+#include "Token.h"
 
 class Parser {
 private:
@@ -8,9 +9,9 @@ private:
     // Index of current token to be parsed
     size_t current = 0;
 
-    bool match(const std::vector<TokenType>& types);
-    Token consume(TokenType type, const std::string& message);
-    bool check(TokenType type);
+    bool match(const std::vector<SP::TokenType>& types);
+    Token consume(SP::TokenType type, const std::string& message);
+    bool check(SP::TokenType type);
     Token advance();
     bool isAtEnd();
 

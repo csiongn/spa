@@ -1,3 +1,7 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include "SPA.h"
 #include "TestWrapper.h"
 
@@ -19,9 +23,29 @@ TestWrapper::TestWrapper() {
 
 // method for parsing the SIMPLE source
 void TestWrapper::parse(std::string filename) {
-	// call your parser to do the parsing
+  // call your parser to do the parsing
   // ...rest of your code...
-  spa.parseSimple(filename);
+    std::string fileContents;
+
+    try {
+        // Read the file contents into a string
+        std::ifstream file(filename);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        fileContents = buffer.str();
+    }
+    catch (const std::exception& e) {
+        std::cout << "Exception caught while reading file '" << filename << "': " << e.what() << std::endl;
+        return; // Exit the function if an exception occurs while reading the file
+    }
+
+    try {
+        spa.parseSimple(fileContents);
+    }
+    catch (const std::exception& e) {
+        std::cout << "Exception caught while parsing file '" << filename << "': " << e.what() << std::endl;
+    }
+
 }
 
 // method to evaluating a query

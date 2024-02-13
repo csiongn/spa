@@ -4,13 +4,12 @@
 
 #include "Parser.h"
 #include "AST.h"
-#include "Token.h"
 
 // Utilities
 
 // Checks if current token type in parser is in list of types, and advances if found
-bool Parser::match(const std::vector<TokenType>& types) {
-	for (TokenType type : types) {
+bool Parser::match(const std::vector<SP::TokenType>& types) {
+	for (SP::TokenType type : types) {
 		if (check(type)) {
 			advance();
 			return true;
@@ -19,13 +18,13 @@ bool Parser::match(const std::vector<TokenType>& types) {
 	return false;
 }
 
-Token Parser::consume(TokenType type, const std::string& message) {
+Token Parser::consume(SP::TokenType type, const std::string& message) {
 	if (check(type)) return advance();
 	throwParseError(message);
 }
 
 // Checks if current token type in parser in of type type
-bool Parser::check(TokenType type) {
+bool Parser::check(SP::TokenType type) {
 	if (isAtEnd()) return false;
 	return tokens[current].type == type;
 }
@@ -37,7 +36,7 @@ Token Parser::advance() {
 }
 
 bool Parser::isAtEnd() {
-	return tokens[current].type == TokenType::EOFILE;
+	return tokens[current].type == SP::TokenType::EOFILE;
 }
 
 // Error handler
@@ -60,7 +59,7 @@ std::unique_ptr<ProgramNode> Parser::parse() {
 std::unique_ptr<ExprNode> Parser::expression() {
 	std::unique_ptr<ExprNode> expr = term();
 
-	while (match({TokenType::PLUS, TokenType::MINUS})) {
+	while (match({SP::TokenType::PLUS, SP::TokenType::MINUS})) {
 		std::string op = tokens[current - 1].value;
 		std::unique_ptr<ExprNode> right = term();
 		expr = std::make_unique<BinaryExprNode>(std::move(expr), op, std::move(right));
@@ -72,7 +71,7 @@ std::unique_ptr<ExprNode> Parser::expression() {
 std::unique_ptr<ExprNode> Parser::term() {
 	std::unique_ptr<ExprNode> expr = factor();
 
-	while (match({TokenType::TIMES, TokenType::SLASH, TokenType::PERCENT})) {
+	while (match({SP::TokenType::TIMES, SP::TokenType::SLASH, SP::TokenType::PERCENT})) {
 		std::string op = tokens[current - 1].value;
 		std::unique_ptr<ExprNode> right = factor();
 		expr = std::make_unique<BinaryExprNode>(std::move(expr), op, std::move(right));
@@ -82,15 +81,15 @@ std::unique_ptr<ExprNode> Parser::term() {
 }
 
 std::unique_ptr<ExprNode> Parser::factor() {
-	if (match({TokenType::LEFT_PAREN})) {
+	if (match({SP::TokenType::LEFT_PAREN})) {
 		std::unique_ptr<ExprNode> expr = expression();
-		consume(TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 		return expr;
-	} else if (match({TokenType::INTEGER, TokenType::NAME})) {
+	} else if (match({SP::TokenType::INTEGER, SP::TokenType::NAME})) {
 		// Assuming the last matched token is the one we're interested in
 		// For NAME, it could represent a variable access; for INTEGER, a literal value
 		std::string value = tokens[current - 1].value;
-		if (tokens[current - 1].type == TokenType::INTEGER) {
+		if (tokens[current - 1].type == SP::TokenType::INTEGER) {
 			return std::make_unique<LiteralNode>(value);
 		} else {
 			return std::make_unique<VariableNode>(value);
@@ -100,24 +99,24 @@ std::unique_ptr<ExprNode> Parser::factor() {
 }
 
 std::unique_ptr<ExprNode> Parser::condExpr() {
-	if (check({TokenType::NOT})) {
+	if (check({SP::TokenType::NOT})) {
 		return negExpr();
 	}
 
 	std::unique_ptr<ExprNode> expr;
 
-	if (match({TokenType::LEFT_PAREN})) {
+	if (match({SP::TokenType::LEFT_PAREN})) {
 		expr = condExpr();
-		consume(TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 
-		while (match({TokenType::AND, TokenType::OR})) {
-			if (check({TokenType::NOT})) {
+		while (match({SP::TokenType::AND, SP::TokenType::OR})) {
+			if (check({SP::TokenType::NOT})) {
 				return negExpr();
 			}
 			std::string op = tokens[current - 1].value;
-			consume(TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
+			consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
 			std::unique_ptr<ExprNode> left = condExpr();
-			consume(TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+			consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 			expr = std::make_unique<LogicalOpNode>(std::move(left), op, std::move(expr));
 		}
 	} else {
@@ -127,10 +126,10 @@ std::unique_ptr<ExprNode> Parser::condExpr() {
 }
 
 std::unique_ptr<ExprNode> Parser::negExpr() {
-	if (match({TokenType::NOT})) {
-		consume(TokenType::LEFT_PAREN, "Expected '(' after '!'.");
+	if (match({SP::TokenType::NOT})) {
+		consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '!'.");
 		std::unique_ptr<ExprNode> expr = condExpr();
-		consume(TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 		return std::make_unique<NegationNode>(std::move(expr));
 	}
 }
@@ -138,7 +137,7 @@ std::unique_ptr<ExprNode> Parser::negExpr() {
 std::unique_ptr<ExprNode> Parser::relExpr() {
 	std::unique_ptr<ExprNode> left = expression();
 
-	if (match({TokenType::GREATER_THAN, TokenType::GREATER_THAN_EQUAL, TokenType::LESS_THAN, TokenType::LESS_THAN_EQUAL, TokenType::DOUBLE_EQUAL, TokenType::NOT_EQUAL})) {
+	if (match({SP::TokenType::GREATER_THAN, SP::TokenType::GREATER_THAN_EQUAL, SP::TokenType::LESS_THAN, SP::TokenType::LESS_THAN_EQUAL, SP::TokenType::DOUBLE_EQUAL, SP::TokenType::NOT_EQUAL})) {
 		std::string relational_op = tokens[current - 1].value;
 
 		std::unique_ptr<ExprNode> right = expression();
@@ -157,7 +156,7 @@ std::unique_ptr<ExprNode> Parser::relExpr() {
 std::unique_ptr<ProgramNode> Parser::parseProgram() {
 	std::vector<std::unique_ptr<ProcedureNode>> procedures;
 	while (!isAtEnd()) {
-		if (match({TokenType::KEYWORD_PROCEDURE})) {
+		if (match({SP::TokenType::KEYWORD_PROCEDURE})) {
 			procedures.push_back(parseProcedure());
 		} else {
 			throwParseError("Expected keyword procedure when parsing program");
@@ -167,7 +166,7 @@ std::unique_ptr<ProgramNode> Parser::parseProgram() {
 }
 
 std::unique_ptr<ProcedureNode> Parser::parseProcedure() {
-	Token name = consume(TokenType::NAME, "Expect procedure name.");
+	Token name = consume(SP::TokenType::NAME, "Expect procedure name.");
 	std::unique_ptr<BlockNode> body = parseBlock();
 	// No need for RIGHT_BRACE as parseBlock consumes it
 
@@ -175,59 +174,59 @@ std::unique_ptr<ProcedureNode> Parser::parseProcedure() {
 }
 
 std::unique_ptr<StmtNode> Parser::parseStatement() {
-	if (match({TokenType::KEYWORD_PRINT})) return parsePrint();
-	if (match({TokenType::KEYWORD_READ})) return parseRead();
-	if (check(TokenType::NAME) && tokens[current + 1].type == TokenType::EQUAL) return parseAssign();
+	if (match({SP::TokenType::KEYWORD_PRINT})) return parsePrint();
+	if (match({SP::TokenType::KEYWORD_READ})) return parseRead();
+	if (check(SP::TokenType::NAME) && tokens[current + 1].type == SP::TokenType::EQUAL) return parseAssign();
 	// parseAssign does not use match (which automatically consumes the checked token and advances) as
 	// the assigned variable is important
-	if (match({TokenType::KEYWORD_IF})) return parseIf();
+	if (match({SP::TokenType::KEYWORD_IF})) return parseIf();
 	throwParseError("Expected statement keyword or identifier");
 }
 
 std::unique_ptr<ReadNode> Parser::parseRead() {
-	Token name = consume(TokenType::NAME, "Expect variable name after 'read'.");
-	consume(TokenType::SEMICOLON, "Expect ';' after variable name.");
+	Token name = consume(SP::TokenType::NAME, "Expect variable name after 'read'.");
+	consume(SP::TokenType::SEMICOLON, "Expect ';' after variable name.");
 	return std::make_unique<ReadNode>(name.value);
 }
 
 std::unique_ptr<PrintNode> Parser::parsePrint() {
-	Token name = consume(TokenType::NAME, "Expect variable name after 'print'.");
-	consume(TokenType::SEMICOLON, "Expect ';' after variable name.");
+	Token name = consume(SP::TokenType::NAME, "Expect variable name after 'print'.");
+	consume(SP::TokenType::SEMICOLON, "Expect ';' after variable name.");
 	return std::make_unique<PrintNode>(name.value);
 }
 
 std::unique_ptr<AssignNode> Parser::parseAssign() {
-	Token varName = consume(TokenType::NAME, "Expect variable name.");
-	consume(TokenType::EQUAL, "Expect '=' after variable name.");
+	Token varName = consume(SP::TokenType::NAME, "Expect variable name.");
+	consume(SP::TokenType::EQUAL, "Expect '=' after variable name.");
 	std::unique_ptr<ExprNode> value = expression();
-	consume(TokenType::SEMICOLON, "Expect ';' after expression.");
+	consume(SP::TokenType::SEMICOLON, "Expect ';' after expression.");
 
 	return std::make_unique<AssignNode>(varName.value, std::move(value));
 }
 
 // Helper method for parsing a block of statements enclosed in braces
 std::unique_ptr<BlockNode> Parser::parseBlock() {
-	consume(TokenType::LEFT_BRACE, "Expect '{' before block.");
+	consume(SP::TokenType::LEFT_BRACE, "Expect '{' before block.");
 	std::vector<std::unique_ptr<StmtNode>> statements;
 
-	while (!check(TokenType::RIGHT_BRACE) && !isAtEnd()) {
+	while (!check(SP::TokenType::RIGHT_BRACE) && !isAtEnd()) {
 		statements.push_back(parseStatement());
 	}
 
-	consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+	consume(SP::TokenType::RIGHT_BRACE, "Expect '}' after block.");
 	return std::make_unique<BlockNode>(std::move(statements));
 }
 
 std::unique_ptr<IfNode> Parser::parseIf() {
-	consume(TokenType::LEFT_PAREN, "Expect '(' after 'if' while parsing if block.");
+	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' while parsing if block.");
 	std::unique_ptr<ExprNode> condition = condExpr();
-	consume(TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if block.");
+	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if block.");
 
-	consume(TokenType::KEYWORD_THEN, "Expect 'then' after condition while parsing if block.");
+	consume(SP::TokenType::KEYWORD_THEN, "Expect 'then' after condition while parsing if block.");
 	std::unique_ptr<BlockNode> thenBranch = parseBlock();
 
 	std::unique_ptr<BlockNode> elseBranch = nullptr;
-	if (match({TokenType::KEYWORD_ELSE})) {
+	if (match({SP::TokenType::KEYWORD_ELSE})) {
 		elseBranch = parseBlock();
 	}
 

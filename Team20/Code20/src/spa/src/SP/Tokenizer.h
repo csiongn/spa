@@ -1,5 +1,4 @@
-#ifndef TOKENIZER_H
-#define TOKENIZER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -24,5 +23,3 @@ class Tokenizer {
         const std::string& input_;
         std::vector<Token> tokens_;
 };
-
-#endif  // TOKENIZER_H

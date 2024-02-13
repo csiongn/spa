@@ -23,7 +23,7 @@ void Tokenizer::tokenizeProgram() {
         while (lineStream >> word) {
             std::vector<std::string> wordTokens = tokenizeWord(word);
             for (const auto& token : wordTokens) {
-                TokenType t_type = Token::getTokenType(token);
+                SP::TokenType t_type = Token::TokenType(token);
                 Token t(t_type, token, lineNum);
                 tokens_.push_back(t);
             }
@@ -31,6 +31,10 @@ void Tokenizer::tokenizeProgram() {
 
         lineNum++;
     }
+
+    // TODO: Remove hardcoded EOF
+    Token t(SP::TokenType::EOFILE, "", lineNum);
+    tokens_.push_back(t);
 }
 
 /*
@@ -77,7 +81,7 @@ std::vector<std::string> Tokenizer::tokenizeWord(const std::string& word) {
 }
 
 /*
-* Checks if character is a delimiter(special token) defined in Token::TokenType
+* Checks if character is a delimiter(special token) defined in Token::SP::TokenType
 * Delimiter is defined as non-alphanumeric characters
 */ 
 bool Tokenizer::isSpecialToken(char c) {
@@ -87,7 +91,7 @@ bool Tokenizer::isSpecialToken(char c) {
 
 /// <summary>
 /// Returns tokens stored in tokenizer. Each token has the fields:
-/// TokenType type, string value, int16_t line)
+/// SP::TokenType type, string value, int16_t line)
 /// </summary>
 /// <returns>list of tokens stored</returns>
 const std::vector<Token>& Tokenizer::getTokens(){

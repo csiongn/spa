@@ -9,22 +9,22 @@ void DesignExtractor::extractDesign(const ProgramNode& astRoot) {
 
 void DesignExtractor::pushToPKB() {
     for (const auto& pair: follows) {
-        pkbFacade->insertFollows(pair.first, pair.second);
+        pkbFacade->insertFollows(pair.second, pair.first);
     }
 
     for (const auto& pair: parent) {
-        pkbFacade->insertFollows(pair.first, pair.second);
+        pkbFacade->insertParent(pair.second, pair.first);
     }
 
-    for (const auto& pair: followsT) { // Iterate through the map of all followsT relationship
-        for (const auto& followerStmtNum : pair.second) { // Iterate through pair.second – the set of statements that transitively follows the key statement
-            pkbFacade->insertFollowsT(pair.first, followerStmtNum);
+    for (const auto& pair : followsT) { // Iterate through the map of all followsT relationships
+        for (const auto& followeeStmtNum : pair.second) { // Iterate through pair.second – the set of statements that the key statement transitively follows
+            pkbFacade->insertFollowsT(followeeStmtNum, pair.first);
         }
     }
 
-    for (const auto& pair: parentT) { // Iterate through the map of all parentT relationship
-        for (const auto& childStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive child of the key statement
-            pkbFacade->insertParentT(pair.first, childStmtNum);
+    for (const auto& pair : parentT) { // Iterate through the map of all parentT relationships
+        for (const auto& parentStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive parent of the key statement
+            pkbFacade->insertParentT(parentStmtNum, pair.first);
         }
     }
 }

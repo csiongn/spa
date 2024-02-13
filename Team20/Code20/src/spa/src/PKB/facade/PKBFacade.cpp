@@ -1,6 +1,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "PKBFacade.h"
 #include "PKB/Database.h"
