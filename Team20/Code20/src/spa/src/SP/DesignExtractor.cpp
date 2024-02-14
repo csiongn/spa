@@ -60,6 +60,7 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
         visitIfNode(*ifNode, stmtNumber);
     } else if (const auto* assignNode = dynamic_cast<const AssignNode*>(&node)) {
+        insertVariable(assignNode->varName);
         visitExprNode(*assignNode->value, stmtNumber);
     }
 }
