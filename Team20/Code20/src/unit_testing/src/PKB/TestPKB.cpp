@@ -74,6 +74,7 @@ TEST_CASE("PKB Test") {
         // Check if a value exists
         bool containsValue = followsManager.containsReverse(4);
         REQUIRE(containsValue == true);
+
     }
 
     SECTION("FollowsManager from Database") {
@@ -115,10 +116,20 @@ TEST_CASE("PKB Test") {
         pkbWriter->insertFollows(1, 2);
         pkbWriter->insertFollows(2, 3);
 
+        // insertFollows with set
+        std::unordered_set<int> followerSet = {4, 5, 6};
+        pkbWriter->insertFollows(3, followerSet);
+
         // getFollows
         std::vector<int> values = pkb->pkbFacade->getFollows(1);
         std::vector<int> expectedValues = {2};
         REQUIRE(checkVecValuesEqual(values, expectedValues));
+
+        // getFollows after insertion of set
+        std::vector<int> valuesSet = pkb->pkbFacade->getFollows(3);
+        std::vector<int> expectedValuesSet = {4, 5, 6};
+        REQUIRE(checkVecValuesEqual(valuesSet, expectedValuesSet));
+
     }
 
         // interact with only IPKBReader
@@ -339,7 +350,6 @@ TEST_CASE("PKB Test") {
         REQUIRE(procedureManager->contains("hello") == false);
     }
 
-
     SECTION("Test PKB - PKBFacade - insertAssign - getAllAssignStmtNum - AssignManager") {
         std::cout << "Section: PKBFacade - AssignManager" << std::endl;
         // Create an instance of PKB
@@ -349,10 +359,14 @@ TEST_CASE("PKB Test") {
         // insertAssign
         pkbFacade->insertAssign(1);
         pkbFacade->insertAssign(2);
+
+        // insertAssign with set
+        std::unordered_set<int> assignSet = {3, 4, 5};
+        pkbFacade->insertAssign(assignSet);
         // Query: Select a
         // getAllAssignStmtNum
         std::vector<int> values = pkbFacade->getAllAssignStmtNum();
-        std::vector<int> expectedValues = {1, 2};
+        std::vector<int> expectedValues = {1, 2, 3, 4, 5};
         REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
