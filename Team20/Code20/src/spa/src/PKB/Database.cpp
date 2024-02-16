@@ -55,3 +55,11 @@ std::shared_ptr<ParentManager> Database::getParentManager() {
 std::shared_ptr<ParentTManager> Database::getParentTManager() {
     return parentTManager;
 }
+
+std::shared_ptr<UsesStmtManager> Database::getUsesStmtManager() {
+    return usesStmtManager;
+}
+
+std::shared_ptr<ModifiesStmtManager> Database::getModifiesStmtManager() {
+    return modifiesStmtManager;
+}

@@ -104,4 +104,21 @@ public:
     std::vector<int> getParentT(int childStmtNum) override;
     bool containsParentT(int parentStmtNum) override;
     bool containsChildT(int childStmtNum) override;
+
+    // Uses Writer - Reader
+    void insertUsesStmt(int stmtNum, std::string const & variable) override;
+    void insertUsesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
+    std::vector<std::string> getUsesVariable(int stmtNum) override;
+    std::vector<int> getUsesStmt(std::string const & variable) override;
+    bool containsUsesStmt(int stmtNum) override;
+    bool containsUsesVariable(std::string const & variable) override;
+
+    // Modifies Writer - Reader
+    void insertModifiesStmt(int stmtNum, std::string const & variable) override;
+    void insertModifiesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
+    std::vector<std::string> getModifiesVariable(int stmtNum) override;
+    std::vector<int> getModifiesStmt(std::string const & variable) override;
+    bool containsModifiesStmt(int stmtNum) override;
+    bool containsModifiesVariable(std::string const & variable) override;
+
 };

@@ -18,6 +18,8 @@
 #include "PKB/manager/entity/ConstantManager.h"
 #include "PKB/manager/entity/ProcedureManager.h"
 #include "PKB/manager/entity/StatementManager.h"
+#include "PKB/manager/relationship/UsesStmtManager.h"
+#include "PKB/manager/relationship/ModifiesStmtManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -48,6 +50,10 @@ private:
 
     std::shared_ptr<ParentTManager> parentTManager = std::make_shared<ParentTManager>();
 
+    std::shared_ptr<UsesStmtManager> usesStmtManager = std::make_shared<UsesStmtManager>();
+
+    std::shared_ptr<ModifiesStmtManager> modifiesStmtManager = std::make_shared<ModifiesStmtManager>();
+
 
 public:
 
@@ -67,5 +73,7 @@ public:
     std::shared_ptr<FollowsTManager> getFollowsTManager();
     std::shared_ptr<ParentManager> getParentManager();
     std::shared_ptr<ParentTManager> getParentTManager();
+    std::shared_ptr<UsesStmtManager> getUsesStmtManager();
+    std::shared_ptr<ModifiesStmtManager> getModifiesStmtManager();
 
 };

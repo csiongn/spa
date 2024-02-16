@@ -76,4 +76,12 @@ public:
     // Support set operations
     virtual void insertParentT(int parentStmtNum, const std::unordered_set<int>& childStmtSet) = 0;
 
+    // Uses
+    virtual void insertUsesStmt(int stmtNum, std::string const & variable) = 0;
+    virtual void insertUsesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) = 0;
+
+    // Modifies
+    virtual void insertModifiesStmt(int stmtNum, std::string const & variable) = 0;
+    virtual void insertModifiesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) = 0;
+
 };

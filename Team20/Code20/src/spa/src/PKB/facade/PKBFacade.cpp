@@ -310,3 +310,57 @@ std::vector<int> PKBFacade::getChildT(int parentStmtNum) {
 std::vector<int> PKBFacade::getParentT(int childStmtNum) {
     return db->getParentTManager()->getReverse(childStmtNum);
 }
+
+// Uses
+void PKBFacade::insertUsesStmt(int stmtNum, std::string const & variable) {
+    db->getUsesStmtManager()->insert(stmtNum, variable);
+}
+
+void PKBFacade::insertUsesStmt(int stmtNum, const std::unordered_set<std::string>& variableSet) {
+    for (const auto &variable: variableSet) {
+        insertUsesStmt(stmtNum, variable);
+    }
+}
+
+std::vector<std::string> PKBFacade::getUsesVariable(int stmtNum) {
+    return db->getUsesStmtManager()->get(stmtNum);
+}
+
+std::vector<int> PKBFacade::getUsesStmt(std::string const & variable) {
+    return db->getUsesStmtManager()->getReverse(variable);
+}
+
+bool PKBFacade::containsUsesStmt(int stmtNum) {
+    return db->getUsesStmtManager()->contains(stmtNum);
+}
+
+bool PKBFacade::containsUsesVariable(std::string const & variable) {
+    return db->getUsesStmtManager()->containsReverse(variable);
+}
+
+// Modifies
+void PKBFacade::insertModifiesStmt(int stmtNum, const std::string &variable) {
+    db->getModifiesStmtManager()->insert(stmtNum, variable);
+}
+
+void PKBFacade::insertModifiesStmt(int stmtNum, const std::unordered_set<std::string>& variableSet) {
+    for (const auto &variable: variableSet) {
+        insertModifiesStmt(stmtNum, variable);
+    }
+}
+
+std::vector<std::string> PKBFacade::getModifiesVariable(int stmtNum) {
+    return db->getModifiesStmtManager()->get(stmtNum);
+}
+
+std::vector<int> PKBFacade::getModifiesStmt(std::string const & variable) {
+    return db->getModifiesStmtManager()->getReverse(variable);
+}
+
+bool PKBFacade::containsModifiesStmt(int stmtNum) {
+    return db->getModifiesStmtManager()->contains(stmtNum);
+}
+
+bool PKBFacade::containsModifiesVariable(std::string const & variable) {
+    return db->getModifiesStmtManager()->containsReverse(variable);
+}

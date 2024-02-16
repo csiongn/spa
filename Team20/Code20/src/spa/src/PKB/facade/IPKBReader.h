@@ -74,4 +74,16 @@ public:
     virtual std::vector<int> getParentT(int childStmtNum) = 0;
     virtual bool containsParentT(int parentStmtNum) = 0;
     virtual bool containsChildT(int childStmtNum) = 0;
+
+    // Uses
+    virtual std::vector<std::string> getUsesVariable(int stmtNum) = 0;
+    virtual std::vector<int> getUsesStmt(std::string const & variable) = 0;
+    virtual bool containsUsesStmt(int stmtNum) = 0;
+    virtual bool containsUsesVariable(std::string const & variable) = 0;
+
+    // Modifies
+    virtual std::vector<std::string> getModifiesVariable(int stmtNum) = 0;
+    virtual std::vector<int> getModifiesStmt(std::string const & variable) = 0;
+    virtual bool containsModifiesStmt(int stmtNum) = 0;
+    virtual bool containsModifiesVariable(std::string const & variable) = 0;
 };

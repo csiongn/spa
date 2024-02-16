@@ -370,6 +370,63 @@ TEST_CASE("PKB Test") {
         REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
+    SECTION("UsesStmt") {
+        std::cout << "Section: PKBFacade - UsesStmtManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // insertUses
+        pkbFacade->insertUsesStmt(1, "x");
+        pkbFacade->insertUsesStmt(2, "y");
+        pkbFacade->insertUsesStmt(3, "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertUsesStmt(1, variableSet);
+
+        // Query: Select v such that Uses(1, v)
+        // getUses
+        std::vector<std::string> variables = pkbFacade->getUsesVariable(1);
+        std::vector<std::string> expectedValues = {"x", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsUsesStmt
+        bool containsUsesStmt = pkbFacade->containsUsesStmt(1);
+        REQUIRE(containsUsesStmt == true);
+
+        // containsUsesVariable
+        bool containsUsesVariable = pkbFacade->containsUsesVariable("z");
+        REQUIRE(containsUsesVariable == true);
+    }
+
+    SECTION("ModifiesStmt") {
+        std::cout << "Section: PKBFacade - ModifiesStmtManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // insertModifies
+        pkbFacade->insertModifiesStmt(1, "x");
+        pkbFacade->insertModifiesStmt(2, "y");
+        pkbFacade->insertModifiesStmt(3, "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertModifiesStmt(4, variableSet);
+
+        // Query: Select v such that Modifies(1, v)
+        // getModifies
+        std::vector<std::string> variables = pkbFacade->getModifiesVariable(4);
+        std::vector<std::string> expectedValues = {"a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsModifiesStmt
+        bool containsModifiesStmt = pkbFacade->containsModifiesStmt(1);
+        REQUIRE(containsModifiesStmt == true);
+
+        // containsModifiesVariable
+        bool containsModifiesVariable = pkbFacade->containsModifiesVariable("a");
+        REQUIRE(containsModifiesVariable == true);
+    }
 }
 
 
