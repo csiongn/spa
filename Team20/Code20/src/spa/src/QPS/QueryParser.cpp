@@ -46,6 +46,7 @@ bool QueryParser::isEntRef(std::shared_ptr<QueryToken>& token) {
 
 bool QueryParser::isExpSpec(std::shared_ptr<QueryToken>& token) {
     // TODO: Implement isExpSpec
+    return false;
 }
 
 bool QueryParser::isValidRelationship(int start) {
