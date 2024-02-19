@@ -15,6 +15,9 @@ TEST_CASE("PKB Test") {
         // Create an instance of RelationshipManager
         auto sampleRelationshipManager = RelationshipManager<int, std::string>();
 
+        // hasRelationship
+        bool hasRelationship = sampleRelationshipManager.hasRelationship();
+        REQUIRE(hasRelationship == false);
         // Insert some key-value pairs
         sampleRelationshipManager.insert(1, "apple");
         sampleRelationshipManager.insert(2, "banana");
@@ -52,6 +55,10 @@ TEST_CASE("PKB Test") {
         std::cout << "Section: FollowsManager" << std::endl;
         // Create an instance of FollowsManager
         auto followsManager = FollowsManager();
+
+        // hasRelationship
+        bool hasRelationship = followsManager.hasRelationship();
+        REQUIRE(hasRelationship == false);
 
         // Insert some key-value pairs
         followsManager.insert(1, 2);
@@ -111,6 +118,9 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         std::shared_ptr<IPKBWriter> pkbWriter = pkb->pkbFacade;
+        // hasFollowsRelationship
+        bool hasFollowsRelationship = pkb->pkbFacade->hasFollowsRelationship();
+        REQUIRE(hasFollowsRelationship == false);
 
         // insertFollows
         pkbWriter->insertFollows(1, 2);
@@ -137,12 +147,16 @@ TEST_CASE("PKB Test") {
         std::cout << "Section: QPS - IPKBReader - FollowsManager" << std::endl;
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
+
         // Populate Follows Table for IPKBReader
         pkb->pkbFacade->insertFollows(1, 2);
         pkb->pkbFacade->insertFollows(2, 3);
 
         // QPS will receive a shared pointer to the PKB facade and initialize it to IPKBReader
         std::shared_ptr<IPKBReader> pkbReader = pkb->pkbFacade;
+        // hasFollowsRelationship
+        bool hasFollowsRelationship = pkbReader->hasFollowsRelationship();
+        REQUIRE(hasFollowsRelationship == true);
 
         // Get values associated with a key
         std::vector<int> values = pkbReader->getFollows(1);
@@ -175,6 +189,10 @@ TEST_CASE("PKB Test") {
         // containsFollowing
         bool containsFollowing = pkbFacade->containsFollowing(2);
         REQUIRE(containsFollowing == true);
+
+        // containsFollowsRelationship
+        bool containsFollowsRelationship = pkbFacade->containsFollowsRelationship(1, 2);
+        REQUIRE(containsFollowsRelationship == true);
     }
 
     SECTION("PKB - PKBFacade - insertFollowsT - getFollowsT - getFollowingT - containsFollowT - containsFollowingT - FollowsTManager") {
@@ -182,6 +200,10 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
+
+        // hasFollowsTRelationship
+        bool hasFollowsTRelationship = pkbFacade->hasFollowsTRelationship();
+        REQUIRE(hasFollowsTRelationship == false);
 
         // Will be similar to SP inserting FollowsT relationship
         for (int i = 2; i < 10; i++) {
@@ -220,6 +242,10 @@ TEST_CASE("PKB Test") {
         // containsFollowingT
         bool containsFollowingT = pkbFacade->containsFollowingT(10);
         REQUIRE(containsFollowingT == false);
+
+        // containsFollowsTRelationship
+        bool containsFollowsTRelationship = pkbFacade->containsFollowsTRelationship(1, 2);
+        REQUIRE(containsFollowsTRelationship == true);
     }
 
     SECTION("PKB - PKBFacade - insertParent - getChild - getParent- containsParent - containsChild - ParentManager") {
@@ -227,7 +253,9 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
-
+        // hasParentRelationship
+        bool hasParentRelationship = pkbFacade->hasParentRelationship();
+        REQUIRE(hasParentRelationship == false);
         // insertParent
         pkbFacade->insertParent(1, 2);
 
@@ -265,6 +293,10 @@ TEST_CASE("PKB Test") {
         // containsChild
         bool containsChild = pkbFacade->containsChild(3);
         REQUIRE(containsChild == true);
+
+        // containsParentRelationship
+        bool containsParentRelationship = pkbFacade->containsParentRelationship(1, 2);
+        REQUIRE(containsParentRelationship == true);
     }
 
     SECTION("Test PKB - PKBFacade - insertVariable - getAllVariables - containsVariable - VariableManager") {
@@ -376,6 +408,9 @@ TEST_CASE("PKB Test") {
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
 
+        // hasUsesRelationship
+        bool hasUsesRelationship = pkbFacade->hasUsesRelationship();
+        REQUIRE(hasUsesRelationship == false);
         // insertUses
         pkbFacade->insertUsesStmt(1, "x");
         pkbFacade->insertUsesStmt(2, "y");
@@ -397,6 +432,10 @@ TEST_CASE("PKB Test") {
         // containsUsesVariable
         bool containsUsesVariable = pkbFacade->containsUsesVariable("z");
         REQUIRE(containsUsesVariable == true);
+
+        // containsUsesRelationship
+        bool containsUsesRelationship = pkbFacade->containsUsesRelationship(1, "a");
+        REQUIRE(containsUsesRelationship == true);
     }
 
     SECTION("ModifiesStmt") {
@@ -404,6 +443,10 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
+
+        // hasModifiesRelationship
+        bool hasModifiesRelationship = pkbFacade->hasModifiesRelationship();
+        REQUIRE(hasModifiesRelationship == false);
 
         // insertModifies
         pkbFacade->insertModifiesStmt(1, "x");
@@ -426,6 +469,10 @@ TEST_CASE("PKB Test") {
         // containsModifiesVariable
         bool containsModifiesVariable = pkbFacade->containsModifiesVariable("a");
         REQUIRE(containsModifiesVariable == true);
+
+        // containsModifiesRelationship
+        bool containsModifiesRelationship = pkbFacade->containsModifiesRelationship(4, "a");
+        REQUIRE(containsModifiesRelationship == true);
     }
 }
 

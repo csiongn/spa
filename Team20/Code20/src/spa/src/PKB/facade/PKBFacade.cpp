@@ -218,6 +218,14 @@ bool PKBFacade::containsFollowing(int followerStmtNum) {
     return db->getFollowsManager()->containsReverse(followerStmtNum);
 }
 
+bool PKBFacade::containsFollowsRelationship(int followeeStmtNum, int followerStmtNum) {
+    return db->getFollowsManager()->containsValueInKeySet(followeeStmtNum, followerStmtNum);
+}
+
+bool PKBFacade::hasFollowsRelationship() {
+    return db->getFollowsManager()->hasRelationship();
+}
+
 std::vector<int> PKBFacade::getFollows(int followeeStmtNum) {
     return db->getFollowsManager()->get(followeeStmtNum);
 }
@@ -243,6 +251,14 @@ bool PKBFacade::containsFollowsT(int followeeStmtNum) {
 
 bool PKBFacade::containsFollowingT(int followerStmtNum) {
     return db->getFollowsTManager()->containsReverse(followerStmtNum);
+}
+
+bool PKBFacade::containsFollowsTRelationship(int followeeStmtNum, int followerStmtNum) {
+    return db->getFollowsTManager()->containsValueInKeySet(followeeStmtNum, followerStmtNum);
+}
+
+bool PKBFacade::hasFollowsTRelationship() {
+    return db->getFollowsTManager()->hasRelationship();
 }
 
 std::vector<int> PKBFacade::getFollowsT(int followeeStmtNum) {
@@ -272,6 +288,14 @@ bool PKBFacade::containsChild(int childStmtNum) {
     return db->getParentManager()->containsReverse(childStmtNum);
 }
 
+bool PKBFacade::containsParentRelationship(int parentStmtNum, int childStmtNum) {
+    return db->getParentManager()->containsValueInKeySet(parentStmtNum, childStmtNum);
+}
+
+bool PKBFacade::hasParentRelationship() {
+    return db->getParentManager()->hasRelationship();
+}
+
 // Parent: set(child) : data
 std::vector<int> PKBFacade::getChild(int parentStmtNum) {
     return db->getParentManager()->get(parentStmtNum);
@@ -299,6 +323,14 @@ bool PKBFacade::containsParentT(int parentStmtNum) {
 
 bool PKBFacade::containsChildT(int childStmtNum) {
     return db->getParentTManager()->containsReverse(childStmtNum);
+}
+
+bool PKBFacade::containsParentTRelationship(int parentStmtNum, int childStmtNum) {
+    return db->getParentTManager()->containsValueInKeySet(parentStmtNum, childStmtNum);
+}
+
+bool PKBFacade::hasParentTRelationship() {
+    return db->getParentTManager()->hasRelationship();
 }
 
 // Parent: set(child) : data
@@ -338,6 +370,14 @@ bool PKBFacade::containsUsesVariable(std::string const & variable) {
     return db->getUsesStmtManager()->containsReverse(variable);
 }
 
+bool PKBFacade::containsUsesRelationship(int stmtNum, const std::string &variable) {
+    return db->getUsesStmtManager()->containsValueInKeySet(stmtNum, variable);
+}
+
+bool PKBFacade::hasUsesRelationship() {
+    return db->getUsesStmtManager()->hasRelationship();
+}
+
 // Modifies
 void PKBFacade::insertModifiesStmt(int stmtNum, const std::string &variable) {
     db->getModifiesStmtManager()->insert(stmtNum, variable);
@@ -363,4 +403,12 @@ bool PKBFacade::containsModifiesStmt(int stmtNum) {
 
 bool PKBFacade::containsModifiesVariable(std::string const & variable) {
     return db->getModifiesStmtManager()->containsReverse(variable);
+}
+
+bool PKBFacade::containsModifiesRelationship(int stmtNum, std::string const & variable) {
+    return db->getModifiesStmtManager()->containsValueInKeySet(stmtNum, variable);
+}
+
+bool PKBFacade::hasModifiesRelationship() {
+    return db->getModifiesStmtManager()->hasRelationship();
 }

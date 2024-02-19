@@ -66,5 +66,9 @@ class RelationshipManager {
             return false; // key does not exist
         }
 
+        bool hasRelationship() {
+            return !data.empty();
+        }
+
 
 };

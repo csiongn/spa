@@ -56,34 +56,46 @@ public:
     virtual std::vector<int> getFollowing(int followerStmtNum) = 0;
     virtual bool containsFollows(int followeeStmtNum) = 0;
     virtual bool containsFollowing(int followerStmtNum) = 0;
+    virtual bool containsFollowsRelationship(int followeeStmtNum, int followerStmtNum) = 0;
+    virtual bool hasFollowsRelationship() = 0;
 
     // FollowsT
     virtual std::vector<int> getFollowsT(int followeeStmtNum) = 0;
     virtual std::vector<int> getFollowingT(int followerStmtNum) = 0;
     virtual bool containsFollowsT(int followeeStmtNum) = 0;
     virtual bool containsFollowingT(int followerStmtNum) = 0;
+    virtual bool containsFollowsTRelationship(int followeeStmtNum, int followerStmtNum) = 0;
+    virtual bool hasFollowsTRelationship() = 0;
 
     // Parent
     virtual std::vector<int> getChild(int parentStmtNum) = 0;
     virtual std::vector<int> getParent(int childStmtNum) = 0;
     virtual bool containsParent(int parentStmtNum) = 0;
     virtual bool containsChild(int childStmtNum) = 0;
+    virtual bool containsParentRelationship(int parentStmtNum, int childStmtNum) = 0;
+    virtual bool hasParentRelationship() = 0;
 
     // ParentT
     virtual std::vector<int> getChildT(int parentStmtNum) = 0;
     virtual std::vector<int> getParentT(int childStmtNum) = 0;
     virtual bool containsParentT(int parentStmtNum) = 0;
     virtual bool containsChildT(int childStmtNum) = 0;
+    virtual bool containsParentTRelationship(int parentStmtNum, int childStmtNum) = 0;
+    virtual bool hasParentTRelationship() = 0;
 
     // Uses
     virtual std::vector<std::string> getUsesVariable(int stmtNum) = 0;
     virtual std::vector<int> getUsesStmt(std::string const & variable) = 0;
     virtual bool containsUsesStmt(int stmtNum) = 0;
     virtual bool containsUsesVariable(std::string const & variable) = 0;
+    virtual bool containsUsesRelationship(int stmtNum, std::string const & variable) = 0;
+    virtual bool hasUsesRelationship() = 0;
 
     // Modifies
     virtual std::vector<std::string> getModifiesVariable(int stmtNum) = 0;
     virtual std::vector<int> getModifiesStmt(std::string const & variable) = 0;
     virtual bool containsModifiesStmt(int stmtNum) = 0;
     virtual bool containsModifiesVariable(std::string const & variable) = 0;
+    virtual bool containsModifiesRelationship(int stmtNum, std::string const & variable) = 0;
+    virtual bool hasModifiesRelationship() = 0;
 };

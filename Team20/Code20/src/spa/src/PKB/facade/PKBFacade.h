@@ -80,6 +80,8 @@ public:
     std::vector<int> getFollowing(int followerStmtNum) override;
     bool containsFollows(int followeeStmtNum) override;
     bool containsFollowing(int followerStmtNum) override;
+    bool containsFollowsRelationship(int followeeStmtNum, int followerStmtNum) override;
+    bool hasFollowsRelationship() override;
 
     // FollowsT Writer - Reader
     void insertFollowsT(int followeeStmtNum, int followerStmtNum) override;
@@ -88,6 +90,8 @@ public:
     std::vector<int> getFollowingT(int followerStmtNum) override;
     bool containsFollowsT(int followeeStmtNum) override;
     bool containsFollowingT(int followerStmtNum) override;
+    bool containsFollowsTRelationship(int followeeStmtNum, int followerStmtNum) override;
+    bool hasFollowsTRelationship() override;
 
     // Parent Writer - Reader
     void insertParent(int parentStmtNum, int childStmtNum) override;
@@ -96,6 +100,8 @@ public:
     std::vector<int> getParent(int childStmtNum) override;
     bool containsParent(int parentStmtNum) override;
     bool containsChild(int childStmtNum) override;
+    bool containsParentRelationship(int parentStmtNum, int childStmtNum) override;
+    bool hasParentRelationship() override;
 
     // ParentT Writer - Reader
     void insertParentT(int parentStmtNum, int childStmtNum) override;
@@ -104,6 +110,8 @@ public:
     std::vector<int> getParentT(int childStmtNum) override;
     bool containsParentT(int parentStmtNum) override;
     bool containsChildT(int childStmtNum) override;
+    bool containsParentTRelationship(int parentStmtNum, int childStmtNum) override;
+    bool hasParentTRelationship() override;
 
     // Uses Writer - Reader
     void insertUsesStmt(int stmtNum, std::string const & variable) override;
@@ -112,6 +120,8 @@ public:
     std::vector<int> getUsesStmt(std::string const & variable) override;
     bool containsUsesStmt(int stmtNum) override;
     bool containsUsesVariable(std::string const & variable) override;
+    bool containsUsesRelationship(int stmtNum, std::string const & variable) override;
+    bool hasUsesRelationship() override;
 
     // Modifies Writer - Reader
     void insertModifiesStmt(int stmtNum, std::string const & variable) override;
@@ -120,5 +130,6 @@ public:
     std::vector<int> getModifiesStmt(std::string const & variable) override;
     bool containsModifiesStmt(int stmtNum) override;
     bool containsModifiesVariable(std::string const & variable) override;
-
+    bool containsModifiesRelationship(int stmtNum, std::string const & variable) override;
+    bool hasModifiesRelationship() override;
 };
