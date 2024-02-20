@@ -42,6 +42,7 @@ private:
     std::unordered_map<int, std::unordered_set<int>> parentT;
     std::unordered_set<std::string> variables;
     std::unordered_set<std::string> literals;
+    std::unordered_set<int> stmts;
     std::unordered_set<int> assignStmts;
     std::unordered_set<int> callStmts;
     std::unordered_set<int> ifStmts;
@@ -63,6 +64,7 @@ private:
     void updateParent(int childStmtNumber, int parentStmtNumber);
     void insertVariable(const std::string& var);
     void insertLiteral(const std::string& var);
+    void insertStmt(const int stmtNum);
     void insertAssign(const int stmtNum);
     void insertCall(const int stmtNum);
     void insertIf(const int stmtNum);

@@ -36,6 +36,10 @@ void DesignExtractor::pushToPKB() {
         pkbFacade->insertConstant(std::stoi(val));
     }
 
+    for (const auto& stmtNum: stmts) {
+        pkbFacade->insertStatement(stmtNum);
+    }
+
     for (const auto& stmtNum: assignStmts) {
         pkbFacade->insertAssign(stmtNum);
     }
@@ -84,6 +88,7 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
     updateParent(stmtNumber, parentStmt); // Update the 'Parent' relationship
     updateFollows(stmtNumber, stmtList); // Update the 'Follows' relationship
     stmtList.push_back(stmtNumber); // Add current statement to the list for potential 'Follows' relationships
+    insertStmt(stmtNumber); // Insert the current statement number
 
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
         insertIf(stmtNumber);
@@ -138,6 +143,10 @@ void DesignExtractor::insertVariable(const std::string& var) {
 
 void DesignExtractor::insertLiteral(const std::string& value) {
     literals.insert(value);
+}
+
+void DesignExtractor::insertStmt(const int stmtNum) {
+    stmts.insert(stmtNum);
 }
 
 void DesignExtractor::insertAssign(const int stmtNum) {

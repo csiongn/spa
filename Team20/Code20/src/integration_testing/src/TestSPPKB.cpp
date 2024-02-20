@@ -35,6 +35,11 @@ TEST_CASE("Integration test SP to PKB") {
             std::vector<std::string> actualValues = pkbFacade->getAllVariables();
             REQUIRE(checkVecValuesEqual(expectedValues, actualValues));
 
+            // Check statements
+            std::vector<int> expectedStmts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+            std::vector<int> actualStmts = pkbFacade->getAllStatementNum();
+            REQUIRE(checkVecValuesEqual(expectedStmts, actualStmts));
+
             // Check if statements
             std::vector<int> expectedIfStmts = {2, 5};
             std::vector<int> actualIfStmts = pkbFacade->getAllIfStmtNum();
@@ -87,7 +92,7 @@ TEST_CASE("Integration test from SP Parser to PKB") {
             Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NAME, "x"),
             Token(SP::TokenType::GREATER_THAN, ">"),
-            Token(SP::TokenType::INTEGER, "0"),
+            Token(SP::TokenType::INTEGER, "2"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::OR, "||"),
             Token(SP::TokenType::LEFT_PAREN, "("),
@@ -248,6 +253,11 @@ TEST_CASE("Integration test from SP Parser to PKB") {
                     std::vector<std::string> expectedValues = {"a", "t", "v", "x", "y", "z", "avg", "num1", "num2"};
                     std::vector<std::string> actualValues = pkbFacade->getAllVariables();
                     REQUIRE(checkVecValuesEqual(expectedValues, actualValues));
+
+                    // Check statements
+                    std::vector<int> expectedStmts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+                    std::vector<int> actualStmts = pkbFacade->getAllStatementNum();
+                    REQUIRE(checkVecValuesEqual(expectedStmts, actualStmts));
 
                     // Check if statements
                     std::vector<int> expectedIfStmts = {2, 5};
