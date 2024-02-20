@@ -204,31 +204,35 @@ PQL::Synonym QueryParser::createSynonym(std::shared_ptr<QueryToken>& token, cons
 std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
     std::vector<PQL::Synonym> declarations;
 
-    int counter = 0;
-    while (counter < tokens.size()) {
-        if (counter + 2 >= tokens.size()) {
-            pos = counter;
+    std::vector<std::shared_ptr<QueryToken>> currDeclarations;
+    while (pos < tokens.size()) {
+        auto currToken = tokens[pos];
+
+        if (currToken->getValue() == "Select") {
             break;
         }
 
-        auto token1 = tokens[counter];
-        auto token2 = tokens[counter+1];
-        auto token3 = tokens[counter+2];
-        if (token1->getType() == TokenType::NAME && token2->getType() == TokenType::NAME && token3->getValue() == ";") {
-            SimpleProgram::DesignEntity entityType = getEntityType(token1);
-            const std::string id = token2->getValue();
-            PQL::Synonym declaration = PQL::Synonym(entityType, id);
-            declarations.push_back(declaration);
-            counter += 3;
-        } else {
-            // declarations are of the form 'design_entity_type' 'id' ';'
-            // if batch size > 3, no more declarations at this point.
-            // at this point, we determine the position of the clauses in the token vector
-            if (counter < tokens.size()) {
-                pos = counter;
+        if (currToken->getValue() == ";") {
+            // Add all the declarations in the array.
+            // First element should always be the type, following elements will be the synonyms used
+            auto entityType = getEntityType(currDeclarations[0]);
+            for (int i = 1; i < currDeclarations.size(); i++) {
+                auto currIdentity = currDeclarations[i]->getValue();
+                auto declaration = PQL::Synonym(entityType, currIdentity);
+                declarations.push_back(declaration);
             }
-            break;
+            currDeclarations.clear();
+            pos++;
+            continue;
         }
+
+        if (currToken->getValue() == ",") {
+            pos++;
+            continue;
+        }
+
+        currDeclarations.push_back(currToken);
+        pos++;
     }
     return declarations;
 }
