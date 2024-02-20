@@ -22,7 +22,7 @@ PQL::Query QueryParser::parse() {
 std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations) {
     std::string tokenId = token->getValue();
     if (token->getType() == TokenType::INTEGER) {
-        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT);
+        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
     }
     for (const auto& syn : declarations) {
         if (syn.identity == tokenId) {
@@ -182,7 +182,7 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
 
 SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token, const std::vector<PQL::Synonym>& declarations) {
     if (token->getType() == TokenType::INTEGER) {
-        return SimpleProgram::DesignEntity::STMT;
+        return SimpleProgram::DesignEntity::STMT_NO;
     }
 
     for (const auto& dec : declarations) {
