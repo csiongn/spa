@@ -11,28 +11,19 @@ Tokenizer::Tokenizer(const std::string& input) : input_(input) {}
 /// </summary>
 /// <param name="program">string representation of input SIMPLE code</param>
 void Tokenizer::tokenizeProgram() {
-    std::vector<Token> tokens;
     std::istringstream iss(input_);
     std::string line;
     std::int16_t lineNum = 1;
 
-    while (std::getline(iss, line)) {
+    while (std::getline(iss, line)) { // Run through every line
         std::istringstream lineStream(line);
-        std::string word;
 
-        while (lineStream >> word) {
-            std::vector<std::string> wordTokens = tokenizeWord(word);
-            for (const auto& token : wordTokens) {
-                SP::TokenType t_type = Token::TokenType(token);
-                Token t(t_type, token, lineNum);
-                tokens_.push_back(t);
-            }
-        }
-
+        std::vector<Token> lineTokens = tokenizeLineStream(lineStream, lineNum);
+        tokens_.insert(tokens_.end(), lineTokens.begin(), lineTokens.end()); // insert line tokens into program tokens
         lineNum++;
     }
 
-    // TODO: Remove hardcoded EOF
+    // Add EOF to end tokenizing
     Token t(SP::TokenType::EOFILE, "", lineNum);
     tokens_.push_back(t);
 }
@@ -46,7 +37,6 @@ Special characters that are together will form a token by itself.
 E.g. x===y;
 Should give "x", "===", "y"
 
-TODO: Refactor code to be more neat
 */
 std::vector<std::string> Tokenizer::tokenizeWord(const std::string& word) {
     std::vector<std::string> tokens;
@@ -77,6 +67,28 @@ std::vector<std::string> Tokenizer::tokenizeWord(const std::string& word) {
         tokens.push_back(currentToken);
     }
 
+    return tokens;
+}
+
+/// <summary>
+/// Tokenizes a line stream into a list of tokens
+/// </summary>
+/// <param name="line_stream"></param>
+/// <param name="line_num"></param>
+/// <returns>list of tokens</returns>
+std::vector<Token> Tokenizer::tokenizeLineStream(std::istringstream& lineStream, std::int16_t lineNum)
+{
+    std::string word;
+    std::vector<Token> tokens;
+
+    while (lineStream >> word) {
+        std::vector<std::string> wordTokens = tokenizeWord(word);
+        for (const auto& token : wordTokens) {
+            SP::TokenType t_type = Token::TokenType(token);
+            Token t(t_type, token, lineNum);
+            tokens.push_back(t);
+        }
+    }
     return tokens;
 }
 

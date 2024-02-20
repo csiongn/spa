@@ -2,9 +2,9 @@
 
 namespace QueryEvaluator {
 
-    Result ClauseEvaluator::evaluate() {
+    bool ClauseEvaluator::evaluate() {
         // TODO
 
-        return Result("test", {"test"});
+        return false;
     }
 }

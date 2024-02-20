@@ -20,7 +20,7 @@ namespace QueryEvaluator {
         std::vector<std::string> evaluateQuery(const PQL::Query &q);
 
     private:
-        Result evaluateClause(const PQL::Clause &clause);
+        bool evaluateClause(const PQL::Clause &clause);
         void initialiseDeclaration(const PQL::Query &q);
         void addSynonymToStore(const PQL::Synonym &syn);
     };

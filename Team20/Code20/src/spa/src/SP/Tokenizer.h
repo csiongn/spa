@@ -13,6 +13,7 @@ class Tokenizer {
         void tokenizeProgram();
 
         std::vector<std::string> tokenizeWord(const std::string& word);
+        std::vector<Token> tokenizeLineStream(std::istringstream& lineStream, std::int16_t line_num);
 
         bool isSpecialToken(char c);
 

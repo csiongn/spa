@@ -11,7 +11,7 @@ namespace QueryEvaluator {
     Result::Result(const std::string &colName, const std::vector<int> &values) {
         colNames.insert(colName);
         std::vector<std::string> stringVector(values.size());
-        std::transform(values.begin(), values.end(), stringVector.begin(), [](int intVal){
+        std::transform(values.begin(), values.end(), stringVector.begin(), [](int intVal) -> std::string{
             return std::to_string(intVal);
         });
         table[colName] = stringVector;

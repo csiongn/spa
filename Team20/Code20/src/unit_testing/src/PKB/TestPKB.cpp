@@ -15,6 +15,9 @@ TEST_CASE("PKB Test") {
         // Create an instance of RelationshipManager
         auto sampleRelationshipManager = RelationshipManager<int, std::string>();
 
+        // hasRelationship
+        bool hasRelationship = sampleRelationshipManager.hasRelationship();
+        REQUIRE(hasRelationship == false);
         // Insert some key-value pairs
         sampleRelationshipManager.insert(1, "apple");
         sampleRelationshipManager.insert(2, "banana");
@@ -46,12 +49,25 @@ TEST_CASE("PKB Test") {
         sampleRelationshipManager.insert(1, "apple");
         std::vector<std::string> valuesAfterInsert = sampleRelationshipManager.get(1);
         REQUIRE(checkVecValuesEqual(valuesAfterInsert, expectedValues));
+
+        // getKeys()
+        auto keysVec = sampleRelationshipManager.getKeys();
+        std::vector<int> expectedKeysVec = {1, 2, 3};
+        REQUIRE(checkVecValuesEqual(keysVec, expectedKeysVec));
+
+        // getValues()
+        std::vector<std::string> valuesVec = sampleRelationshipManager.getValues();
+        std::vector<std::string> expectedValuesVec = {"apple", "banana", "orange"};
     }
 
     SECTION("FollowsManager") {
         std::cout << "Section: FollowsManager" << std::endl;
         // Create an instance of FollowsManager
         auto followsManager = FollowsManager();
+
+        // hasRelationship
+        bool hasRelationship = followsManager.hasRelationship();
+        REQUIRE(hasRelationship == false);
 
         // Insert some key-value pairs
         followsManager.insert(1, 2);
@@ -74,6 +90,7 @@ TEST_CASE("PKB Test") {
         // Check if a value exists
         bool containsValue = followsManager.containsReverse(4);
         REQUIRE(containsValue == true);
+
     }
 
     SECTION("FollowsManager from Database") {
@@ -110,15 +127,38 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         std::shared_ptr<IPKBWriter> pkbWriter = pkb->pkbFacade;
+        // hasFollowsRelationship
+        bool hasFollowsRelationship = pkb->pkbFacade->hasFollowsRelationship();
+        REQUIRE(hasFollowsRelationship == false);
 
         // insertFollows
         pkbWriter->insertFollows(1, 2);
         pkbWriter->insertFollows(2, 3);
 
+        // insertFollows with set
+        std::unordered_set<int> followerSet = {4, 5, 6};
+        pkbWriter->insertFollows(3, followerSet);
+
         // getFollows
         std::vector<int> values = pkb->pkbFacade->getFollows(1);
         std::vector<int> expectedValues = {2};
         REQUIRE(checkVecValuesEqual(values, expectedValues));
+
+        // getFollows after insertion of set
+        std::vector<int> valuesSet = pkb->pkbFacade->getFollows(3);
+        std::vector<int> expectedValuesSet = {4, 5, 6};
+        REQUIRE(checkVecValuesEqual(valuesSet, expectedValuesSet));
+
+        // getFolloweeStmts
+        std::vector<int> followeeStmts = pkb->pkbFacade->getFolloweeStmts();
+        std::vector<int> expectedFolloweeStmts = {1, 2, 3};
+        REQUIRE(checkVecValuesEqual(followeeStmts, expectedFolloweeStmts));
+
+        // getFollowerStmts
+        std::vector<int> followerStmts = pkb->pkbFacade->getFollowerStmts();
+        std::vector<int> expectedFollowerStmts = {2, 3, 4, 5, 6};
+        REQUIRE(checkVecValuesEqual(followerStmts, expectedFollowerStmts));
+
     }
 
         // interact with only IPKBReader
@@ -126,12 +166,16 @@ TEST_CASE("PKB Test") {
         std::cout << "Section: QPS - IPKBReader - FollowsManager" << std::endl;
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
+
         // Populate Follows Table for IPKBReader
         pkb->pkbFacade->insertFollows(1, 2);
         pkb->pkbFacade->insertFollows(2, 3);
 
         // QPS will receive a shared pointer to the PKB facade and initialize it to IPKBReader
         std::shared_ptr<IPKBReader> pkbReader = pkb->pkbFacade;
+        // hasFollowsRelationship
+        bool hasFollowsRelationship = pkbReader->hasFollowsRelationship();
+        REQUIRE(hasFollowsRelationship == true);
 
         // Get values associated with a key
         std::vector<int> values = pkbReader->getFollows(1);
@@ -164,6 +208,10 @@ TEST_CASE("PKB Test") {
         // containsFollowing
         bool containsFollowing = pkbFacade->containsFollowing(2);
         REQUIRE(containsFollowing == true);
+
+        // containsFollowsRelationship
+        bool containsFollowsRelationship = pkbFacade->containsFollowsRelationship(1, 2);
+        REQUIRE(containsFollowsRelationship == true);
     }
 
     SECTION("PKB - PKBFacade - insertFollowsT - getFollowsT - getFollowingT - containsFollowT - containsFollowingT - FollowsTManager") {
@@ -171,6 +219,10 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
+
+        // hasFollowsTRelationship
+        bool hasFollowsTRelationship = pkbFacade->hasFollowsTRelationship();
+        REQUIRE(hasFollowsTRelationship == false);
 
         // Will be similar to SP inserting FollowsT relationship
         for (int i = 2; i < 10; i++) {
@@ -209,6 +261,10 @@ TEST_CASE("PKB Test") {
         // containsFollowingT
         bool containsFollowingT = pkbFacade->containsFollowingT(10);
         REQUIRE(containsFollowingT == false);
+
+        // containsFollowsTRelationship
+        bool containsFollowsTRelationship = pkbFacade->containsFollowsTRelationship(1, 2);
+        REQUIRE(containsFollowsTRelationship == true);
     }
 
     SECTION("PKB - PKBFacade - insertParent - getChild - getParent- containsParent - containsChild - ParentManager") {
@@ -216,7 +272,9 @@ TEST_CASE("PKB Test") {
         // Create an instance of PKB
         auto pkb = std::make_shared<PKB>();
         auto pkbFacade = pkb->pkbFacade;
-
+        // hasParentRelationship
+        bool hasParentRelationship = pkbFacade->hasParentRelationship();
+        REQUIRE(hasParentRelationship == false);
         // insertParent
         pkbFacade->insertParent(1, 2);
 
@@ -254,6 +312,10 @@ TEST_CASE("PKB Test") {
         // containsChild
         bool containsChild = pkbFacade->containsChild(3);
         REQUIRE(containsChild == true);
+
+        // containsParentRelationship
+        bool containsParentRelationship = pkbFacade->containsParentRelationship(1, 2);
+        REQUIRE(containsParentRelationship == true);
     }
 
     SECTION("Test PKB - PKBFacade - insertVariable - getAllVariables - containsVariable - VariableManager") {
@@ -339,7 +401,6 @@ TEST_CASE("PKB Test") {
         REQUIRE(procedureManager->contains("hello") == false);
     }
 
-
     SECTION("Test PKB - PKBFacade - insertAssign - getAllAssignStmtNum - AssignManager") {
         std::cout << "Section: PKBFacade - AssignManager" << std::endl;
         // Create an instance of PKB
@@ -349,13 +410,99 @@ TEST_CASE("PKB Test") {
         // insertAssign
         pkbFacade->insertAssign(1);
         pkbFacade->insertAssign(2);
+
+        // insertAssign with set
+        std::unordered_set<int> assignSet = {3, 4, 5};
+        pkbFacade->insertAssign(assignSet);
         // Query: Select a
         // getAllAssignStmtNum
         std::vector<int> values = pkbFacade->getAllAssignStmtNum();
-        std::vector<int> expectedValues = {1, 2};
+        std::vector<int> expectedValues = {1, 2, 3, 4, 5};
         REQUIRE(checkVecValuesEqual(values, expectedValues));
     }
 
+    SECTION("UsesStmt") {
+        std::cout << "Section: PKBFacade - UsesStmtManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // hasUsesRelationship
+        bool hasUsesRelationship = pkbFacade->hasUsesRelationship();
+        REQUIRE(hasUsesRelationship == false);
+        // insertUses
+        pkbFacade->insertUsesStmt(1, "x");
+        pkbFacade->insertUsesStmt(2, "y");
+        pkbFacade->insertUsesStmt(3, "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertUsesStmt(1, variableSet);
+
+        // Query: Select v such that Uses(1, v)
+        // getUses
+        std::vector<std::string> variables = pkbFacade->getUsesVariable(1);
+        std::vector<std::string> expectedValues = {"x", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsUsesStmt
+        bool containsUsesStmt = pkbFacade->containsUsesStmt(1);
+        REQUIRE(containsUsesStmt == true);
+
+        // containsUsesVariable
+        bool containsUsesVariable = pkbFacade->containsUsesVariable("z");
+        REQUIRE(containsUsesVariable == true);
+
+        // containsUsesRelationship
+        bool containsUsesRelationship = pkbFacade->containsUsesRelationship(1, "a");
+        REQUIRE(containsUsesRelationship == true);
+    }
+
+    SECTION("ModifiesStmt") {
+        std::cout << "Section: PKBFacade - ModifiesStmtManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // hasModifiesRelationship
+        bool hasModifiesRelationship = pkbFacade->hasModifiesRelationship();
+        REQUIRE(hasModifiesRelationship == false);
+
+        // insertModifies
+        pkbFacade->insertModifiesStmt(1, "x");
+        pkbFacade->insertModifiesStmt(2, "y");
+        pkbFacade->insertModifiesStmt(3, "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertModifiesStmt(4, variableSet);
+
+        // Query: Select v such that Modifies(1, v)
+        // getModifies
+        std::vector<std::string> variables = pkbFacade->getModifiesVariable(4);
+        std::vector<std::string> expectedValues = {"a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsModifiesStmt
+        bool containsModifiesStmt = pkbFacade->containsModifiesStmt(1);
+        REQUIRE(containsModifiesStmt == true);
+
+        // containsModifiesVariable
+        bool containsModifiesVariable = pkbFacade->containsModifiesVariable("a");
+        REQUIRE(containsModifiesVariable == true);
+
+        // getModifiesStmt
+        std::vector<int> mStmts = pkbFacade->getModifiesStmt();
+        std::vector<int> expectedMStmts = {1, 2, 3, 4};
+        REQUIRE(checkVecValuesEqual(mStmts, expectedMStmts));
+
+        // getModifiesVariable
+        std::vector<std::string> mVars = pkbFacade->getModifiesVariable();
+        std::vector<std::string> expectedMVars = {"x", "y", "z", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(mVars, expectedMVars));
+
+        // containsModifiesRelationship
+        bool containsModifiesRelationship = pkbFacade->containsModifiesRelationship(4, "a");
+        REQUIRE(containsModifiesRelationship == true);
+    }
 }
 
 

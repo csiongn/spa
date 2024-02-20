@@ -17,6 +17,20 @@ struct TokenWordTestCase {
     std::vector<std::string> expectedTokens;
 };
 
+std::string tokenToString(const Token& token) {
+    std::stringstream ss;
+    ss << "\nType: " << static_cast<int>(token.type) << ", Value: " << token.value << ", Line: " << token.line_num;
+    return ss.str();
+}
+
+std::string tokensToString(const std::vector<Token>& tokens) {
+    std::stringstream ss;
+    for (const auto& token : tokens) {
+        ss << tokenToString(token);
+    }
+    return ss.str();
+}
+
 TEST_CASE("Test TokenizeProgram") {
     // The testCases format is input_string : result_list
     // To add testcases, append to testCases list
@@ -24,7 +38,8 @@ TEST_CASE("Test TokenizeProgram") {
         {
             "Hello\nWorld", { // Test Line Break
                 Token(SP::TokenType::NAME, "Hello", 1),
-                Token(SP::TokenType::NAME, "World", 2)
+                Token(SP::TokenType::NAME, "World", 2),
+                Token(SP::TokenType::EOFILE, "", 2)
             },
         },
         {
@@ -33,6 +48,7 @@ TEST_CASE("Test TokenizeProgram") {
                 Token(SP::TokenType::EQUAL, "=", 1),
                 Token(SP::TokenType::INTEGER, "0", 1),
                 Token(SP::TokenType::SEMICOLON, ";", 1),
+                Token(SP::TokenType::EOFILE, "", 2)
             },
         },
         {
@@ -40,8 +56,9 @@ TEST_CASE("Test TokenizeProgram") {
                 Token(SP::TokenType::KEYWORD_CALL, "call", 1),
                 Token(SP::TokenType::NAME, "computeCentroid", 1),
                 Token(SP::TokenType::SEMICOLON, ";", 1),
+                Token(SP::TokenType::EOFILE, "", 2)
             },
-            
+
         },
         {
             "while (x > 0) {\n x = x + 1 \n }""", { // Test keywords - while
@@ -58,8 +75,19 @@ TEST_CASE("Test TokenizeProgram") {
                 Token(SP::TokenType::PLUS, "+", 2),
                 Token(SP::TokenType::INTEGER, "1", 2),
                 Token(SP::TokenType::RIGHT_BRACE, "}", 3),
+                Token(SP::TokenType::EOFILE, "", 2)
             },
         },
+        {
+            "x == 3;", { // Test double symbol - found
+                Token(SP::TokenType::NAME, "x", 1),
+                Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+                Token(SP::TokenType::INTEGER, "3", 1),
+                Token(SP::TokenType::SEMICOLON, ";", 1),
+                Token(SP::TokenType::EOFILE, "", 2)
+            },
+        },
+        
         // You can add more test cases here
     };
 
@@ -67,53 +95,26 @@ TEST_CASE("Test TokenizeProgram") {
         Tokenizer tokenizer(tc.input);
         tokenizer.tokenizeProgram();
         const std::vector<Token>& tokens = tokenizer.getTokens();
-        CAPTURE(tokens, tc.expectedTokens);
+        CAPTURE(tokensToString(tokens), tokensToString(tc.expectedTokens));
+
         REQUIRE(tokens == tc.expectedTokens);
     }
-
 }
 
-//TEST_CASE("Test SP::TokenType") {
-//    // Positive test cases
-//    REQUIRE(SP::TokenType("MyVariable") == SP::TokenType::NAME);
-//    REQUIRE(Token::SP::TokenType("123") == SP::TokenType::INTEGER);
-//    REQUIRE(Token::SP::TokenType("123") == SP::TokenType::INTEGER);
-//    REQUIRE(Token::SP::TokenType("=") == SP::TokenType::EQUAL);
-//    REQUIRE(Token::SP::TokenType("+") == SP::TokenType::PLUS);
-//    REQUIRE(Token::SP::TokenType("-") == SP::TokenType::MINUS);
-//    REQUIRE(Token::SP::TokenType("*") == SP::TokenType::TIMES);
-//    REQUIRE(Token::SP::TokenType("/") == SP::TokenType::SLASH);
-//    REQUIRE(Token::SP::TokenType("%") == SP::TokenType::PERCENT);
-//    REQUIRE(Token::SP::TokenType("&&") == SP::TokenType::AND);
-//    REQUIRE(Token::SP::TokenType("||") == SP::TokenType::OR);
-//    REQUIRE(Token::SP::TokenType("!") == SP::TokenType::NOT);
-//    REQUIRE(Token::SP::TokenType("<") == SP::TokenType::LESS_THAN);
-//    REQUIRE(Token::SP::TokenType("<=") == SP::TokenType::LESS_THAN_EQUAL);
-//    REQUIRE(Token::SP::TokenType(">") == SP::TokenType::GREATER_THAN);
-//    REQUIRE(Token::SP::TokenType(">=") == SP::TokenType::GREATER_THAN_EQUAL);
-//    REQUIRE(Token::SP::TokenType("==") == SP::TokenType::DOUBLE_EQUAL);
-//    REQUIRE(Token::SP::TokenType("(") == SP::TokenType::LEFT_PAREN);
-//    REQUIRE(Token::SP::TokenType(")") == SP::TokenType::RIGHT_PAREN);
-//    REQUIRE(Token::SP::TokenType("{") == SP::TokenType::LEFT_BRACE);
-//    REQUIRE(Token::SP::TokenType("}") == SP::TokenType::RIGHT_BRACE);
-//    REQUIRE(Token::SP::TokenType(";") == SP::TokenType::SEMICOLON);
-//    REQUIRE(Token::SP::TokenType("procedure") == SP::TokenType::KEYWORD_PROCEDURE);
-//    REQUIRE(Token::SP::TokenType("call") == SP::TokenType::KEYWORD_CALL);
-//    REQUIRE(Token::SP::TokenType("print") == SP::TokenType::KEYWORD_PRINT);
-//    REQUIRE(Token::SP::TokenType("read") == SP::TokenType::KEYWORD_READ);
-//    REQUIRE(Token::SP::TokenType("while") == SP::TokenType::KEYWORD_WHILE);
-//    REQUIRE(Token::SP::TokenType("if") == SP::TokenType::KEYWORD_IF);
-//    REQUIRE(Token::SP::TokenType("then") == SP::TokenType::KEYWORD_THEN);
-//    REQUIRE(Token::SP::TokenType("else") == SP::TokenType::KEYWORD_ELSE);
-//
-//    // Negative test cases
-//    REQUIRE(Token::SP::TokenType("procedures") != SP::TokenType::KEYWORD_PROCEDURE); // keyword spelling is different
-//    REQUIRE(Token::SP::TokenType("Procedures") != SP::TokenType::KEYWORD_PROCEDURE); // case-sensitivity
-//
-//    // Alphanumeric strings
-//    REQUIRE(Token::SP::TokenType("procedures123") == SP::TokenType::NAME);
-//
-//}
+TEST_CASE("Test exception throwing in tokenizeWord") {
+    std::vector<std::string> error_programs =
+    {
+        "x /= 3;", // invalid symbol - length 2
+        "x /== 3;", // invalid symbol - length 3
+        "x ??? 3;", // invalid symbol - unsupported symbols
+        "123nums = 3;" // invalid variable name
+        "x = 3;;" // invalid symbol at EOL
+    };
+    for (const auto& error_program : error_programs) {
+        Tokenizer tokenizer(error_program);
+        REQUIRE_THROWS(tokenizer.tokenizeProgram());
+    }
+}
 
 TEST_CASE("Test tokenizeWord") {
     // The testCases format is input_string : result_list
@@ -162,4 +163,29 @@ TEST_CASE("Test tokenizeWord") {
 
 }
 
+
+TEST_CASE("Test tokenizeLine") {
+    // The testCases format is input_string : result_list
+    // To add testcases, append to testCases list
+    std::vector<TokenizerTestCase> testCases = {
+        {
+            "Hello;World;", { // Test single symbol inside
+                Token(SP::TokenType::NAME, "Hello", 1),
+                Token(SP::TokenType::SEMICOLON, ";", 1),
+                Token(SP::TokenType::NAME, "World", 1),
+                Token(SP::TokenType::SEMICOLON, ";", 1),
+            },
+        },
+        // You can add more test cases here
+    };
+
+    for (const auto& tc : testCases) {
+        Tokenizer tokenizer(tc.input);
+        std::istringstream line_stream(tc.input);
+        const std::vector<Token>& tokens = tokenizer.tokenizeLineStream(line_stream, 1);
+        CAPTURE(tokensToString(tokens), tokensToString(tc.expectedTokens));
+        REQUIRE(tokens == tc.expectedTokens);
+    }
+
+}
 

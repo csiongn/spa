@@ -174,25 +174,34 @@ std::unique_ptr<ProcedureNode> Parser::parseProcedure() {
 }
 
 std::unique_ptr<StmtNode> Parser::parseStatement() {
+	if (match({SP::TokenType::KEYWORD_CALL})) return parseCall();
 	if (match({SP::TokenType::KEYWORD_PRINT})) return parsePrint();
 	if (match({SP::TokenType::KEYWORD_READ})) return parseRead();
 	if (check(SP::TokenType::NAME) && tokens[current + 1].type == SP::TokenType::EQUAL) return parseAssign();
 	// parseAssign does not use match (which automatically consumes the checked token and advances) as
 	// the assigned variable is important
 	if (match({SP::TokenType::KEYWORD_IF})) return parseIf();
-	throwParseError("Expected statement keyword or identifier");
+	if (match({SP::TokenType::KEYWORD_WHILE})) return parseWhile();
+	throwParseError("Expected statement keyword or identifier when parsing statement");
+}
+
+std::unique_ptr<CallNode> Parser::parseCall() {
+	Token procNameToken = consume(SP::TokenType::NAME, "Expect procedure name.");
+	consume(SP::TokenType::SEMICOLON, "Expect ';' after procedure call.");
+
+	return std::make_unique<CallNode>(++stmtNumber, procNameToken.value);
 }
 
 std::unique_ptr<ReadNode> Parser::parseRead() {
 	Token name = consume(SP::TokenType::NAME, "Expect variable name after 'read'.");
 	consume(SP::TokenType::SEMICOLON, "Expect ';' after variable name.");
-	return std::make_unique<ReadNode>(name.value);
+	return std::make_unique<ReadNode>(++stmtNumber, name.value);
 }
 
 std::unique_ptr<PrintNode> Parser::parsePrint() {
 	Token name = consume(SP::TokenType::NAME, "Expect variable name after 'print'.");
 	consume(SP::TokenType::SEMICOLON, "Expect ';' after variable name.");
-	return std::make_unique<PrintNode>(name.value);
+	return std::make_unique<PrintNode>(++stmtNumber, name.value);
 }
 
 std::unique_ptr<AssignNode> Parser::parseAssign() {
@@ -201,7 +210,7 @@ std::unique_ptr<AssignNode> Parser::parseAssign() {
 	std::unique_ptr<ExprNode> value = expression();
 	consume(SP::TokenType::SEMICOLON, "Expect ';' after expression.");
 
-	return std::make_unique<AssignNode>(varName.value, std::move(value));
+	return std::make_unique<AssignNode>(++stmtNumber, varName.value, std::move(value));
 }
 
 // Helper method for parsing a block of statements enclosed in braces
@@ -218,6 +227,7 @@ std::unique_ptr<BlockNode> Parser::parseBlock() {
 }
 
 std::unique_ptr<IfNode> Parser::parseIf() {
+	uint16_t stmtNum = ++stmtNumber;
 	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' while parsing if block.");
 	std::unique_ptr<ExprNode> condition = condExpr();
 	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if block.");
@@ -230,5 +240,16 @@ std::unique_ptr<IfNode> Parser::parseIf() {
 		elseBranch = parseBlock();
 	}
 
-	return std::make_unique<IfNode>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
+	return std::make_unique<IfNode>(stmtNum, std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+std::unique_ptr<WhileNode> Parser::parseWhile() {
+	uint16_t stmtNum = ++stmtNumber;
+	consume(SP::TokenType::LEFT_PAREN, "Expected '(' after 'while' while parsing while block.");
+	std::unique_ptr<ExprNode> condition = condExpr();
+	consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after condition while parsing while block.");
+
+	std::unique_ptr<BlockNode> body = parseBlock();
+
+	return std::make_unique<WhileNode>(stmtNum, std::move(condition), std::move(body));
 }

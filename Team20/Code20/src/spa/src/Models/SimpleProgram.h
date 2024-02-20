@@ -11,7 +11,12 @@ namespace SimpleProgram {
         WHILE,
         IF,
         VARIABLE,
-        CONSTANT
+        CONSTANT,
+        STMT_NO,
+        WILDCARD,
+        IDENT,
+        EXPR,
+        INTEGER
     };
 
     enum class DesignAbstraction {

@@ -5,9 +5,9 @@
 namespace QueryEvaluator {
     class EntityEvaluator : private ClauseEvaluator {
     public:
-        EntityEvaluator(std::shared_ptr<IPKBReader> r, PQL::Clause cl)
-                : ClauseEvaluator(r, cl) {};
+        EntityEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, ResultStore &resultStore)
+                : ClauseEvaluator(r, cl, resultStore) {};
 
-        Result evaluate() override;
+        bool evaluate() override;
     };
 }

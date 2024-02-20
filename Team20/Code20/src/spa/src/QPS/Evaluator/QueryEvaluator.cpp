@@ -8,6 +8,7 @@
 #include "QueryEvaluator.h"
 #include "Result.h"
 #include "ResultStore.h"
+#include "StatementEvaluator.h"
 
 namespace QueryEvaluator {
     QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(), reader(r) {}
@@ -16,25 +17,29 @@ namespace QueryEvaluator {
         initialiseDeclaration(q);
 
         for (const auto &clause : q.clauses) {
-            auto result = evaluateClause(clause);
-            if (result.isEmpty()) {
+            auto isTrue = evaluateClause(clause);
+            if (!isTrue) {
                 // empty result, final result will also be empty, can just return
                 return {};
             }
-
-            resultStore.insertResult(std::make_shared<Result>(result));
         }
 
         // need to select from the results
-
-
         return resultStore.retrieveSelect(q.selectSynonym);
     }
 
-    Result QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
-        // TODO
+    bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
+        // TODO: Add clause evaluator for follows, parent
 
-        return {};
+        if (clause.clauseType == SimpleProgram::DesignAbstraction::FOLLOWS
+                || clause.clauseType == SimpleProgram::DesignAbstraction::FOLLOWST
+                || clause.clauseType == SimpleProgram::DesignAbstraction::PARENT
+                || clause.clauseType == SimpleProgram::DesignAbstraction::PARENTT) {
+            StatementEvaluator clauseEvaluator{reader, clause, resultStore};
+            return clauseEvaluator.evaluate();
+        }
+
+        return false;
     }
 
     void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
@@ -96,6 +101,14 @@ namespace QueryEvaluator {
             case SimpleProgram::DesignEntity::CONSTANT:
                 intRes = reader->getAllConstants();
                 resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+
+            case SimpleProgram::DesignEntity::STMT_NO:
+            case SimpleProgram::DesignEntity::WILDCARD:
+            case SimpleProgram::DesignEntity::IDENT:
+            case SimpleProgram::DesignEntity::EXPR:
+            case SimpleProgram::DesignEntity::INTEGER:
+                return;
+
         }
     }
 }

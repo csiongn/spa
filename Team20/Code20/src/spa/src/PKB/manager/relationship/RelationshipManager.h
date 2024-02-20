@@ -48,6 +48,22 @@ class RelationshipManager {
             return std::vector(reverseData.at(value).begin(), reverseData.at(value).end());
         };
 
+        std::vector<T> getKeys() {
+            std::vector<T> keys;
+            for (const auto&[key, value] : data) {
+                keys.push_back(key);
+            }
+            return keys;
+        }
+
+        std::vector<U> getValues() {
+            std::vector<U> values;
+            for (const auto&[key, value] : reverseData) {
+                values.push_back(key);
+            }
+            return values;
+        }
+
         // Check if a key exists in the table
         bool contains(const T& key) {
             return data.find(key) != data.end();
@@ -64,6 +80,10 @@ class RelationshipManager {
                 return (valueSet.find(value) != valueSet.end());
             }
             return false; // key does not exist
+        }
+
+        bool hasRelationship() {
+            return !data.empty();
         }
 
 

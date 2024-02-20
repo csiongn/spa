@@ -41,6 +41,14 @@ private:
     std::unordered_map<int, int> parent;
     std::unordered_map<int, std::unordered_set<int>> parentT;
     std::unordered_set<std::string> variables;
+    std::unordered_set<std::string> literals;
+    std::unordered_set<int> assignStmts;
+    std::unordered_set<int> callStmts;
+    std::unordered_set<int> ifStmts;
+    std::unordered_set<int> readStmts;
+    std::unordered_set<int> printStmts;
+    std::unordered_set<int> whileStmts;
+
 
     // Methods to traverse the AST
     void visitProgramNode(const ProgramNode& node);
@@ -54,6 +62,14 @@ private:
     void updateFollows(int stmtNumber, std::vector<int>& stmtList);
     void updateParent(int childStmtNumber, int parentStmtNumber);
     void insertVariable(const std::string& var);
+    void insertLiteral(const std::string& var);
+    void insertAssign(const int stmtNum);
+    void insertCall(const int stmtNum);
+    void insertIf(const int stmtNum);
+    void insertRead(const int stmtNum);
+    void insertPrint(const int stmtNum);
+    void insertWhile(const int stmtNum);
+
     void pushToPKB();
 
     int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
