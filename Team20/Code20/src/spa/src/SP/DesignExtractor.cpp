@@ -31,6 +31,34 @@ void DesignExtractor::pushToPKB() {
     for (const auto& var: variables) {
         pkbFacade->insertVariable(var);
     }
+
+    for (const auto& val: literals) {
+        pkbFacade->insertConstant(std::stoi(val));
+    }
+
+    for (const auto& stmtNum: assignStmts) {
+        pkbFacade->insertAssign(stmtNum);
+    }
+
+    for (const auto& stmtNum: callStmts) {
+        pkbFacade->insertCall(stmtNum);
+    }
+
+    for (const auto& stmtNum: ifStmts) {
+        pkbFacade->insertIf(stmtNum);
+    }
+
+    for (const auto& stmtNum: readStmts) {
+        pkbFacade->insertRead(stmtNum);
+    }
+
+    for (const auto& stmtNum: printStmts) {
+        pkbFacade->insertPrint(stmtNum);
+    }
+
+    for (const auto& stmtNum: whileStmts) {
+        pkbFacade->insertWhile(stmtNum);
+    }
 }
 
 
@@ -58,10 +86,20 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
     stmtList.push_back(stmtNumber); // Add current statement to the list for potential 'Follows' relationships
 
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
+        insertIf(stmtNumber);
         visitIfNode(*ifNode, stmtNumber);
     } else if (const auto* assignNode = dynamic_cast<const AssignNode*>(&node)) {
+        insertAssign(stmtNumber);
         insertVariable(assignNode->varName);
         visitExprNode(*assignNode->value, stmtNumber);
+    } else if (const auto* callNode = dynamic_cast<const CallNode*>(&node)) {
+        insertCall(stmtNumber);
+    } else if (const auto* readNode = dynamic_cast<const ReadNode*>(&node)) {
+        insertRead(stmtNumber);
+        insertVariable(readNode->varName);
+    } else if (const auto* printNode = dynamic_cast<const PrintNode*>(&node)) {
+        insertPrint(stmtNumber);
+        insertVariable(printNode->varName);
     }
 }
 
@@ -98,13 +136,44 @@ void DesignExtractor::insertVariable(const std::string& var) {
     variables.insert(var);
 }
 
+void DesignExtractor::insertLiteral(const std::string& value) {
+    literals.insert(value);
+}
+
+void DesignExtractor::insertAssign(const int stmtNum) {
+    assignStmts.insert(stmtNum);
+}
+
+void DesignExtractor::insertCall(const int stmtNum) {
+    callStmts.insert(stmtNum);
+}
+
+void DesignExtractor::insertIf(const int stmtNum) {
+    ifStmts.insert(stmtNum);
+}
+
+void DesignExtractor::insertPrint(const int stmtNum) {
+    printStmts.insert(stmtNum);
+}
+
+void DesignExtractor::insertRead(const int stmtNum) {
+    readStmts.insert(stmtNum);
+}
+
+void DesignExtractor::insertWhile(const int stmtNum) {
+    whileStmts.insert(stmtNum);
+}
+
 void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
     std::vector<int> thenStmtList, elseStmtList;
+    visitExprNode(*node.condition, stmtNumber);
     visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
     if (node.elseBranch) { // If 'else' branch exists
         visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
     }
 }
+
+
 
 void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
     // Binary nodes
@@ -125,6 +194,9 @@ void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
     // Unary nodes (variable nodes)
     else if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
         insertVariable(varNode->name);
+    }
+    else if (const auto* literalNode = dynamic_cast<const LiteralNode*>(&node)) {
+        insertLiteral(literalNode->value);
     }
 
 }
