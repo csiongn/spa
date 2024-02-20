@@ -7,17 +7,19 @@
 #include "Models/PQL.h"
 #include "PKB/facade/IPKBReader.h"
 #include "Result.h"
+#include "ResultStore.h"
 
 namespace QueryEvaluator {
     class ClauseEvaluator {
     protected:
         std::shared_ptr<IPKBReader> reader;
         PQL::Clause clause;
+        ResultStore resultStore;
 
     public:
-        ClauseEvaluator(std::shared_ptr<IPKBReader> r, PQL::Clause cl)
-            : reader(r), clause(cl) {};
+        ClauseEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, const ResultStore &resultStore)
+            : reader(r), clause(cl), resultStore(resultStore) {};
 
-        virtual Result evaluate() = 0;
+        virtual bool evaluate() = 0;
     };
 }

@@ -487,4 +487,174 @@ TEST_CASE("Evaluate query with only select") {
     }
 }
 
+TEST_CASE("Evaluate statement only queries with two statement number arguments") {
+
+    auto pkb = std::make_shared<PKB>();
+    std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+    std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+
+    QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+    SECTION("follows and valid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with valid follows that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Follow(2,3);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertFollows(2,3);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
+        auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {followClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {"testVar1"};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("follows and invalid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with invalid follows that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Follow(1,3);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertFollows(2,3);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "1");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
+        auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {followClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("followsT and valid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with valid follows* that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Follow*(2,5);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertFollowsT(2,5);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
+        auto followTClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {followTClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {"testVar1"};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("followsT and invalid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with invalid follows* that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Follow*(5,2);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertFollowsT(2,5);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto followTClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {followTClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("parent and valid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with valid parent that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Parent(2,3);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertParent(2,3);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
+        auto parentClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {parentClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {"testVar1"};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("parent and invalid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with invalid parent that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Parent(3,2);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertParent(2,3);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "1");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
+        auto parentClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {parentClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("parentT and valid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with valid parent* that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Parent*(2,5);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertParentT(2,5);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
+        auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {parentTClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {"testVar1"};
+        REQUIRE(res == expectedRes);
+    }
+
+    SECTION("parentT and invalid") {
+        std::cout << "============ Start testing ============" << std::endl;
+        std::cout << "Testing PQL query with invalid parent* that has both statement number as arguments." << std::endl;
+        std::cout << "Testing query: variable v; Select v such that Parent*(5,2);" << std::endl;
+
+        writer->insertVariable("testVar1");
+        writer->insertParentT(2,5);
+
+        auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
+        auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+        auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn});
+        auto q = PQL::Query({varDeclaration}, {parentTClause}, selectSyn);
+
+        auto res = evaluator.evaluateQuery(q);
+        std::vector<std::string> expectedRes = {};
+        REQUIRE(res == expectedRes);
+    }
+}
+
+
 

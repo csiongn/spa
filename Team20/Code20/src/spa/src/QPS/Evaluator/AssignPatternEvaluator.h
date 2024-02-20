@@ -5,9 +5,9 @@
 namespace QueryEvaluator {
     class AssignPatternEvaluator : private ClauseEvaluator {
     public:
-        AssignPatternEvaluator(std::shared_ptr<IPKBReader> r, PQL::Clause cl)
-                : ClauseEvaluator(r, cl) {};
+        AssignPatternEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, const ResultStore &resultStore)
+                : ClauseEvaluator(r, cl, resultStore) {};
 
-        Result evaluate() override;
+        bool evaluate() override;
     };
 }
