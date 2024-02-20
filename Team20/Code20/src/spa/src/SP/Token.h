@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -15,7 +16,6 @@ namespace SP {
         KEYWORD_PROCEDURE, KEYWORD_CALL, KEYWORD_PRINT, KEYWORD_READ, KEYWORD_WHILE, KEYWORD_IF, KEYWORD_THEN, KEYWORD_ELSE
     };
 }
-
 
 /// <summary>
 /// Maps token types to specific strings.
@@ -92,8 +92,19 @@ struct Token {
             return SP::TokenType::NAME;
         }
 
-        // TODO: Implement exception for non-legit non-alphanumeric characters such as ===
-        // TODO: Implement exception for strings with number at the start e.g. 123name
+        // Throw exception for non-legit non-alphanumeric characters such as ===
+        if (!std::isalnum(token_string[0])) {
+            throw std::runtime_error("Syntax error: invalid token " + token_string);
+        }
+
+        // Throw exception for illegal name with number at the start e.g. 123name
+        if (std::isdigit(token_string[0])) { // Start of string is digit
+            for (char c : token_string) {
+                if (!std::isdigit(c)) { // but somewhere in the string, a non-digit exists
+                    throw std::runtime_error("Syntax error: invalid token " + token_string);
+                }
+            }
+        }
 
         // If the token is not found in the mapping and it is not a digit, assume it is a NAME token
         return SP::TokenType::INTEGER;
@@ -106,12 +117,15 @@ struct Token {
     /// <returns>True if string is in mapping</returns>
     static bool isStringInTokenMapping(const std::string& key) {
         auto result = tokenMapping.find(key);
-        if (result == tokenMapping.end()) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return result != tokenMapping.end();
     }
 
+    /// <summary>
+    /// Returns string representation of token with value and line_num
+    /// TODO: Implement token type to string (difficult with scoped enums)
+    /// </summary>
+    /// <returns></returns>
+    std::string toString() const {
+        return "Token(" + value + "\", " + std::to_string(line_num) + ")";
+    }
 };
