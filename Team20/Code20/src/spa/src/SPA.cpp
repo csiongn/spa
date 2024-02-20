@@ -13,7 +13,7 @@ void SPA::parseSimple(const std::string &program) {
     spFacade.populatePKB();
 }
 
-void SPA::evaluateQuery(const std::string &query, std::list<std::string> results) {
+void SPA::evaluateQuery(const std::string &query, std::list<std::string> &results) {
     QPSManager qpsManager = QPSManager(pkb);
     qpsManager.evaluate(query, results);
 }

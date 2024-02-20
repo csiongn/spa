@@ -14,5 +14,5 @@ private:
 public:
     SPA();
     void parseSimple(const std::string &program);
-    void evaluateQuery(const std::string &query, std::list<std::string> results);
+    void evaluateQuery(const std::string &query, std::list<std::string> &results);
 };

@@ -3,7 +3,7 @@
 
 QPSManager::QPSManager(std::shared_ptr<IPKBReader> pkb) : tokenizer(), evaluator(pkb) {};
 
-void QPSManager::evaluate(const std::string &query, std::list<std::string> results) {
+void QPSManager::evaluate(const std::string &query, std::list<std::string> &results) {
     std::vector<std::shared_ptr<QueryToken>> tokens = tokenizer.tokenize(query);
     QueryParser parser(tokens);
 
