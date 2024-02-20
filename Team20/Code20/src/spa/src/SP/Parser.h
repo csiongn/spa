@@ -8,6 +8,7 @@ private:
     std::vector<Token> tokens;
     // Index of current token to be parsed
     size_t current = 0;
+    uint16_t stmtNumber = 0;
 
     bool match(const std::vector<SP::TokenType>& types);
     Token consume(SP::TokenType type, const std::string& message);

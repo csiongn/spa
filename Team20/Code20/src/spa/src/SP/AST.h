@@ -33,7 +33,14 @@ public:
 };
 
 class ExprNode : public ASTNode {};
-class StmtNode : public ASTNode {};
+class StmtNode : public ASTNode {
+public:
+    uint16_t stmtNumber;
+
+    // Constructor
+    explicit StmtNode(uint16_t stmtNumber) : stmtNumber(stmtNumber) {}
+
+};
 
 // BlockNode for statement lists
 class BlockNode : public ASTNode {
@@ -166,11 +173,11 @@ public:
     std::string varName;
     std::unique_ptr<ExprNode> value;
 
-    AssignNode(std::string varName, std::unique_ptr<ExprNode> value)
-        : varName(std::move(varName)), value(std::move(value)) {}
+    AssignNode(uint16_t stmtNumber, std::string varName, std::unique_ptr<ExprNode> value)
+        : StmtNode(stmtNumber), varName(std::move(varName)), value(std::move(value)) {}
 
     std::string serialize() const override {
-        return "Assign " + varName + " [" + value->serialize() + "]";
+        return "Assign-" + std::to_string(this->stmtNumber) + " " + varName + " [" + value->serialize() + "]";
     }
 };
 
@@ -178,10 +185,11 @@ class CallNode : public StmtNode {
 public:
     std::string procName;
 
-    explicit CallNode(std::string procName) : procName(std::move(procName)) {}
+    CallNode(uint16_t stmtNumber, std::string procName)
+        : StmtNode(stmtNumber), procName(std::move(procName)) {}
 
     std::string serialize() const override {
-        return "Call " + procName;
+        return "Call-" + std::to_string(this->stmtNumber) +" " + procName;
     }
 };
 
@@ -189,10 +197,11 @@ class ReadNode : public StmtNode {
 public:
     std::string varName;
 
-    explicit ReadNode(std::string varName) : varName(std::move(varName)) {}
+    ReadNode(uint16_t stmtNumber, std::string varName)
+        : StmtNode(stmtNumber), varName(std::move(varName)) {}
 
     std::string serialize() const override {
-        return "Read " + varName;
+        return "Read-" + std::to_string(this->stmtNumber) +" " + varName;
     }
 };
 
@@ -200,10 +209,11 @@ class PrintNode : public StmtNode {
 public:
     std::string varName;
 
-    explicit PrintNode(std::string varName) : varName(std::move(varName)) {}
+    explicit PrintNode(uint16_t stmtNumber, std::string varName)
+        : StmtNode(stmtNumber), varName(std::move(varName)) {}
 
     std::string serialize() const override {
-        return "Print " + varName;
+        return "Print-" + std::to_string(this->stmtNumber) +" " + varName;
     }
 };
 
@@ -212,11 +222,11 @@ public:
     std::unique_ptr<ExprNode> condition;
     std::unique_ptr<BlockNode> body;
 
-    WhileNode(std::unique_ptr<ExprNode> condition, std::unique_ptr<BlockNode> body)
-        : condition(std::move(condition)), body(std::move(body)) {}
+    WhileNode(uint16_t stmtNumber, std::unique_ptr<ExprNode> condition, std::unique_ptr<BlockNode> body)
+        : StmtNode(stmtNumber), condition(std::move(condition)), body(std::move(body)) {}
 
     std::string serialize() const override {
-        return "While [" + condition->serialize() + "] [" + body->serialize() + "]";
+        return "While-" + std::to_string(this->stmtNumber) +" [" + condition->serialize() + "] [" + body->serialize() + "]";
     }
 };
 
@@ -226,15 +236,17 @@ public:
     std::unique_ptr<BlockNode> thenBranch;
     std::unique_ptr<BlockNode> elseBranch; // Can be null if no else branch is present
 
-    IfNode(std::unique_ptr<ExprNode> condition,
+    IfNode(uint16_t stmtNumber,
+           std::unique_ptr<ExprNode> condition,
            std::unique_ptr<BlockNode> thenBranch,
            std::unique_ptr<BlockNode> elseBranch)
-        : condition(std::move(condition)),
+        : StmtNode(stmtNumber),
+          condition(std::move(condition)),
           thenBranch(std::move(thenBranch)),
           elseBranch(std::move(elseBranch)) {}
 
     std::string serialize() const override {
-        std::string serialized = "If [" + condition->serialize() + "] then [" + thenBranch->serialize() + "]";
+        std::string serialized = "If-" + std::to_string(this->stmtNumber) + " [" + condition->serialize() + "] then [" + thenBranch->serialize() + "]";
         if (elseBranch) {
             serialized += " else [" + elseBranch->serialize() + "]";
         }
