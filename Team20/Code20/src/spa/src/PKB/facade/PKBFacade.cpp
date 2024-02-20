@@ -234,6 +234,14 @@ std::vector<int> PKBFacade::getFollowing(int followerStmtNum) {
     return db->getFollowsManager()->getReverse(followerStmtNum);
 }
 
+std::vector<int> PKBFacade::getFolloweeStmts() {
+    return db->getFollowsManager()->getKeys();
+}
+
+std::vector<int> PKBFacade::getFollowerStmts() {
+    return db->getFollowsManager()->getValues();
+}
+
 // FollowsT
 void PKBFacade::insertFollowsT(int followeeStmtNum, int followerStmtNum) {
     db->getFollowsTManager()->insert(followeeStmtNum, followerStmtNum);
@@ -267,6 +275,14 @@ std::vector<int> PKBFacade::getFollowsT(int followeeStmtNum) {
 
 std::vector<int> PKBFacade::getFollowingT(int followerStmtNum) {
     return db->getFollowsTManager()->getReverse(followerStmtNum);
+}
+
+std::vector<int> PKBFacade::getFolloweeTStmts() {
+    return db->getFollowsTManager()->getKeys();
+}
+
+std::vector<int> PKBFacade::getFollowerTStmts() {
+    return db->getFollowsTManager()->getValues();
 }
 
 // Parent
@@ -306,6 +322,14 @@ std::vector<int> PKBFacade::getParent(int childStmtNum) {
     return db->getParentManager()->getReverse(childStmtNum);
 }
 
+std::vector<int> PKBFacade::getParentStmts() {
+    return db->getParentManager()->getKeys();
+}
+
+std::vector<int> PKBFacade::getChildStmts() {
+    return db->getParentManager()->getValues();
+}
+
 // ParentT
 void PKBFacade::insertParentT(int parentStmtNum, int childStmtNum) {
     db->getParentTManager()->insert(parentStmtNum, childStmtNum);
@@ -343,6 +367,15 @@ std::vector<int> PKBFacade::getParentT(int childStmtNum) {
     return db->getParentTManager()->getReverse(childStmtNum);
 }
 
+std::vector<int> PKBFacade::getParentTStmts() {
+    return db->getParentTManager()->getKeys();
+}
+
+std::vector<int> PKBFacade::getChildTStmts() {
+    return db->getParentTManager()->getValues();
+}
+
+
 // Uses
 void PKBFacade::insertUsesStmt(int stmtNum, std::string const & variable) {
     db->getUsesStmtManager()->insert(stmtNum, variable);
@@ -360,6 +393,14 @@ std::vector<std::string> PKBFacade::getUsesVariable(int stmtNum) {
 
 std::vector<int> PKBFacade::getUsesStmt(std::string const & variable) {
     return db->getUsesStmtManager()->getReverse(variable);
+}
+
+std::vector<int> PKBFacade::getUsesStmt() {
+    return db->getUsesStmtManager()->getKeys();
+}
+
+std::vector<std::string> PKBFacade::getUsesVariable() {
+    return db->getUsesStmtManager()->getValues();
 }
 
 bool PKBFacade::containsUsesStmt(int stmtNum) {
@@ -395,6 +436,14 @@ std::vector<std::string> PKBFacade::getModifiesVariable(int stmtNum) {
 
 std::vector<int> PKBFacade::getModifiesStmt(std::string const & variable) {
     return db->getModifiesStmtManager()->getReverse(variable);
+}
+
+std::vector<int> PKBFacade::getModifiesStmt() {
+    return db->getModifiesStmtManager()->getKeys();
+}
+
+std::vector<std::string> PKBFacade::getModifiesVariable() {
+    return db->getModifiesStmtManager()->getValues();
 }
 
 bool PKBFacade::containsModifiesStmt(int stmtNum) {

@@ -49,6 +49,15 @@ TEST_CASE("PKB Test") {
         sampleRelationshipManager.insert(1, "apple");
         std::vector<std::string> valuesAfterInsert = sampleRelationshipManager.get(1);
         REQUIRE(checkVecValuesEqual(valuesAfterInsert, expectedValues));
+
+        // getKeys()
+        auto keysVec = sampleRelationshipManager.getKeys();
+        std::vector<int> expectedKeysVec = {1, 2, 3};
+        REQUIRE(checkVecValuesEqual(keysVec, expectedKeysVec));
+
+        // getValues()
+        std::vector<std::string> valuesVec = sampleRelationshipManager.getValues();
+        std::vector<std::string> expectedValuesVec = {"apple", "banana", "orange"};
     }
 
     SECTION("FollowsManager") {
@@ -139,6 +148,16 @@ TEST_CASE("PKB Test") {
         std::vector<int> valuesSet = pkb->pkbFacade->getFollows(3);
         std::vector<int> expectedValuesSet = {4, 5, 6};
         REQUIRE(checkVecValuesEqual(valuesSet, expectedValuesSet));
+
+        // getFolloweeStmts
+        std::vector<int> followeeStmts = pkb->pkbFacade->getFolloweeStmts();
+        std::vector<int> expectedFolloweeStmts = {1, 2, 3};
+        REQUIRE(checkVecValuesEqual(followeeStmts, expectedFolloweeStmts));
+
+        // getFollowerStmts
+        std::vector<int> followerStmts = pkb->pkbFacade->getFollowerStmts();
+        std::vector<int> expectedFollowerStmts = {2, 3, 4, 5, 6};
+        REQUIRE(checkVecValuesEqual(followerStmts, expectedFollowerStmts));
 
     }
 
@@ -469,6 +488,16 @@ TEST_CASE("PKB Test") {
         // containsModifiesVariable
         bool containsModifiesVariable = pkbFacade->containsModifiesVariable("a");
         REQUIRE(containsModifiesVariable == true);
+
+        // getModifiesStmt
+        std::vector<int> mStmts = pkbFacade->getModifiesStmt();
+        std::vector<int> expectedMStmts = {1, 2, 3, 4};
+        REQUIRE(checkVecValuesEqual(mStmts, expectedMStmts));
+
+        // getModifiesVariable
+        std::vector<std::string> mVars = pkbFacade->getModifiesVariable();
+        std::vector<std::string> expectedMVars = {"x", "y", "z", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(mVars, expectedMVars));
 
         // containsModifiesRelationship
         bool containsModifiesRelationship = pkbFacade->containsModifiesRelationship(4, "a");

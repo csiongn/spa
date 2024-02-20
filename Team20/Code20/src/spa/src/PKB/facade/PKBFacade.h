@@ -78,6 +78,8 @@ public:
     void insertFollows(int followeeStmtNum, const std::unordered_set<int>& followerStmtSet) override;
     std::vector<int> getFollows(int followeeStmtNum) override;
     std::vector<int> getFollowing(int followerStmtNum) override;
+    std::vector<int> getFolloweeStmts() override;
+    std::vector<int> getFollowerStmts() override;
     bool containsFollows(int followeeStmtNum) override;
     bool containsFollowing(int followerStmtNum) override;
     bool containsFollowsRelationship(int followeeStmtNum, int followerStmtNum) override;
@@ -88,6 +90,8 @@ public:
     void insertFollowsT(int followeeStmtNum, const std::unordered_set<int>& followerStmtSet) override;
     std::vector<int> getFollowsT(int followeeStmtNum) override;
     std::vector<int> getFollowingT(int followerStmtNum) override;
+    std::vector<int> getFolloweeTStmts() override;
+    std::vector<int> getFollowerTStmts() override;
     bool containsFollowsT(int followeeStmtNum) override;
     bool containsFollowingT(int followerStmtNum) override;
     bool containsFollowsTRelationship(int followeeStmtNum, int followerStmtNum) override;
@@ -98,6 +102,8 @@ public:
     void insertParent(int parentStmtNum, const std::unordered_set<int>& childStmtSet) override;
     std::vector<int> getChild(int parentStmtNum) override;
     std::vector<int> getParent(int childStmtNum) override;
+    std::vector<int> getParentStmts() override;
+    std::vector<int> getChildStmts() override;
     bool containsParent(int parentStmtNum) override;
     bool containsChild(int childStmtNum) override;
     bool containsParentRelationship(int parentStmtNum, int childStmtNum) override;
@@ -108,6 +114,8 @@ public:
     void insertParentT(int parentStmtNum, const std::unordered_set<int> &childStmtSet) override;
     std::vector<int> getChildT(int parentStmtNum) override;
     std::vector<int> getParentT(int childStmtNum) override;
+    std::vector<int> getParentTStmts() override;
+    std::vector<int> getChildTStmts() override;
     bool containsParentT(int parentStmtNum) override;
     bool containsChildT(int childStmtNum) override;
     bool containsParentTRelationship(int parentStmtNum, int childStmtNum) override;
@@ -118,6 +126,8 @@ public:
     void insertUsesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getUsesVariable(int stmtNum) override;
     std::vector<int> getUsesStmt(std::string const & variable) override;
+    std::vector<int> getUsesStmt() override;
+    std::vector<std::string> getUsesVariable() override;
     bool containsUsesStmt(int stmtNum) override;
     bool containsUsesVariable(std::string const & variable) override;
     bool containsUsesRelationship(int stmtNum, std::string const & variable) override;
@@ -128,6 +138,8 @@ public:
     void insertModifiesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getModifiesVariable(int stmtNum) override;
     std::vector<int> getModifiesStmt(std::string const & variable) override;
+    std::vector<int> getModifiesStmt() override;
+    std::vector<std::string> getModifiesVariable() override;
     bool containsModifiesStmt(int stmtNum) override;
     bool containsModifiesVariable(std::string const & variable) override;
     bool containsModifiesRelationship(int stmtNum, std::string const & variable) override;
