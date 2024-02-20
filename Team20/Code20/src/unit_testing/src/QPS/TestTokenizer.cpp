@@ -5,7 +5,7 @@ using namespace std;
 TEST_CASE("Tokenizer") {
     SECTION("TOKENIZE") {
         QueryTokenizer queryTokenizer;
-        std::string query = "assign a; variable v; \nSelect s12d such that Follows*(1,\"sasds\") pattern a(_, \"v\")";
+        std::string query = "assign a1, a2; variable v; \nSelect s12d such that Follows*(1,\"sasds\") pattern a(_, \"v\")";
         // Doesnt stop the tokenization from '&&' within Follows because does not throw error now
 //         std::string query = "Select s12d such that pattern a(_, v) 12Follows(1,\"x*y/3\");";
 
@@ -19,7 +19,7 @@ TEST_CASE("Tokenizer") {
         for (auto token : tokens) {
             token->print();
         }
-        REQUIRE(tokens.size() == 24);
+        REQUIRE(tokens.size() == 26);
 
     }
 }

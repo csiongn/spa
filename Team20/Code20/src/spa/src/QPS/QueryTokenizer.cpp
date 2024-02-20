@@ -148,7 +148,7 @@ std::vector<QueryToken> QueryTokenizer::tokenizeIndividualStr(const std::string&
 bool QueryTokenizer::containsSpecialChar(const std::string &str) const {
     // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
     return std::any_of(str.begin(), str.end(), [](char c) {
-        return c == '\n' || c == ' ' || c == '_' || c == '*' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')';
+        return c == '\n' || c == ' ' || c == '_' || c == '*' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')' || c == ',' || c == ';';
     });
 }
 
