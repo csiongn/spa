@@ -21,7 +21,5 @@ namespace QueryEvaluator {
         Result(const std::unordered_map<std::string, std::vector<std::string>> &t,
                std::unordered_set<std::string> &cols);
         Result() = default;
-
-        bool isEmpty() const;
     };
 }

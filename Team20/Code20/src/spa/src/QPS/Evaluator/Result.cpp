@@ -21,7 +21,4 @@ namespace QueryEvaluator {
                    std::unordered_set<std::string> &cols)
                    : table(t), colNames(cols) {}
 
-    bool Result::isEmpty() const {
-        return table.empty();
-    }
 }
