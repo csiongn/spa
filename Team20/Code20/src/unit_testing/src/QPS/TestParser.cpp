@@ -18,9 +18,7 @@ TEST_CASE("Parse") {
 
         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
-        REQUIRE(expectedClauses == results.clauses);
-        REQUIRE(expectedDeclarations == results.declarations);
-        REQUIRE(expectedSelectSynonym == results.selectSynonym);
+        REQUIRE(expectedQuery == results);
     }
 
     SECTION("unused declarations") {
@@ -37,9 +35,7 @@ TEST_CASE("Parse") {
 
         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
-        REQUIRE(expectedClauses == results.clauses);
-        REQUIRE(expectedDeclarations == results.declarations);
-        REQUIRE(expectedSelectSynonym == results.selectSynonym);
+        REQUIRE(expectedQuery == results);
     }
 
     SECTION("Parent relationship") {
@@ -56,19 +52,17 @@ TEST_CASE("Parse") {
         std::vector<PQL::Clause> expectedClauses;
 
         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::WHILE, "w");
-        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
         PQL::Synonym arg1(SimpleProgram::DesignEntity::WHILE, "w");
-        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "7");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "7");
         std::vector<PQL::Synonym> args;
         args.emplace_back(arg1);
         args.emplace_back(arg2);
         PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, args);
         expectedClauses.emplace_back(clause);
 
-
-        REQUIRE(expectedClauses == results.clauses);
-        REQUIRE(expectedDeclarations == results.declarations);
-        REQUIRE(expectedSelectSynonym == results.selectSynonym);
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
     }
 }
 

@@ -25,8 +25,11 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
     }
     for (const auto& syn : initialDeclarations) {
         if (syn.identity == tokenId) {
-            // Populate usedDeclarations array
-            usedDeclarations.push_back(syn);
+            // Populate usedDeclarations array if not already in array
+            bool usedDeclarationExists = std::find(std::begin(usedDeclarations), std::end(usedDeclarations), syn) != std::end(usedDeclarations);
+            if (!usedDeclarationExists) {
+                usedDeclarations.push_back(syn);
+            }
             return std::make_tuple(true, syn.entityType);
         }
     }
