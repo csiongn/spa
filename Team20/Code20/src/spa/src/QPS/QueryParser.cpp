@@ -36,6 +36,16 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
     return std::make_tuple(false, SimpleProgram::DesignEntity{});
 }
 
+bool QueryParser::verifyNoDuplicateDeclarations(const std::string synonymIdentity) {
+    for (const auto& syn : initialDeclarations) {
+        // We are only concerned about the identity here, not the entityType
+        if (syn.identity == synonymIdentity) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool QueryParser::isStmtRef(std::shared_ptr<QueryToken>& token) {
     return token->getType() == TokenType::INTEGER  ||
         token->getType() == TokenType::NAME ||
@@ -222,6 +232,10 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
             auto entityType = getEntityType(currDeclarations[0]);
             for (int i = 1; i < currDeclarations.size(); i++) {
                 auto currIdentity = currDeclarations[i]->getValue();
+                bool hasDuplicateDeclarations = verifyNoDuplicateDeclarations(currIdentity);
+                if (hasDuplicateDeclarations) {
+                    throw QuerySemanticError("Semantic Error: A synonym name can only be declared once.");
+                }
                 auto declaration = PQL::Synonym(entityType, currIdentity);
                 declarations.push_back(declaration);
             }

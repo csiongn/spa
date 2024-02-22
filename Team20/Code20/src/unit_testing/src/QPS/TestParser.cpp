@@ -5,7 +5,7 @@ using namespace std;
 
 TEST_CASE("Parse") {
     SECTION("Only select clause") {
-        QueryTokenizer queryTokenizer;
+        QueryTokenizer queryTokenizer{};
         std::string query = "variable v; \nSelect v";
         auto tokens = queryTokenizer.tokenize(query);
         QueryParser queryParser(tokens);
@@ -22,7 +22,7 @@ TEST_CASE("Parse") {
     }
 
     SECTION("unused declarations") {
-        QueryTokenizer queryTokenizer;
+        QueryTokenizer queryTokenizer{};
         std::string query = "variable v; assign a; \nSelect v";
         auto tokens = queryTokenizer.tokenize(query);
         QueryParser queryParser(tokens);
@@ -38,8 +38,25 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
+    SECTION("declarations of same synonym identity") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "variable v; assign v; \nSelect v";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
     SECTION("Parent relationship") {
-        QueryTokenizer queryTokenizer;
+        QueryTokenizer queryTokenizer{};
         std::string query = "while w;\n"
                             "Select w such that Parent(w, 7)";
         auto tokens = queryTokenizer.tokenize(query);
