@@ -16,6 +16,7 @@ namespace SimpleProgram {
         WILDCARD,
         IDENT,
         EXPR,
+        PARTIAL_EXPR,
         INTEGER
     };
 
@@ -27,6 +28,7 @@ namespace SimpleProgram {
         USESS,
         USESP,
         MODIFIESS,
-        MODIFIESP
+        MODIFIESP,
+        PATTERN_ASSIGN
     };
 }
