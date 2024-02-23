@@ -8,7 +8,7 @@ void SPFacade::populatePKB()
 
 	// Parse Tokens
 	Parser ps = Parser(tokens);
-	std::unique_ptr<ProgramNode> parsed_program = ps.parse();
+	std::shared_ptr<ProgramNode> parsed_program = ps.parse();
 
 	// Extract designs and populate PKB
 	const ProgramNode& astRoot = *parsed_program;

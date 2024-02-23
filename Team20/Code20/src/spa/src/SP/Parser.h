@@ -19,26 +19,26 @@ private:
     void throwParseError(const std::string& message);
 
     // Expression parsing
-    std::unique_ptr<ExprNode> expression();
-    std::unique_ptr<ExprNode> term();
-    std::unique_ptr<ExprNode> factor();
-    std::unique_ptr<ExprNode> condExpr();
-    std::unique_ptr<ExprNode> relExpr();
-    std::unique_ptr<ExprNode> negExpr();
+    std::shared_ptr<ExprNode> expression();
+    std::shared_ptr<ExprNode> term();
+    std::shared_ptr<ExprNode> factor();
+    std::shared_ptr<ExprNode> condExpr();
+    std::shared_ptr<ExprNode> relExpr();
+    std::shared_ptr<ExprNode> negExpr();
 
     // Statement parsing
-    std::unique_ptr<StmtNode> parseStatement();
-    std::unique_ptr<ProgramNode> parseProgram();
-    std::unique_ptr<ProcedureNode> parseProcedure();
-    std::unique_ptr<CallNode> parseCall();
-    std::unique_ptr<BlockNode> parseBlock();
-    std::unique_ptr<ReadNode> parseRead();
-    std::unique_ptr<PrintNode> parsePrint();
-    std::unique_ptr<AssignNode> parseAssign();
-    std::unique_ptr<WhileNode> parseWhile();
-    std::unique_ptr<IfNode> parseIf();
+    std::shared_ptr<StmtNode> parseStatement();
+    std::shared_ptr<ProgramNode> parseProgram();
+    std::shared_ptr<ProcedureNode> parseProcedure();
+    std::shared_ptr<CallNode> parseCall();
+    std::shared_ptr<BlockNode> parseBlock();
+    std::shared_ptr<ReadNode> parseRead();
+    std::shared_ptr<PrintNode> parsePrint();
+    std::shared_ptr<AssignNode> parseAssign();
+    std::shared_ptr<WhileNode> parseWhile();
+    std::shared_ptr<IfNode> parseIf();
 
 public:
     explicit Parser(std::vector<Token> tokens) : tokens(std::move(tokens)) {}
-    std::unique_ptr<ProgramNode> parse();
+    std::shared_ptr<ProgramNode> parse();
 };

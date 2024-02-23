@@ -45,9 +45,9 @@ public:
 // BlockNode for statement lists
 class BlockNode : public ASTNode {
 public:
-    std::vector<std::unique_ptr<StmtNode> > statements;
+    std::vector<std::shared_ptr<StmtNode> > statements;
 
-    BlockNode(std::vector<std::unique_ptr<StmtNode> > statements)
+    BlockNode(std::vector<std::shared_ptr<StmtNode> > statements)
         : statements(std::move(statements)) {}
 
     std::string serialize() const override {
@@ -64,9 +64,9 @@ public:
 class ProcedureNode : public ASTNode {
 public:
     std::string name;
-    std::unique_ptr<BlockNode> body;
+    std::shared_ptr<BlockNode> body;
 
-    ProcedureNode(std::string name, std::unique_ptr<BlockNode> body)
+    ProcedureNode(std::string name, std::shared_ptr<BlockNode> body)
         : name(std::move(name)), body(std::move(body)) {}
 
     std::string serialize() const override {
@@ -76,9 +76,9 @@ public:
 
 class ProgramNode : public ASTNode {
 public:
-    std::vector<std::unique_ptr<ProcedureNode>> procedures;
+    std::vector<std::shared_ptr<ProcedureNode>> procedures;
 
-    explicit ProgramNode(std::vector<std::unique_ptr<ProcedureNode>> procedures)
+    explicit ProgramNode(std::vector<std::shared_ptr<ProcedureNode>> procedures)
         : procedures(std::move(procedures)) {}
 
     std::string serialize() const override {
@@ -94,11 +94,11 @@ public:
 
 class BinaryExprNode : public ExprNode {
 public:
-    std::unique_ptr<ExprNode> left;
-    std::unique_ptr<ExprNode> right;
+    std::shared_ptr<ExprNode> left;
+    std::shared_ptr<ExprNode> right;
     std::string op;
 
-    BinaryExprNode(std::unique_ptr<ExprNode> left, std::string op, std::unique_ptr<ExprNode> right)
+    BinaryExprNode(std::shared_ptr<ExprNode> left, std::string op, std::shared_ptr<ExprNode> right)
         : left(std::move(left)), op(std::move(op)), right(std::move(right)) {}
 
     std::string serialize() const override {
@@ -109,9 +109,9 @@ public:
 
 class NegationNode : public ExprNode {
 public:
-    std::unique_ptr<ExprNode> expr;
+    std::shared_ptr<ExprNode> expr;
 
-    explicit NegationNode(std::unique_ptr<ExprNode> expr) : expr(std::move(expr)) {}
+    explicit NegationNode(std::shared_ptr<ExprNode> expr) : expr(std::move(expr)) {}
 
     std::string serialize() const override {
         return "Not [" + expr->serialize() + "]";
@@ -120,11 +120,11 @@ public:
 
 class LogicalOpNode : public ExprNode {
 public:
-    std::unique_ptr<ExprNode> left;
-    std::unique_ptr<ExprNode> right;
+    std::shared_ptr<ExprNode> left;
+    std::shared_ptr<ExprNode> right;
     std::string op;
 
-    LogicalOpNode(std::unique_ptr<ExprNode> left, std::string op, std::unique_ptr<ExprNode> right)
+    LogicalOpNode(std::shared_ptr<ExprNode> left, std::string op, std::shared_ptr<ExprNode> right)
         : left(std::move(left)), op(std::move(op)), right(std::move(right)) {}
 
     std::string serialize() const override {
@@ -134,11 +134,11 @@ public:
 
 class RelExprNode : public ExprNode {
 public:
-    std::unique_ptr<ExprNode> left;
-    std::unique_ptr<ExprNode> right;
+    std::shared_ptr<ExprNode> left;
+    std::shared_ptr<ExprNode> right;
     std::string relational_op; // Relational operators are >, <, ==, !=, >=, <=
 
-    RelExprNode(std::unique_ptr<ExprNode> left, std::string relational_op, std::unique_ptr<ExprNode> right)
+    RelExprNode(std::shared_ptr<ExprNode> left, std::string relational_op, std::shared_ptr<ExprNode> right)
         : left(std::move(left)), relational_op(std::move(relational_op)), right(std::move(right)) {}
 
     std::string serialize() const override {
@@ -171,9 +171,9 @@ public:
 class AssignNode : public StmtNode {
 public:
     std::string varName;
-    std::unique_ptr<ExprNode> value;
+    std::shared_ptr<ExprNode> value;
 
-    AssignNode(uint16_t stmtNumber, std::string varName, std::unique_ptr<ExprNode> value)
+    AssignNode(uint16_t stmtNumber, std::string varName, std::shared_ptr<ExprNode> value)
         : StmtNode(stmtNumber), varName(std::move(varName)), value(std::move(value)) {}
 
     std::string serialize() const override {
@@ -219,10 +219,10 @@ public:
 
 class WhileNode : public StmtNode {
 public:
-    std::unique_ptr<ExprNode> condition;
-    std::unique_ptr<BlockNode> body;
+    std::shared_ptr<ExprNode> condition;
+    std::shared_ptr<BlockNode> body;
 
-    WhileNode(uint16_t stmtNumber, std::unique_ptr<ExprNode> condition, std::unique_ptr<BlockNode> body)
+    WhileNode(uint16_t stmtNumber, std::shared_ptr<ExprNode> condition, std::shared_ptr<BlockNode> body)
         : StmtNode(stmtNumber), condition(std::move(condition)), body(std::move(body)) {}
 
     std::string serialize() const override {
@@ -232,14 +232,14 @@ public:
 
 class IfNode : public StmtNode {
 public:
-    std::unique_ptr<ExprNode> condition;
-    std::unique_ptr<BlockNode> thenBranch;
-    std::unique_ptr<BlockNode> elseBranch; // Can be null if no else branch is present
+    std::shared_ptr<ExprNode> condition;
+    std::shared_ptr<BlockNode> thenBranch;
+    std::shared_ptr<BlockNode> elseBranch; // Can be null if no else branch is present
 
     IfNode(uint16_t stmtNumber,
-           std::unique_ptr<ExprNode> condition,
-           std::unique_ptr<BlockNode> thenBranch,
-           std::unique_ptr<BlockNode> elseBranch)
+           std::shared_ptr<ExprNode> condition,
+           std::shared_ptr<BlockNode> thenBranch,
+           std::shared_ptr<BlockNode> elseBranch)
         : StmtNode(stmtNumber),
           condition(std::move(condition)),
           thenBranch(std::move(thenBranch)),
