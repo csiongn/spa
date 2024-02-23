@@ -105,10 +105,10 @@ void SPFacade::insertRelationship(SimpleProgram::DesignAbstraction relationship,
 
 void SPFacade::insertRelationship(SimpleProgram::DesignAbstraction relationship, int key, const std::unordered_set<std::string>& value) {
     switch(relationship) {
-        case SimpleProgram::DesignAbstraction::USES:
+        case SimpleProgram::DesignAbstraction::USESS:
             pkbFacade->insertUsesStmt(key, value);
             break;
-        case SimpleProgram::DesignAbstraction::MODIFIES:
+        case SimpleProgram::DesignAbstraction::MODIFIESS:
             pkbFacade->insertModifiesStmt(key, value);
             break;
         default:

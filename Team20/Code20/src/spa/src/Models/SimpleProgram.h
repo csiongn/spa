@@ -24,7 +24,9 @@ namespace SimpleProgram {
         FOLLOWST,
         PARENT,
         PARENTT,
-        USES,
-        MODIFIES
+        USESS,
+        USESP,
+        MODIFIESS,
+        MODIFIESP
     };
 }

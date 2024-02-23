@@ -1,7 +1,6 @@
 #include "StatementEvaluator.h"
 #include "ClauseEvaluator.h"
 
-
 namespace QueryEvaluator {
 
     bool StatementEvaluator::evaluate() {
@@ -67,7 +66,7 @@ namespace QueryEvaluator {
 
     bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int leftStmtNum,
                                              int rightStmtNum) {
-        switch (clause.clauseType) {
+        switch (relationship) {
             case SimpleProgram::DesignAbstraction::FOLLOWS:
                 return reader->containsFollowsRelationship(leftStmtNum, rightStmtNum);
             case SimpleProgram::DesignAbstraction::FOLLOWST:
@@ -127,7 +126,7 @@ namespace QueryEvaluator {
             }
 
             if (rArg.entityType == SimpleProgram::DesignEntity::STMT && !rResults.empty()) {
-                resultStore.createColumn(rArg, rResults);
+                resultStore->createColumn(rArg, rResults);
             }
             return !rResults.empty();
         }
@@ -136,13 +135,14 @@ namespace QueryEvaluator {
     }
 
     bool StatementEvaluator::getRightResults() {
+        // get all right stmtNums that satisfy the relationship with the fixed left stmtNum
         PQL::Synonym rArg = clause.arguments[1];
         int leftStmtNum = stoi(clause.arguments[0].identity);
 
         std::vector<std::string> rResults = {};
-        std::vector<int> rightStmtNums = getStmtNums(rArg);
+        std::vector<int> rightStmtNums = ClauseEvaluator::getStmtNums(rArg);
 
-        for (auto rightStmtNum : rightStmtNums) {
+        for (auto rightStmtNum: rightStmtNums) {
             if (hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum)) {
                 rResults.push_back(std::to_string(rightStmtNum));
             }
@@ -152,7 +152,7 @@ namespace QueryEvaluator {
             return false;
         }
 
-        resultStore.createColumn(rArg, rResults);
+        resultStore->createColumn(rArg, rResults);
         return true;
     }
 
@@ -165,7 +165,7 @@ namespace QueryEvaluator {
             return false;
         }
 
-        resultStore.createColumn(rArg, rResults);
+        resultStore->createColumn(rArg, rResults);
         return true;
     }
 
@@ -197,7 +197,7 @@ namespace QueryEvaluator {
             }
 
             if (lArg.entityType == SimpleProgram::DesignEntity::STMT && !lResults.empty()) {
-                resultStore.createColumn(lArg, lResults);
+                resultStore->createColumn(lArg, lResults);
             }
             return !lResults.empty();
         }
@@ -206,13 +206,14 @@ namespace QueryEvaluator {
     }
 
     bool StatementEvaluator::getLeftResults() {
+        // get all left stmtNums that satisfy the relationship with the fixed right stmtNum
         PQL::Synonym lArg = clause.arguments[0];
         int rightStmtNum = stoi(clause.arguments[1].identity);
 
         std::vector<std::string> lResults = {};
-        std::vector<int> leftStmtNums = getStmtNums(lArg);
+        std::vector<int> leftStmtNums = ClauseEvaluator::getStmtNums(lArg);
 
-        for (auto leftStmtNum : leftStmtNums) {
+        for (auto leftStmtNum: leftStmtNums) {
             if (hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum)) {
                 lResults.push_back(std::to_string(leftStmtNum));
             }
@@ -222,7 +223,7 @@ namespace QueryEvaluator {
             return false;
         }
 
-        resultStore.createColumn(lArg, lResults);
+        resultStore->createColumn(lArg, lResults);
         return true;
     }
 
@@ -235,33 +236,12 @@ namespace QueryEvaluator {
             return false;
         }
 
-        resultStore.createColumn(lArg, lResults);
+        resultStore->createColumn(lArg, lResults);
         return true;
     }
 
-    std::vector<int> StatementEvaluator::getStmtNums(const PQL::Synonym &syn) {
-        switch (syn.entityType) {
-            case SimpleProgram::DesignEntity::STMT:
-                return reader->getAllStatementNum();
-            case SimpleProgram::DesignEntity::READ:
-                return reader->getAllReadStmtNum();
-            case SimpleProgram::DesignEntity::PRINT:
-                return reader->getAllPrintStmtNum();
-            case SimpleProgram::DesignEntity::ASSIGN:
-                return reader->getAllAssignStmtNum();
-            case SimpleProgram::DesignEntity::CALL:
-                return reader->getAllCallStmtNum();
-            case SimpleProgram::DesignEntity::WHILE:
-                return reader->getAllWhileStmtNum();
-            case SimpleProgram::DesignEntity::IF:
-                return reader->getAllIfStmtNum();
-            default:
-                // TODO: throw illegal argument, not allowed entity type for statement reference
-                return {};
-        }
-    }
-
     std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
+        // get all possible left stmtNum that satisfies the relationship
         std::vector<int> keyStmtNums;
         switch (clause.clauseType) {
             case SimpleProgram::DesignAbstraction::FOLLOWS:
@@ -281,13 +261,12 @@ namespace QueryEvaluator {
             return keyStmtNums;
         }
 
-        std::vector<int> synStmtNums = getStmtNums(syn);
-        std::vector<int> intersection;
-
-        return getIntersection(synStmtNums, keyStmtNums);
+        std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(syn);
+        return ClauseEvaluator::getIntersection(synStmtNums, keyStmtNums);
     }
 
     std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
+        // get all possible right stmtNum that satisfies the relationship
         std::vector<int> valueStmtNums;
         switch (clause.clauseType) {
             case SimpleProgram::DesignAbstraction::FOLLOWS:
@@ -307,30 +286,19 @@ namespace QueryEvaluator {
             return valueStmtNums;
         }
 
-        std::vector<int> synStmtNums = getStmtNums(syn);
-        std::vector<int> intersection;
-
-        return getIntersection(synStmtNums, valueStmtNums);
-    }
-
-    std::vector<int> StatementEvaluator::getIntersection(std::vector<int> &v1, std::vector<int> &v2) {
-        std::vector<int> intersection;
-        std::sort(v1.begin(), v1.end());
-        std::sort(v2.begin(), v2.end());
-        std::set_intersection(v1.begin(), v1.end(),
-                              v2.begin(), v2.end(), std::back_inserter(intersection));
-        return intersection;
+        std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(syn);
+        return ClauseEvaluator::getIntersection(synStmtNums, valueStmtNums);
     }
 
     bool StatementEvaluator::getDoubleSynonym() {
         PQL::Synonym lArg = clause.arguments[0];
         PQL::Synonym rArg = clause.arguments[1];
-        std::vector<int> lValues = getStmtNums(lArg);
-        std::vector<int> rValues = getStmtNums(rArg);
+        std::vector<int> lValues = getUniqueKeys(lArg);
+        std::vector<int> rValues = getUniqueValues(rArg);
         std::vector<std::string> lResults = {};
         std::vector<std::string> rResults = {};
 
-        for (auto v1 : lValues) {
+        for (auto v1: lValues) {
             for (auto v2: rValues) {
                 if (hasRelationship(clause.clauseType, v1, v2)) {
                     lResults.push_back(std::to_string(v1));
@@ -343,12 +311,13 @@ namespace QueryEvaluator {
             return false;
         }
 
-        std::unordered_map<std::string, std::vector<std::string>> table {
-                {lArg.identity, lResults},
-                {rArg.identity, rResults}
-        };
-        std::unordered_set<std::string> cols = {lArg.identity, rArg.identity};
-        resultStore.insertResult(std::make_shared<Result>(table, cols));
+        std::vector<std::vector<std::string>> table = {lResults, rResults};
+        std::vector<std::string> colNames = {lArg.identity, rArg.identity};
+        std::unordered_map<std::string, size_t> colNameToIndex;
+        for (size_t i = 0; i < colNames.size(); i++) {
+            colNameToIndex[colNames[i]] = i;
+        }
+        resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
         return true;
     }
 }
