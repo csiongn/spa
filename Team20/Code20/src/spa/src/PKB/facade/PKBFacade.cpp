@@ -461,3 +461,61 @@ bool PKBFacade::containsModifiesRelationship(int stmtNum, std::string const & va
 bool PKBFacade::hasModifiesRelationship() {
     return db->getModifiesStmtManager()->hasRelationship();
 }
+
+// Assign Pattern
+void PKBFacade::insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
+                                    const std::shared_ptr<ExprNode>& nodePtr) {
+    db->getAssignPatternManager()->insert(lhsVar, rhsExprNodeHash, stmtNum, nodePtr);
+}
+
+std::vector<std::string> PKBFacade::getAssignPatternLHS(size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->getLHS(rhsExprNodeHash);
+};
+
+std::vector<size_t> PKBFacade::getAssignPatternRHS(std::string const & variable) {
+    return db->getAssignPatternManager()->getRHS(variable);
+};
+
+std::vector<std::string> PKBFacade::getAssignPatternLHS() {
+    return db->getAssignPatternManager()->getLHSKeys();
+};
+
+std::vector<size_t> PKBFacade::getAssignPatternRHS() {
+    return db->getAssignPatternManager()->getRHSKeys();
+};
+
+std::vector<int> PKBFacade::getAssignPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->getPatternStmtNum(variable, rhsExprNodeHash);
+};
+
+std::vector<int> PKBFacade::getAssignPatternLHSStmtNum(std::string const & variable) {
+    return db->getAssignPatternManager()->getLHSStmtNum(variable);
+};
+
+std::vector<int> PKBFacade::getAssignPatternRHSStmtNum(size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->getRHSStmtNum(rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->getRHSNodePtr(rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPatternRHSExprNodePtr() {
+    return db->getAssignPatternManager()->getRHSNodePtr();
+};
+
+bool PKBFacade::containsAssignPattern(std::string const & variable, size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->containsPattern(variable, rhsExprNodeHash);
+};
+
+bool PKBFacade::containsAssignPatternLHS(std::string const & variable) {
+    return db->getAssignPatternManager()->containsLHS(variable);
+};
+
+bool PKBFacade::containsAssignPatternRHS(size_t const & rhsExprNodeHash) {
+    return db->getAssignPatternManager()->containsRHS(rhsExprNodeHash);
+};
+
+bool PKBFacade::hasAssignPattern() {
+    return db->getAssignPatternManager()->hasPattern();
+};

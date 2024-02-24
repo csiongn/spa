@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "SP/AST.h"
 
 // interface for FacadeAPI to implement
 class IPKBReader {
@@ -110,4 +111,30 @@ public:
     virtual bool containsModifiesVariable(std::string const & variable) = 0;
     virtual bool containsModifiesRelationship(int stmtNum, std::string const & variable) = 0;
     virtual bool hasModifiesRelationship() = 0;
+
+    // Pattern
+    // LHS, RHS
+    // return variables that has RHS expression
+    virtual std::vector<std::string> getAssignPatternLHS(size_t const & rhsExprNodeHash) = 0;
+    // return expression's hash that has LHS variable
+    virtual std::vector<size_t> getAssignPatternRHS(std::string const & variable) = 0;
+    virtual std::vector<std::string> getAssignPatternLHS() = 0;
+    // RHS hash
+    virtual std::vector<size_t> getAssignPatternRHS() = 0;
+
+    // get stmt number
+    virtual std::vector<int> getAssignPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) = 0;
+    virtual std::vector<int> getAssignPatternLHSStmtNum(std::string const & variable) = 0;
+    virtual std::vector<int> getAssignPatternRHSStmtNum(size_t const & rhsExprNodeHash) = 0;
+
+    // get expr node ptr
+    virtual std::vector<std::shared_ptr<ExprNode>> getAssignPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) = 0;
+    virtual std::vector<std::shared_ptr<ExprNode>> getAssignPatternRHSExprNodePtr() = 0;
+
+    // will convert expression into node hash to do comparison
+    virtual bool containsAssignPattern(std::string const & variable, size_t const & rhsExprNodeHash) = 0;
+    virtual bool containsAssignPatternLHS(std::string const & variable) = 0;
+    virtual bool containsAssignPatternRHS(size_t const & rhsExprNodeHash) = 0;
+
+    virtual bool hasAssignPattern() = 0;
 };

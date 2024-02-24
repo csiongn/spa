@@ -63,3 +63,7 @@ std::shared_ptr<UsesStmtManager> Database::getUsesStmtManager() {
 std::shared_ptr<ModifiesStmtManager> Database::getModifiesStmtManager() {
     return modifiesStmtManager;
 }
+
+std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
+    return assignPatternManager;
+}
