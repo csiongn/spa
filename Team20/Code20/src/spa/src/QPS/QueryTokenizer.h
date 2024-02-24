@@ -2,15 +2,12 @@
 #include <sstream>
 #include "QueryToken.h"
 class QueryTokenizer {
-protected:
+public:
     std::istream *inputStream;
 
-public:
     explicit QueryTokenizer() = default;
     // Cannot send in query here, need to return the tokenizer
     std::vector<std::shared_ptr<QueryToken> > tokenize(const std::string &query);
-
-    std::vector<QueryToken> tokenizeIndividualStr(const std::string &individualStr);
 
     bool startsWithLetter(const std::string& str) const;
 
@@ -29,4 +26,6 @@ public:
     bool isCharSpecialChar(char &c) const;
 
     bool isCharStar(char &c) const;
+
+    bool isCharWhitespace(char &c) const;
 };
