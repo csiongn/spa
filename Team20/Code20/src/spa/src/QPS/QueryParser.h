@@ -25,11 +25,18 @@ private:
     bool isValidRelationship(int start);
     bool isValidRelationshipArguments(int pos1, int pos2);
     bool isValidAssignSynonym(std::shared_ptr<QueryToken>& token);
-    bool isValidPattern(int start);
+    bool isValidPattern(int start, int end);
+
+    static bool isLetter(char c);
+    static bool isDigit(char c);
+    static bool isName(const std::string& str);
+    static bool isInteger(const std::string& str);
+    bool isFactor(const std::string& str);
+    bool isExpSpec(const std::string& str);
 
     static bool isStmtRef(std::shared_ptr<QueryToken>& token);
     static bool isEntRef(std::shared_ptr<QueryToken>& token);
-    static bool isExpSpec(std::shared_ptr<QueryToken>& token);
+
 
     std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> getRelationshipAttributes();
     std::vector<PQL::Synonym> parseDeclarations();

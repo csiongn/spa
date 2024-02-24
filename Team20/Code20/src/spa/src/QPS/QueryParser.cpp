@@ -58,9 +58,79 @@ bool QueryParser::isEntRef(std::shared_ptr<QueryToken>& token) {
         token->getType() == TokenType::CONSTANT_STRING;
 }
 
-bool QueryParser::isExpSpec(std::shared_ptr<QueryToken>& token) {
-    // TODO: Implement isExpSpec
-    return false;
+bool QueryParser::isLetter(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool QueryParser::isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool QueryParser::isName(const std::string& str) {
+    if (str.empty()) {
+        return false; // Empty string is not a valid name
+    }
+
+    // Check if the first character is a letter
+    if (!isLetter(str[0])) {
+        return false;
+    }
+
+    // Check if the remaining characters are letters or digits
+    for (size_t i = 1; i < str.size(); ++i) {
+        if (!isLetter(str[i]) && !isDigit(str[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool QueryParser::isInteger(const std::string& str) {
+    if (str.empty()) {
+        return false; // Empty string is not a valid integer
+    }
+
+    // If the first character is '0', it must be the only character in the string
+    if (str.size() == 1 && str[0] == '0') {
+        return true;
+    }
+
+    // If the first character is not '0', it must be a non-zero digit
+    if (str[0] < '1' || str[0] > '9') {
+        return false;
+    }
+
+    // Check if the remaining characters are digits
+    for (size_t i = 1; i < str.size(); ++i) {
+        if (!isDigit(str[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool QueryParser::isExpSpec(const std::string& str) {
+    if (str.empty()) {
+        return false;
+    } else {
+        if (str.length() == 1 && str[0] == '_') {
+            return true;
+        } else if (str.length() == 1) {
+            return isFactor(str);
+        } else {
+            std::string partialExp = std::string(str.begin() + 1, str.end() - 1);
+            return str[0] == '_' && str[str.length() - 1] == '_' && isFactor(partialExp);
+        }
+    }
+}
+
+
+bool QueryParser::isFactor(const std::string& str) {
+    bool isFactor = isName(str) || isInteger(str);
+
+    return isFactor;
 }
 
 bool QueryParser::isValidRelationship(int start) {
@@ -98,16 +168,37 @@ bool QueryParser::isValidAssignSynonym(std::shared_ptr<QueryToken>& token) {
     return false;
 }
 
-bool QueryParser::isValidPattern(int start) {
+bool QueryParser::isValidPattern(int start, int end) {
+    if (start > end) {
+        throw QuerySyntaxError("Syntax Error: Invalid pattern");
+    }
+
+    // pattern syntax:
+    // 'pattern' {syn-assign} '(' {entRef} ',' {expSpec} ')'
+    if (end >= tokens.size()) {
+        throw QuerySyntaxError("Syntax Error: Pattern clause has wrong format");
+    }
     auto assignSynonym = tokens[start++];
+
     bool isValidAssignSyn = isValidAssignSynonym(assignSynonym);
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
-    bool hasValidSecondArgument = isExpSpec(tokens[start++]);
-    bool hasClosingBrace = tokens[start]->getValue() == ")";
 
-    return true;
+    std::string expSpecStr;
+    for (int i = start; i < end; i++) {
+        expSpecStr += tokens[i]->getValue();
+    }
+
+    bool hasValidSecondArgument = isExpSpec(expSpecStr);
+    bool hasClosingBrace = tokens[end]->getValue() == ")";
+
+    bool isValidPatternRes = isValidAssignSyn && hasOpeningBrace && hasValidFirstArgument && hasValidCommaSeparator && hasValidSecondArgument && hasClosingBrace;
+    if (!isValidPatternRes) {
+        throw QuerySyntaxError("Syntax Error: Invalid pattern syntax");
+    }
+
+    return isValidPatternRes;
 }
 
 std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> QueryParser::getRelationshipAttributes() {
@@ -189,6 +280,8 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
         return SimpleProgram::DesignEntity::VARIABLE;
     } else if (tokenValue == "constant") {
         return SimpleProgram::DesignEntity::CONSTANT;
+    } else if (tokenValue == "_") {
+        return SimpleProgram::DesignEntity::WILDCARD;
     } else {
         throw QuerySyntaxError("Syntax Error for the following token: " + tokenValue);
     }
@@ -265,15 +358,53 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
         // only have two options, either 'such that' clause, or 'pattern' clause
 
         if (tokenValue == "pattern") {
-            // TODO: Add implementation for 'pattern' clause
+            // Loop through to find closing brace index;
+            int curr = pos+1;
+            while (curr < tokens.size()) {
+                auto token = tokens[curr];
+                auto val = token->getValue();
+                if (val == ")") {
+                    break;
+                }
+                curr++;
+            }
+            // Will throw error and terminate within isValidPattern, hence always true;
+            isValidPattern(pos+1,curr);
+
+            std::vector<PQL::Synonym> patternArgs;
+            auto assignArg = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, tokens[pos+1]->getValue());
+            auto arg1 = PQL::Synonym(getEntityType(tokens[pos+3]), tokens[pos+3]->getValue());
+            SimpleProgram::DesignEntity exprType;
+            std::string exprId;
+            if ((curr - (pos + 5)) > 1) {
+                std::string id;
+                for (int i = pos+5; i < curr; i++) {
+                    id += tokens[i]->getValue();
+                }
+                exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
+                exprId = id;
+            } else {
+                exprType = SimpleProgram::DesignEntity::EXPR;
+                exprId = tokens[pos+5]->getValue();
+            }
+
+            auto arg2 = PQL::Synonym(exprType, exprId);
+            patternArgs.push_back(assignArg);
+            patternArgs.push_back(arg1);
+            patternArgs.push_back(arg2);
+            auto clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+            clauses.push_back(clause);
+            pos = curr + 1;
+
         } else {
             if (pos + 1 < tokens.size()) {
-                auto nextToken = tokens[pos++];
+                auto nextToken = tokens[++pos];
                 auto nextTokenValue = nextToken->getValue();
-
                 if (tokenValue != "such" && nextTokenValue != "that") {
+                    pos++;
                     continue;
                 }
+                pos++;
             }
 
             std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> verification = getRelationshipAttributes();
@@ -286,6 +417,7 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                 auto clause = PQL::Clause(abstraction, args);
                 clauses.push_back(clause);
             }
+            pos++;
         }
     }
 
@@ -298,6 +430,10 @@ PQL::Synonym QueryParser::parseSelectClause() {
         throw QuerySemanticError("Semantic Error: Select clause should come first");
     }
 
+    if (pos + 1 >= tokens.size()) {
+        throw QuerySyntaxError("Syntax Error: Missing Relationship Reference for Select clause");
+    }
+
     auto selectSynonymToken = tokens[++pos];
     std::string id = selectSynonymToken->getValue();
     auto results = verifyDeclarationExists(selectSynonymToken);
@@ -307,6 +443,6 @@ PQL::Synonym QueryParser::parseSelectClause() {
     }
     auto entityType = std::get<1>(results);
     const PQL::Synonym selectSynonym = PQL::Synonym(entityType, id);
-    pos += 2;
+    pos += 1;
     return selectSynonym;
 }

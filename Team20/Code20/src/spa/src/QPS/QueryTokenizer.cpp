@@ -117,6 +117,12 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
             std::cout << "no operations yet: " << nextChar << '\n';
         }
     }
+
+    // if current char is EOF, add remaining string if any
+    if (nextChar == EOF && !currentStr.empty()) {
+        queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr));
+    }
+
     return queryTokens;
 }
 
@@ -179,6 +185,4 @@ bool QueryTokenizer::containsFactorSpecialChar(const std::string &str) const {
         return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
     });
 }
-
-
 
