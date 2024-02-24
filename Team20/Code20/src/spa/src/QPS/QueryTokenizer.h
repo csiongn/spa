@@ -23,7 +23,11 @@ public:
 
     bool containsSpecialChar(const std::string &str) const;
 
+    bool containsFactorSpecialChar(const std::string &str) const;
+
     bool isCharSpecialChar(char &c) const;
+
+    bool isCharFactorSpecialChar(char &c) const;
 
     bool isCharStar(char &c) const;
 

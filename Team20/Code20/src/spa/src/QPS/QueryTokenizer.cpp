@@ -16,6 +16,7 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
     char nextChar = static_cast<char>(iss.peek());
     bool isApostropheOpen = false;
     std::string currentStr;
+    bool hasSpaceinApostrophe = false;
     while (nextChar != EOF) {
         // while nextChar is still a character, continue to get NAME type
         if (!currentStr.empty()) {
@@ -24,15 +25,19 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
                 throw QuerySyntaxError("Syntax Error for the following token: " + currentStr);
             }
         }
+        // isWhitespace, currenStr is alnum, and nextChar is char invalid token
         // if nextChar is whitespace, skip
         if (nextChar == ' ' || nextChar == '\n' || nextChar == '\t') {
             // if current string is non empty, follows NAME rule, add to tokens, and apostrophe must not be open
             // Add currentStr as NAME token and clear
             if (!isApostropheOpen) {
+
                 if (!currentStr.empty()) {
                     queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr));
                     currentStr.clear();
                 }
+            } else {
+                hasSpaceinApostrophe = true;
             }
             // continue on, currentStr may continue to be added
             iss.get(); // remove from stream
@@ -40,9 +45,26 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
             continue;
         } else if (nextChar == '"' && isApostropheOpen) {
             isApostropheOpen = !isApostropheOpen;
+
             if (!currentStr.empty()) {
-                queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::CONSTANT_STRING, currentStr));
-                currentStr.clear();
+                // check if want to do constant_string or expression tokens
+                if (containsFactorSpecialChar(currentStr)) {
+                    // use currentStr and iterate through each character to store
+                    for (char c : currentStr) {
+                        if (isCharFactorSpecialChar(c)) {
+                            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::SPECIAL_CHARACTER, std::string(1, c)));
+                        } else {
+                            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, std::string(1, c)));
+                        }
+                    }
+                    currentStr.clear();
+                    hasSpaceinApostrophe = false;
+                } else if (hasSpaceinApostrophe) {
+                    throw QuerySyntaxError("Syntax Error for the following token: " + currentStr);
+                } else {
+                    queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::CONSTANT_STRING, currentStr));
+                    currentStr.clear();
+                }
             }
             // move on
             iss.get(); // remove from stream
@@ -132,6 +154,10 @@ bool QueryTokenizer::isCharSpecialChar(char& c) const {
     return c == '_' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')' || c == '*' || c == ',' || c == ';';
 }
 
+bool QueryTokenizer::isCharFactorSpecialChar(char& c) const {
+    return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
+}
+
 bool QueryTokenizer::isCharStar(char& c) const {
     return c == '*';
 }
@@ -144,6 +170,13 @@ bool QueryTokenizer::containsSpecialChar(const std::string &str) const {
     // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
     return std::any_of(str.begin(), str.end(), [](char c) {
         return c == '_' || c == '*' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')' || c == ',' || c == ';';
+    });
+}
+
+bool QueryTokenizer::containsFactorSpecialChar(const std::string &str) const {
+    // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
+    return std::any_of(str.begin(), str.end(), [](char c) {
+        return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
     });
 }
 
