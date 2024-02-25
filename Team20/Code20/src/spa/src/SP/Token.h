@@ -121,6 +121,26 @@ struct Token {
     }
 
     /// <summary>
+    /// Checks if string is parenthesis or brace.
+    /// </summary>
+    /// <param name="key">String input</param>
+    /// <returns>True if string is brace or parenthesis.</returns>
+    static bool isStringBraceOrParen(const std::string& key) {
+        auto result = tokenMapping.find(key);
+        if (result != tokenMapping.end()) {
+            switch (result->second) {
+                case SP::TokenType::LEFT_BRACE:
+                case SP::TokenType::LEFT_PAREN:
+                case SP::TokenType::RIGHT_BRACE:
+                case SP::TokenType::RIGHT_PAREN:
+                    return true;
+                default:
+                    return false;
+                }
+        }
+    }
+
+    /// <summary>
     /// Returns string representation of token with value and line_num
     /// TODO: Implement token type to string (difficult with scoped enums)
     /// </summary>

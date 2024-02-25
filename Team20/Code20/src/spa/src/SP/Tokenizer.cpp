@@ -28,6 +28,10 @@ void Tokenizer::tokenizeProgram() {
     tokens_.push_back(t);
 }
 
+bool is_paren_or_brace(const std::string& s) {
+    return Token::isStringBraceOrParen(s);
+}
+
 /*
 Checks if string has a delimiter attached at the end or in the middle. 
 E.g. x + y = z;
@@ -40,31 +44,36 @@ Should give "x", "===", "y"
 */
 std::vector<std::string> Tokenizer::tokenizeWord(const std::string& word) {
     std::vector<std::string> tokens;
-    std::string currentToken;
+    std::string currTokenString;
 
     for (size_t i = 0; i < word.length(); ++i) {
         char c = word[i];
         if (isSpecialToken(c)) {
-            if (!currentToken.empty()) {
-                tokens.push_back(currentToken);
-                currentToken.clear();
-            }
-            currentToken += c;
 
-            // Check for multi-length tokens e.g. ==
-            while (i + 1 < word.length() && isSpecialToken(word[i + 1])) {
-                currentToken += word[++i];
+            // Push back all existing non-special tokens
+            if (!currTokenString.empty()) {
+                tokens.push_back(currTokenString);
+                currTokenString.clear();
             }
-            tokens.push_back(currentToken);
-            currentToken.clear();
+
+            currTokenString += c;
+
+            // Peek ahead for special tokens, then add them to current token string
+            // we exclude parenthesis and braces as they need to be tokenized individually
+            while (i + 1 < word.length() && isSpecialToken(word[i + 1]) && !is_paren_or_brace(currTokenString)) {
+                currTokenString += word[++i];
+            }
+
+            tokens.push_back(currTokenString);
+            currTokenString.clear();
         }
         else {
-            currentToken += c;
+            currTokenString += c;
         }
     }
 
-    if (!currentToken.empty()) {
-        tokens.push_back(currentToken);
+    if (!currTokenString.empty()) {
+        tokens.push_back(currTokenString);
     }
 
     return tokens;
