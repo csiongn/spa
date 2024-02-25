@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "ClauseEvaluator.h"
 
 namespace QueryEvaluator {

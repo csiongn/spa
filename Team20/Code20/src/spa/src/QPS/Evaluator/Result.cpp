@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iterator>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -89,8 +90,7 @@ namespace QueryEvaluator {
         return std::make_shared<Result>(newResult);
     }
 
-    std::shared_ptr<Result>
-    Result::hashJoin(QueryEvaluator::Result &result, std::vector<std::string> commonCols) {
+    std::shared_ptr<Result> Result::hashJoin(QueryEvaluator::Result &result, std::vector<std::string> commonCols) {
         std::vector<std::vector<std::string>> newTable;
         std::vector<std::string> newColNames;
         std::unordered_map<std::string, size_t> newColNameToIndex;
