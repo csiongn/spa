@@ -4,7 +4,6 @@
 #include "PKB/facade/PKBFacade.h"
 #include <unordered_map>
 #include <unordered_set>
-#include <utility>
 
 class DesignExtractor {
 public:
@@ -29,6 +28,14 @@ public:
         return parentT;
     }
 
+    const std::unordered_map<int, std::unordered_set<std::string>>& getUses() const {
+        return uses;
+    }
+
+    const std::unordered_map<int, std::unordered_set<std::string>>& getModifies() const {
+        return modifies;
+    }
+
     const std::unordered_set<std::string>& getVariables() const {
         return variables;
     }
@@ -36,10 +43,16 @@ public:
 private:
 
     std::shared_ptr<PKBFacade> pkbFacade;
+
+    // Design abstractions
     std::unordered_map<int, int> follows;
     std::unordered_map<int, std::unordered_set<int>> followsT;
     std::unordered_map<int, int> parent;
     std::unordered_map<int, std::unordered_set<int>> parentT;
+    std::unordered_map<int, std::unordered_set<std::string>> uses;
+    std::unordered_map<int, std::unordered_set<std::string>> modifies;
+
+    // Entities
     std::unordered_set<std::string> variables;
     std::unordered_set<std::string> literals;
     std::unordered_set<int> stmts;
@@ -50,6 +63,9 @@ private:
     std::unordered_set<int> printStmts;
     std::unordered_set<int> whileStmts;
 
+    // Specific Nodes
+    std::unordered_set<std::shared_ptr<AssignNode>> assignNodes;
+
 
     // Methods to traverse the AST
     void visitProgramNode(const ProgramNode& node);
@@ -57,11 +73,15 @@ private:
     void visitBlockNode(const BlockNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitStmtNode(const StmtNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitIfNode(const IfNode& node, int stmtNumber);
+    void visitWhileNode(const WhileNode& node, int stmtNumber);
     void visitExprNode(const ExprNode& node, int stmtNumber);
 
     // Utility Methods
     void updateFollows(int stmtNumber, std::vector<int>& stmtList);
     void updateParent(int childStmtNumber, int parentStmtNumber);
+    void updateUses(int stmtNumber, const std::string& variableName);
+    void updateModifies(int stmtNumber, const std::string& variableName);
+
     void insertVariable(const std::string& var);
     void insertLiteral(const std::string& var);
     void insertStmt(const int stmtNum);

@@ -16,6 +16,14 @@ void DesignExtractor::pushToPKB() {
         pkbFacade->insertParent(pair.second, pair.first);
     }
 
+    for (const auto& pair: uses) {
+        pkbFacade->insertUsesStmt(pair.first, pair.second);
+    }
+
+    for (const auto& pair: modifies) {
+        pkbFacade->insertModifiesStmt(pair.first, pair.second);
+    }
+
     for (const auto& pair: followsT) { // Iterate through the map of all followsT relationships
         for (const auto& followerStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive follower of the key statement
             pkbFacade->insertFollowsT(pair.first, followerStmtNum);
@@ -63,6 +71,12 @@ void DesignExtractor::pushToPKB() {
     for (const auto& stmtNum: whileStmts) {
         pkbFacade->insertWhile(stmtNum);
     }
+
+    for (const auto& assignNode: assignNodes) {
+        pkbFacade->insertAssignPattern(assignNode->varName,
+            assignNode->value->getHashValue(), assignNode->stmtNumber, assignNode->value);
+    }
+
 }
 
 
@@ -83,6 +97,33 @@ void DesignExtractor::visitBlockNode(const BlockNode& node, int parentStmt, std:
     }
 }
 
+void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
+    // Binary nodes
+    if (const auto* binaryExprNode = dynamic_cast<const BinaryExprNode*>(&node)) {
+        // Recursively visit left and right sub-expressions
+        visitExprNode(*binaryExprNode->left, stmtNumber);
+        visitExprNode(*binaryExprNode->right, stmtNumber);
+    }
+    else if (const auto* logicalOpNode = dynamic_cast<const LogicalOpNode*>(&node)) {
+        visitExprNode(*logicalOpNode->left, stmtNumber);
+        visitExprNode(*logicalOpNode->right, stmtNumber);
+    }
+    else if (const auto* relExprNode = dynamic_cast<const RelExprNode*>(&node)) {
+        visitExprNode(*relExprNode->left, stmtNumber);
+        visitExprNode(*relExprNode->right, stmtNumber);
+    }
+
+    // Unary nodes (variable nodes)
+    else if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
+        updateUses(stmtNumber, varNode->name);
+        insertVariable(varNode->name);
+    }
+    else if (const auto* literalNode = dynamic_cast<const LiteralNode*>(&node)) {
+        insertLiteral(literalNode->value);
+    }
+
+}
+
 void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::vector<int>& stmtList) {
     int stmtNumber = ++currentStmtNumber; // Assign and increment the global statement number
     updateParent(stmtNumber, parentStmt); // Update the 'Parent' relationship
@@ -93,19 +134,42 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
         insertIf(stmtNumber);
         visitIfNode(*ifNode, stmtNumber);
+    } else if (const auto* whileNode = dynamic_cast<const WhileNode*>(&node)) {
+        insertWhile(stmtNumber);
+        visitWhileNode(*whileNode, stmtNumber);
     } else if (const auto* assignNode = dynamic_cast<const AssignNode*>(&node)) {
         insertAssign(stmtNumber);
+        assignNodes.insert(std::make_shared<AssignNode>(*assignNode));
         insertVariable(assignNode->varName);
+        updateModifies(stmtNumber, assignNode->varName);
         visitExprNode(*assignNode->value, stmtNumber);
     } else if (const auto* callNode = dynamic_cast<const CallNode*>(&node)) {
         insertCall(stmtNumber);
     } else if (const auto* readNode = dynamic_cast<const ReadNode*>(&node)) {
         insertRead(stmtNumber);
         insertVariable(readNode->varName);
+        updateModifies(stmtNumber, readNode->varName);
+
     } else if (const auto* printNode = dynamic_cast<const PrintNode*>(&node)) {
         insertPrint(stmtNumber);
         insertVariable(printNode->varName);
+        updateUses(stmtNumber, printNode->varName);
     }
+}
+
+void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
+    std::vector<int> thenStmtList, elseStmtList;
+    visitExprNode(*node.condition, stmtNumber);
+    visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
+    if (node.elseBranch) { // If 'else' branch exists
+        visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
+    }
+}
+
+void DesignExtractor::visitWhileNode(const WhileNode& node, int stmtNumber) {
+    visitExprNode(*node.condition, stmtNumber);
+    std::vector<int> stmtList;
+    visitBlockNode(*node.body, stmtNumber, stmtList);
 }
 
 void DesignExtractor::updateFollows(int stmtNumber, std::vector<int>& stmtList) {
@@ -134,6 +198,26 @@ void DesignExtractor::updateParent(int childStmtNumber, int parentStmtNumber) {
                 prevTransitive.second.insert(childStmtNumber);
             }
         }
+    }
+}
+
+void DesignExtractor::updateUses(int stmtNumber, const std::string& variableName) {
+    uses[stmtNumber].insert(variableName);
+
+    int parentStmt = stmtNumber;
+    while (parent.count(parentStmt)) {
+        parentStmt = parent.at(parentStmt);
+        uses[parentStmt].insert(variableName);
+    }
+}
+
+void DesignExtractor::updateModifies(int stmtNumber, const std::string& variableName) {
+    modifies[stmtNumber].insert(variableName);
+
+    int parentStmt = stmtNumber;
+    while (parent.count(parentStmt)) {
+        parentStmt = parent.at(parentStmt);
+        modifies[parentStmt].insert(variableName);
     }
 }
 
@@ -173,39 +257,3 @@ void DesignExtractor::insertWhile(const int stmtNum) {
     whileStmts.insert(stmtNum);
 }
 
-void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
-    std::vector<int> thenStmtList, elseStmtList;
-    visitExprNode(*node.condition, stmtNumber);
-    visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
-    if (node.elseBranch) { // If 'else' branch exists
-        visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
-    }
-}
-
-
-
-void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
-    // Binary nodes
-    if (const auto* binaryExprNode = dynamic_cast<const BinaryExprNode*>(&node)) {
-        // Recursively visit left and right sub-expressions
-        visitExprNode(*binaryExprNode->left, stmtNumber);
-        visitExprNode(*binaryExprNode->right, stmtNumber);
-    }
-    else if (const auto* logicalOpNode = dynamic_cast<const LogicalOpNode*>(&node)) {
-        visitExprNode(*logicalOpNode->left, stmtNumber);
-        visitExprNode(*logicalOpNode->right, stmtNumber);
-    }
-    else if (const auto* relExprNode = dynamic_cast<const RelExprNode*>(&node)) {
-        visitExprNode(*relExprNode->left, stmtNumber);
-        visitExprNode(*relExprNode->right, stmtNumber);
-    }
-
-    // Unary nodes (variable nodes)
-    else if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
-        insertVariable(varNode->name);
-    }
-    else if (const auto* literalNode = dynamic_cast<const LiteralNode*>(&node)) {
-        insertLiteral(literalNode->value);
-    }
-
-}
