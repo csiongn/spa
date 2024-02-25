@@ -22,8 +22,8 @@ private:
     PQL::Synonym createSynonym(std::shared_ptr<QueryToken>& token);
     std::tuple<bool, SimpleProgram::DesignEntity> verifyDeclarationExists(const std::shared_ptr<QueryToken>& token);
     bool verifyNoDuplicateDeclarations(std::string synonymIdentity);
-    bool isValidRelationship(int start);
-    bool isValidRelationshipArguments(int pos1, int pos2);
+    bool isValidRelationship(int start, bool isFollowsOrParent);
+    bool isValidRelationshipArguments(int pos1, int pos2, bool isFollowsOrParent);
     bool isValidAssignSynonym(std::shared_ptr<QueryToken>& token);
     bool isValidPattern(int start, int end);
 

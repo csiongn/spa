@@ -4,7 +4,7 @@
 #include "QuerySemanticError.h"
 #include "QuerySyntaxError.h"
 
-QueryParser::QueryParser(std::vector<std::shared_ptr<QueryToken>> tokens) : tokens(std::move(tokens)), pos(0) {};
+QueryParser::QueryParser(std::vector<std::shared_ptr<QueryToken>> tokens) : tokens(std::move(tokens)), pos(0) {}
 
 PQL::Query QueryParser::parse() {
     std::vector<PQL::Clause> clauses;
@@ -129,15 +129,23 @@ bool QueryParser::isExpSpec(const std::string& str) {
 
 bool QueryParser::isFactor(const std::string& str) {
     bool isFactor = isName(str) || isInteger(str);
-
     return isFactor;
 }
 
-bool QueryParser::isValidRelationship(int start) {
+bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
-    bool hasValidSecondArgument = isStmtRef(tokens[start++]);
+    bool hasValidSecondArgument;
+
+    if (isFollowsOrParent) {
+        hasValidSecondArgument = isStmtRef(tokens[start++]);
+    }
+
+    if (!isFollowsOrParent) {
+        hasValidSecondArgument = isEntRef(tokens[start++]);
+    }
+
     bool hasClosingBrace = tokens[start]->getValue() == ")";
 
     if (!hasValidFirstArgument || !hasValidSecondArgument) {
@@ -147,12 +155,14 @@ bool QueryParser::isValidRelationship(int start) {
     return hasOpeningBrace && hasValidCommaSeparator && hasClosingBrace;
 }
 
-bool QueryParser::isValidRelationshipArguments(int pos1, int pos2) {
+bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, bool isFollowsOrParent) {
     auto firstArgVerification = verifyDeclarationExists(tokens[pos1]);
     bool isFirstArgValid = std::get<0>(firstArgVerification);
-
-    auto secondArgVerification = verifyDeclarationExists(tokens[pos2]);
-    bool isSecondArgValid = std::get<0>(secondArgVerification);
+    bool isSecondArgValid = true;
+    if (isFollowsOrParent) {
+        auto secondArgVerification = verifyDeclarationExists(tokens[pos2]);
+        isSecondArgValid = std::get<0>(secondArgVerification);
+    }
 
     return isFirstArgValid && isSecondArgValid;
 }
@@ -229,13 +239,13 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
 
             // total of 5 more tokens: '(' 'stmtRef' ',' 'stmtRef' ')'
             if (nextPos + 4 >= tokens.size()) {
-                throw QuerySyntaxError("Syntax Error occurred: Relationship has wrong format");
+                throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
 
-            bool isValidRs = isValidRelationship(nextPos);
+            bool isValidRs = isValidRelationship(nextPos, true);
 
             if (isValidRs) {
-                bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3);
+                bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, true);
                 if (areArgumentsValid) {
                     auto arg1 = createSynonym(tokens[nextPos + 1]);
                     auto arg2 = createSynonym(tokens[nextPos + 3]);
@@ -253,8 +263,37 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
             throw QuerySyntaxError("Syntax Error occurred: Relationship has wrong format");
         }
 
+    } else if (tokenValue == "Modifies" || tokenValue == "Uses") {
+        std::vector<PQL::Synonym> args;
+        auto abstraction = tokenValue == "Modifies" ? SimpleProgram::DesignAbstraction::MODIFIESS : SimpleProgram::DesignAbstraction::USESS;
+        if (nextPos < tokens.size()) {
+            auto nextToken = tokens[nextPos];
+            // total of 5 more tokens
+            // '(' {stmtRef} ',' {entRef} ')'
+            if (nextPos + 4 >= tokens.size()) {
+                throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
+            }
+
+            bool isValidRs = isValidRelationship(nextPos, false);
+
+            if (isValidRs) {
+                bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, false);
+                if (areArgumentsValid) {
+                    auto arg1 = createSynonym(tokens[nextPos + 1]);
+                    auto arg2 = createSynonym(tokens[nextPos + 3]);
+                    args.push_back(arg1);
+                    args.push_back(arg2);
+                    pos = nextPos + 5;
+                } else {
+                    throw QuerySemanticError("Semantic Error on arguments: arguments used not declared");
+                }
+            }
+
+            return std::make_tuple(isValidRs, isValidRs ? abstraction : SimpleProgram::DesignAbstraction{}, args);
+
+        }
     } else {
-        // TODO: additional support for Uses and Modifies to be added later
+        throw QuerySyntaxError("Syntax Error: Invalid relationship");
     }
 }
 
@@ -290,6 +329,10 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
 SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token) {
     if (token->getType() == TokenType::INTEGER) {
         return SimpleProgram::DesignEntity::STMT_NO;
+    }
+
+    if (token->getType() == TokenType::CONSTANT_STRING) {
+        return SimpleProgram::DesignEntity::IDENT;
     }
 
     for (const auto& dec : initialDeclarations) {

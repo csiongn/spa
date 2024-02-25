@@ -185,4 +185,3 @@ bool QueryTokenizer::containsFactorSpecialChar(const std::string &str) const {
         return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
     });
 }
-

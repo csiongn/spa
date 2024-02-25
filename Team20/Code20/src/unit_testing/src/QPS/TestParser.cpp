@@ -138,6 +138,33 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
 
     }
+
+    SECTION("Uses relationship") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "variable v;\n"
+                            "Select v such that Modifies(6, v)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "6");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
 }
 
 
