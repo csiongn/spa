@@ -53,6 +53,7 @@ private:
     std::unordered_map<int, std::unordered_set<std::string>> modifies;
 
     // Entities
+    std::unordered_set<std::string> procedures;
     std::unordered_set<std::string> variables;
     std::unordered_set<std::string> literals;
     std::unordered_set<int> stmts;
@@ -82,6 +83,7 @@ private:
     void updateUses(int stmtNumber, const std::string& variableName);
     void updateModifies(int stmtNumber, const std::string& variableName);
 
+    void insertProcedure(const std::string& procName);
     void insertVariable(const std::string& var);
     void insertLiteral(const std::string& var);
     void insertStmt(const int stmtNum);

@@ -30,6 +30,11 @@ TEST_CASE("Integration test SP to PKB") {
 
     WHEN("The SP processes the program expression") {
         THEN("The PKB should store the correct entities and variables") {
+            // Check procedures
+            std::vector<std::string> expectedProcs = {"main", "avg"};
+            std::vector<std::string> actualProcs = pkbFacade->getAllProcedures();
+            REQUIRE(checkVecValuesEqual(expectedProcs, actualProcs));
+
             // Check variables
             std::vector<std::string> expectedValues = {"a", "t", "v", "x", "y", "z", "avg", "num1", "num2"};
             std::vector<std::string> actualValues = pkbFacade->getAllVariables();
@@ -249,6 +254,11 @@ TEST_CASE("Integration test from SP Parser to PKB") {
                 DesignExtractor extractor(pkbFacade);
                 extractor.extractDesign(*root);
                 THEN("The PKB should store the correct entities and variables") {
+                    // Check procedures
+                    std::vector<std::string> expectedProcs = {"main", "avg"};
+                    std::vector<std::string> actualProcs = pkbFacade->getAllProcedures();
+                    REQUIRE(checkVecValuesEqual(expectedProcs, actualProcs));
+
                     // Check variables
                     std::vector<std::string> expectedValues = {"a", "t", "v", "x", "y", "z", "avg", "num1", "num2"};
                     std::vector<std::string> actualValues = pkbFacade->getAllVariables();

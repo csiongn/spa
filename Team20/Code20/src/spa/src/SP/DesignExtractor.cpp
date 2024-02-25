@@ -36,6 +36,10 @@ void DesignExtractor::pushToPKB() {
         }
     }
 
+    for (const auto& proc: procedures) {
+        pkbFacade->insertProcedure(proc);
+    }
+
     for (const auto& var: variables) {
         pkbFacade->insertVariable(var);
     }
@@ -82,6 +86,7 @@ void DesignExtractor::pushToPKB() {
 
 void DesignExtractor::visitProgramNode(const ProgramNode& node) {
     for (const auto& procNode : node.procedures) {
+        insertProcedure(procNode->name);
         visitProcedureNode(*procNode);
     }
 }
@@ -219,6 +224,10 @@ void DesignExtractor::updateModifies(int stmtNumber, const std::string& variable
         parentStmt = parent.at(parentStmt);
         modifies[parentStmt].insert(variableName);
     }
+}
+
+void DesignExtractor::insertProcedure(const std::string& procName) {
+    procedures.insert(procName);
 }
 
 void DesignExtractor::insertVariable(const std::string& var) {
