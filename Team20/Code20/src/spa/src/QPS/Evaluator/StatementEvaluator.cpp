@@ -35,12 +35,12 @@ namespace QueryEvaluator {
 
         // Handles 7 cases: 7 * (WILDCARD, SYN)
         if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            return getSynonymWildcard();
+            return getWildcardSynonym();
         }
 
         // Handles 7 cases: 7 * (SYN, WILDCARD)
         if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            return getWildcardSynonym();
+            return getSynonymWildcard();
         }
 
         // Handles 42 cases: 7 * 6 (SYN_A, SYN_B) WHERE SYN_A != SYN_B
