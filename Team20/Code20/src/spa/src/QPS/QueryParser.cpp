@@ -147,16 +147,23 @@ bool QueryParser::isStmtSubtype(std::shared_ptr<QueryToken>& token) {
 bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
+
+    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
+        verifyDeclarationExists(tokens[start-1]);
+    }
+
     if (!isFollowsOrParent && hasValidFirstArgument) {
         if (tokens[start - 1]->getType() == TokenType::WILDCARD) {
             throw QuerySemanticError("Semantic Error: First argument to Modifies or Uses cannot be _");
         }
     }
+
     if (isFollowsOrParent && hasValidFirstArgument && tokens[start-1]->getType() != TokenType::WILDCARD && !isName(tokens[start-1]->getValue())) {
         if (!isStmtSubtype(tokens[start-1])) {
             throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
         }
     }
+
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
     bool hasValidSecondArgument;
 
@@ -166,9 +173,13 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
 
     if (!isFollowsOrParent) {
         hasValidSecondArgument = isEntRef(tokens[start++]);
-        if (hasValidSecondArgument && getEntityTypeFromSynonym(tokens[start-1]) != SimpleProgram::DesignEntity::VARIABLE) {
+        if (hasValidSecondArgument && tokens[start-1]->getType() != TokenType::CONSTANT_STRING && isName(tokens[start-1]->getValue()) && getEntityTypeFromSynonym(tokens[start-1]) != SimpleProgram::DesignEntity::VARIABLE) {
             throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
         }
+    }
+
+    if (hasValidSecondArgument && isName(tokens[start-1]->getValue())) {
+        verifyDeclarationExists(tokens[start-1]);
     }
 
     bool hasClosingBrace = tokens[start]->getValue() == ")";
@@ -183,9 +194,17 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
 bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, bool isFollowsOrParent) {
     auto firstArgVerification = verifyDeclarationExists(tokens[pos1]);
     bool isFirstArgValid = std::get<0>(firstArgVerification);
+
+    std::tuple<bool, SimpleProgram::DesignEntity> secondArgVerification;
     bool isSecondArgValid = true;
+
     if (isFollowsOrParent) {
-        auto secondArgVerification = verifyDeclarationExists(tokens[pos2]);
+        secondArgVerification = verifyDeclarationExists(tokens[pos2]);
+        isSecondArgValid = std::get<0>(secondArgVerification);
+    }
+
+    if (!isFollowsOrParent && tokens[pos2]->getType() != TokenType::CONSTANT_STRING) {
+        secondArgVerification = verifyDeclarationExists(tokens[pos2]);
         isSecondArgValid = std::get<0>(secondArgVerification);
     }
 
@@ -218,6 +237,11 @@ bool QueryParser::isValidPattern(int start, int end) {
     bool isValidAssignSyn = isValidAssignSynonym(assignSynonym);
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
+
+    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
+        verifyDeclarationExists(tokens[start-1]);
+    }
+
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
 
     std::string expSpecStr;
@@ -226,6 +250,7 @@ bool QueryParser::isValidPattern(int start, int end) {
     }
 
     bool hasValidSecondArgument = isExpSpec(expSpecStr);
+
     bool hasClosingBrace = tokens[end]->getValue() == ")";
 
     bool isValidPatternRes = isValidAssignSyn && hasOpeningBrace && hasValidFirstArgument && hasValidCommaSeparator && hasValidSecondArgument && hasClosingBrace;
