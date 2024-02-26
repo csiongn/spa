@@ -28,8 +28,8 @@ void Tokenizer::tokenizeProgram() {
     tokens_.push_back(t);
 }
 
-bool is_paren_or_brace(const std::string& s) {
-    return Token::isStringBraceOrParen(s);
+bool isUniqueSymbol(const std::string& s) {
+    return Token::isUniqueSymbol(s);
 }
 
 /*
@@ -59,8 +59,13 @@ std::vector<std::string> Tokenizer::tokenizeWord(const std::string& word) {
             currTokenString += c;
 
             // Peek ahead for special tokens, then add them to current token string
-            // we exclude parenthesis and braces as they need to be tokenized individually
-            while (i + 1 < word.length() && isSpecialToken(word[i + 1]) && !is_paren_or_brace(currTokenString)) {
+            // we exclude unique symbols, such as semicolon or braces as they need to be tokenized individually
+            // we also exclude unique symbols in the peekahead
+            while (i + 1 < word.length() && 
+                isSpecialToken(word[i+1]) && 
+                !isUniqueSymbol(currTokenString) && 
+                !isUniqueSymbol(std::string(1, word[i+1])))
+            {
                 currTokenString += word[++i];
             }
 

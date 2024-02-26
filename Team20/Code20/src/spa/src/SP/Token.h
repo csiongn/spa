@@ -121,11 +121,13 @@ struct Token {
     }
 
     /// <summary>
-    /// Checks if string is parenthesis or brace.
+    /// Checks if string is supposed to be a unique symbol I.e. 
+    /// - It is len(1)
+    /// - It does not have any combination with any other symbol e.g. =, > is not counted as it can form >=
     /// </summary>
     /// <param name="key">String input</param>
     /// <returns>True if string is brace or parenthesis.</returns>
-    static bool isStringBraceOrParen(const std::string& key) {
+    static bool isUniqueSymbol(const std::string& key) {
         auto result = tokenMapping.find(key);
         if (result != tokenMapping.end()) {
             switch (result->second) {
@@ -133,6 +135,7 @@ struct Token {
                 case SP::TokenType::LEFT_PAREN:
                 case SP::TokenType::RIGHT_BRACE:
                 case SP::TokenType::RIGHT_PAREN:
+                case SP::TokenType::SEMICOLON:
                     return true;
                 default:
                     return false;
