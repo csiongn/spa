@@ -125,6 +125,8 @@ void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
     }
     else if (const auto* literalNode = dynamic_cast<const LiteralNode*>(&node)) {
         insertLiteral(literalNode->value);
+    } else if (const auto* negNode = dynamic_cast<const NegationNode*>(&node)) {
+        visitExprNode(*negNode->expr, stmtNumber);
     }
 
 }

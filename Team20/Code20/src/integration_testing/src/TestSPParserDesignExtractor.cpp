@@ -6,7 +6,7 @@
 #include "SP/Parser.h"
 #include "SP/DesignExtractor.h"
 
-SCENARIO("Parser correctly parses procedure with lecture example", "[parser]") {
+TEST_CASE("Parser correctly parses procedure with lecture example", "[parser]") {
     GIVEN("A parser with a valid input sequence") {
 
         /*    SIMPLE Code
@@ -197,7 +197,7 @@ SCENARIO("Parser correctly parses procedure with lecture example", "[parser]") {
             }
 
             AND_THEN("It should be serialized correctly") {
-                auto expected_serialization = "Program [Procedure main [Block [Assign x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If [Not [RelExpr [Variable x == Literal 0]]] then [Block [Assign x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If [RelExpr [Variable x > Literal 2]] then [Block [Assign y [Variable x] Assign x [Variable y] Assign z [Variable y]]] else [Block [Assign x [Variable t]]]]] else [Block [Assign x [Variable t]]] Assign y [Variable x]]]]";
+                auto expected_serialization = "Program [Procedure main [Block [Assign-1 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-2 [LogicalOp [LogicalOp [RelExpr [Variable x > Literal 0] || RelExpr [Variable y == Literal 1]] && Not [RelExpr [Variable x == Literal 0]]]] then [Block [Assign-3 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-4 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-5 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-6 [RelExpr [Variable x > Literal 2]] then [Block [Assign-7 y [Variable x] Assign-8 x [Variable y] Assign-9 z [Variable y]]] else [Block [Assign-10 x [Variable t]]]]] else [Block [Assign-11 x [Variable t]]] Assign-12 y [Variable x]]]]";
                 auto actual_serialization = root->serialize();
                 REQUIRE(expected_serialization == actual_serialization);
             }
