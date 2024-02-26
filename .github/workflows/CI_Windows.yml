@@ -1,4 +1,4 @@
-name: CI for Cmake Project - MacOS
+name: CI for Cmake Project - Windows
 
 on:
   push:
@@ -10,11 +10,11 @@ on:
       - master
       - develop
 env:
-    BUILD_TYPE: Release
+  BUILD_TYPE: Release
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: windows-latest
     timeout-minutes: 10
     strategy:
       fail-fast: true
