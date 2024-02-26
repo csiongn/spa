@@ -135,6 +135,11 @@ bool QueryParser::isFactor(const std::string& str) {
 bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
+    if (!isFollowsOrParent && hasValidFirstArgument) {
+        if (tokens[start - 1]->getType() == TokenType::WILDCARD) {
+            throw QuerySemanticError("Semantic Error: First argument to Modifies or Uses cannot be _");
+        }
+    }
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
     bool hasValidSecondArgument;
 
@@ -144,6 +149,9 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
 
     if (!isFollowsOrParent) {
         hasValidSecondArgument = isEntRef(tokens[start++]);
+        if (hasValidSecondArgument && getEntityTypeFromSynonym(tokens[start-1]) != SimpleProgram::DesignEntity::VARIABLE) {
+            throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
+        }
     }
 
     bool hasClosingBrace = tokens[start]->getValue() == ")";
