@@ -35,12 +35,12 @@ namespace QueryEvaluator {
 
         std::shared_ptr<Result> crossJoin(const Result &r);
 
+        void addRow(const std::vector<std::string> &row);
+
     private:
         std::vector<std::string> getColumn(const std::string &colName);
 
         std::vector<std::string> getRow(size_t columnIndex) const;
-
-        void addRow(const std::vector<std::string> &row);
 
         static std::vector<std::string>
         joinRows(const std::vector<std::string> &row1, const std::unordered_map<std::string, size_t> &colNamesToIndex1,

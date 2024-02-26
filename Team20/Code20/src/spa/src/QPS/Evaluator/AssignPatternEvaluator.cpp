@@ -59,16 +59,11 @@ namespace QueryEvaluator {
             // get all partial expr nodes
             std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
 
-            // use the partial expr nodes to get all VAR
-            std::vector<std::string> vars = getAllAssignVar(partialExprNodes);
-
-            if (vars.empty()) {
+            // use IDENT and partial expr nodes to get the related assign stmt nums
+            std::vector<int> assignSynResults = getAssignSynResults({lArg.identity}, partialExprNodes);
+            if (assignSynResults.empty()) {
                 return false;
             }
-
-            // use the vars and partial expr nodes  to get the related assign stmt nums
-            // get ASSIGN_SYN without duplicates
-            std::vector<int> assignSynResults = getAssignSynResults(vars, partialExprNodes);
             resultStore->createColumn(assignSyn, assignSynResults);
             return true;
         }
@@ -178,18 +173,32 @@ namespace QueryEvaluator {
             std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
 
             // use the partialExprNodes to get all VAR
-            std::vector<std::string> vars = getAllAssignVar(partialExprNodes);
+            std::vector<std::string> lResults = getAllAssignVar(partialExprNodes);
 
-            if (vars.empty()) {
+            if (lResults.empty()) {
                 return false;
             }
 
-            // add VAR_SYN to result store
-            resultStore->createColumn(lArg, vars);
+            std::vector<std::vector<std::string>> table = {{}, {}};
+            std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
+            std::unordered_map<std::string, size_t> colNameToIndex;
+            for (size_t i = 0; i < colNames.size(); i++) {
+                colNameToIndex[colNames[i]] = i;
+            }
+            Result newResult{table, colNames, colNameToIndex};
 
-            // add ASSIGN_SYN to result store
-            std::vector<int> assignSynResults = getAssignSynResults(vars, partialExprNodes);
-            resultStore->createColumn(assignSyn, assignSynResults);
+
+            std::unordered_set<int> assignStmtNumsSet;
+            for (auto const &var: lResults) {
+                for (auto const &node: partialExprNodes) {
+                    std::vector<int> stmtNums = reader->getAssignPatternStmtNum(var, node->getHashValue());
+                    for (int stmtNum: stmtNums) {
+                        newResult.addRow({std::to_string(stmtNum), var});
+                    }
+                }
+            }
+
+            resultStore->insertResult(std::make_shared<Result>(newResult));
             return true;
         } else {
             // (VAR, EXPR)
@@ -218,20 +227,46 @@ namespace QueryEvaluator {
             return false;
         }
 
-        // add all variable syn to result store
-        resultStore->createColumn(lArg, lResults);
+        std::vector<std::vector<std::string>> table = {{}, {}};
+        std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
+        std::unordered_map<std::string, size_t> colNameToIndex;
+        for (size_t i = 0; i < colNames.size(); i++) {
+            colNameToIndex[colNames[i]] = i;
+        }
+        Result newResult{table, colNames, colNameToIndex};
 
-        // add ASSIGN_SYN to result store
         std::unordered_set<int> assignStmtNumsSet;
         for (auto const &var: lResults) {
             std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
-            assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
+            for (int stmtNum: stmtNums) {
+                newResult.addRow({std::to_string(stmtNum), var});
+            }
         }
 
-        std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
-        resultStore->createColumn(assignSyn, assignSynResults);
+        resultStore->insertResult(std::make_shared<Result>(newResult));
         return true;
-        return false;
+
+//        PQL::Synonym assignSyn = clause.arguments[0];
+//        PQL::Synonym lArg = clause.arguments[1];
+//
+//        std::vector<std::string> lResults = reader->getAssignPatternLHS();
+//        if (lResults.empty()) {
+//            return false;
+//        }
+//
+//        // add all variable syn to result store
+//        resultStore->createColumn(lArg, lResults);
+//
+//        // add ASSIGN_SYN to result store
+//        std::unordered_set<int> assignStmtNumsSet;
+//        for (auto const &var: lResults) {
+//            std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
+//            assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
+//        }
+//
+//        std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
+//        resultStore->createColumn(assignSyn, assignSynResults);
+//        return true;
     }
 
     bool AssignPatternEvaluator::getRightResults() {
@@ -254,7 +289,6 @@ namespace QueryEvaluator {
         std::vector<size_t> allHashes = reader->getAssignPatternRHS();
 
         // use all RHS to get all nodes
-        std::vector<size_t> filteredHashes;
         std::vector<std::shared_ptr<ExprNode>> allNodes;
         for (auto const &hash: allHashes) {
             std::vector<std::shared_ptr<ExprNode>> nodes = reader->getAssignPatternRHSExprNodePtr(hash);
@@ -275,12 +309,16 @@ namespace QueryEvaluator {
     }
 
     std::vector<std::string> AssignPatternEvaluator::getAllAssignVar(const std::vector<std::shared_ptr<ExprNode>> &nodes) {
-        std::vector<std::string> vars;
+        std::unordered_set<std::string> varSet;
         for (auto const &node: nodes) {
             std::vector<std::string> leftVars = reader->getAssignPatternLHS(node->getHashValue());
-            vars.reserve(vars.size() + leftVars.size());
-            vars.insert(vars.end(), leftVars.begin(), leftVars.end());
+            varSet.reserve(varSet.size() + leftVars.size());
+            varSet.insert(leftVars.begin(), leftVars.end());
         }
+
+        std::vector<std::string> vars;
+        vars.reserve(varSet.size());
+        vars.insert(vars.end(), varSet.begin(), varSet.end());
         return vars;
     }
 

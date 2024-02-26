@@ -55,9 +55,14 @@ namespace QueryEvaluator {
             : table(t), colNames(cNames), colNameToIndex(std::move(colNameIndex)), empty(true) {}
 
     std::vector<std::string> Result::getCommonColumns(const QueryEvaluator::Result &r) {
+        //TODO FIX
         std::vector<std::string> commonCols;
-        std::set_intersection(colNames.begin(), colNames.end(),
-                              r.colNames.begin(), r.colNames.end(), std::back_inserter(commonCols));
+        std::vector sortedColName1 = colNames;
+        std::vector sortedColName2 = r.colNames;
+        std::sort(sortedColName1.begin(), sortedColName1.end());
+        std::sort(sortedColName2.begin(), sortedColName2.end());
+        std::set_intersection(sortedColName1.begin(), sortedColName1.end(),
+                              sortedColName2.begin(), sortedColName2.end(), std::back_inserter(commonCols));
         return commonCols;
     }
 
@@ -107,57 +112,29 @@ namespace QueryEvaluator {
         }
         Result newResult{newTable, newColNames, newColNameToIndex};
 
-        std::unordered_map<size_t, std::tuple<size_t, size_t>> newRowToOldRows;
-        // initialize newTable using the first common column
         for (auto i = 0; i < getColumn(commonCols[0]).size(); ++i) {
             for (auto j = 0; j < result.getColumn(commonCols[0]).size(); ++j) {
                 std::vector<std::string> outerRow = getRow(i);
                 std::vector<std::string> innerRow = result.getRow(j);
-                if (outerRow[colNameToIndex.at(commonCols[0])] != innerRow[result.colNameToIndex.at(commonCols[0])]) {
-                    // different value at the commonColumn, do not add the row.
+                bool add = true;
+                for (auto &colName: commonCols) {
+                    if (outerRow[colNameToIndex.at(colName)] != innerRow[result.colNameToIndex.at(colName)]) {
+                        // different value at the commonColumn, do not add the row.
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (!add) {
                     continue;
                 }
 
                 std::vector<std::string> newRow = joinRows(outerRow, colNameToIndex, innerRow, result.colNameToIndex,
                                                            newColNameToIndex);
-                newRowToOldRows[newResult.table.size()] = {i, j};
                 newResult.addRow(newRow);
             }
         }
-
-        std::unordered_set<size_t> rowsToRemove;
-        for (auto &colName: commonCols) {
-            if (colName == commonCols[0]) {
-                // skip first common column because it has already been added.
-                continue;
-            }
-
-            size_t colIndex1 = colNameToIndex[colName];
-            size_t colIndex2 = result.colNameToIndex[colName];
-            for (size_t row = 0; row < newResult.table[0].size(); ++row) {
-                size_t rowIndex1 = std::get<0>(newRowToOldRows[row]);
-                size_t rowIndex2 = std::get<1>(newRowToOldRows[row]);
-                if (newTable[colIndex1][rowIndex1] != newTable[colIndex2][rowIndex2]) {
-                    rowsToRemove.insert(row);
-                }
-            }
-        }
-
-        // remove rows
-        if (rowsToRemove.empty()) {
-            return std::make_shared<Result>(newResult);
-        }
-
-        std::vector<std::vector<std::string>> newFilteredTable;
-        Result newFilteredResult{newFilteredTable, newColNames, newColNameToIndex};
-        for (auto row = 0; row < newTable[0].size(); ++row) {
-            if (rowsToRemove.count(row) < 1) {
-                // this row does not need to be removed
-                newFilteredResult.addRow(newResult.getRow(row));
-            }
-        }
-
-        return std::make_shared<Result>(newFilteredResult);
+        return std::make_shared<Result>(newResult);
     }
 
     std::vector<std::string> Result::getRow(size_t rowIndex) const {
