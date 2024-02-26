@@ -23,6 +23,10 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
     if (token->getType() == TokenType::INTEGER) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
     }
+
+    if (token->getType() == TokenType::WILDCARD) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::WILDCARD);
+    }
     for (const auto& syn : initialDeclarations) {
         if (syn.identity == tokenId) {
             // Populate usedDeclarations array if not already in array
@@ -132,12 +136,25 @@ bool QueryParser::isFactor(const std::string& str) {
     return isFactor;
 }
 
+bool QueryParser::isStmtSubtype(std::shared_ptr<QueryToken>& token) {
+    auto tokenEntityType = getEntityType(token);
+    if (tokenEntityType == SimpleProgram::DesignEntity::STMT || tokenEntityType == SimpleProgram::DesignEntity::READ || tokenEntityType == SimpleProgram::DesignEntity::PRINT || tokenEntityType == SimpleProgram::DesignEntity::ASSIGN || tokenEntityType == SimpleProgram::DesignEntity::CALL) {
+        return true;
+    }
+    return false;
+}
+
 bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
     if (!isFollowsOrParent && hasValidFirstArgument) {
         if (tokens[start - 1]->getType() == TokenType::WILDCARD) {
             throw QuerySemanticError("Semantic Error: First argument to Modifies or Uses cannot be _");
+        }
+    }
+    if (isFollowsOrParent && hasValidFirstArgument && tokens[start-1]->getType() != TokenType::WILDCARD && !isName(tokens[start-1]->getValue())) {
+        if (!isStmtSubtype(tokens[start-1])) {
+            throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
         }
     }
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
@@ -366,6 +383,10 @@ SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::sha
 
     if (token->getType() == TokenType::CONSTANT_STRING) {
         return SimpleProgram::DesignEntity::IDENT;
+    }
+
+    if (token->getType() == TokenType::WILDCARD) {
+        return SimpleProgram::DesignEntity::WILDCARD;
     }
 
     for (const auto& dec : initialDeclarations) {

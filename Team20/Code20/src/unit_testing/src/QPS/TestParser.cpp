@@ -82,6 +82,32 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
+    SECTION("Follows* relationship with wildcard as first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s; \nSelect s such that Follows*(_, s)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
     SECTION("pattern clause full expression") {
         QueryTokenizer queryTokenizer{};
         std::string query = "assign a; \nSelect a pattern a ( _ , \"x\" )";

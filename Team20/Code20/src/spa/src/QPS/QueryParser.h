@@ -26,6 +26,7 @@ private:
     bool isValidRelationshipArguments(int pos1, int pos2, bool isFollowsOrParent);
     bool isValidAssignSynonym(std::shared_ptr<QueryToken>& token);
     bool isValidPattern(int start, int end);
+    bool isStmtSubtype(std::shared_ptr<QueryToken>& token);
 
     static bool isLetter(char c);
     static bool isDigit(char c);
