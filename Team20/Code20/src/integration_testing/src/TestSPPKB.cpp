@@ -29,6 +29,7 @@ TEST_CASE("Integration test SP to PKB") {
     SPFacade SPFacade(pkbFacade, testProgram);
 
     WHEN("The SP processes the program expression") {
+        SPFacade.populatePKB();
         THEN("The PKB should store the correct entities and variables") {
             // Check procedures
             std::vector<std::string> expectedProcs = {"main", "avg"};
