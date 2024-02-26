@@ -306,3 +306,71 @@ TEST_CASE("Integration test from SP Parser to PKB") {
 
     }
 }
+
+TEST_CASE("Integration test SP to PKB with keywords used as name") {
+    std::string testProgram = "procedure test {"
+                                  "if (less < b + c * d) then {"
+                                      "hello = (5 + 10) / 3;"
+                                      "print world;"
+                                  "} else {"
+                                    "while = 10;"
+                                    "then = while * 3;"
+                                    "if (1 < more) then {"
+                                        "if = then * 5;"
+                                    "} else {"
+                                        "else = if / 3;"
+                                    "}"
+                                  "}"
+                              "}";
+
+    auto pkb = std::make_shared<PKB>();
+    std::shared_ptr<PKBFacade> pkbFacade = pkb->pkbFacade;
+    SPFacade SPFacade(pkbFacade, testProgram);
+
+    WHEN("The SP processes the program expression") {
+        SPFacade.populatePKB();
+        THEN("The PKB should store the correct entities and variables") {
+            // Check procedures
+            std::vector<std::string> expectedProcs = {"test"};
+            std::vector<std::string> actualProcs = pkbFacade->getAllProcedures();
+            REQUIRE(checkVecValuesEqual(expectedProcs, actualProcs));
+
+            // Check variables
+            std::vector<std::string> expectedValues = {"hello", "world", "less", "b", "c", "d", "more",
+            "if", "then", "else", "while"};
+            std::vector<std::string> actualValues = pkbFacade->getAllVariables();
+            REQUIRE(checkVecValuesEqual(expectedValues, actualValues));
+
+            // Check literals
+            std::vector<int> expectedliterals = {1,3,5,10};
+            std::vector<int> actualLiterals = pkbFacade->getAllConstants();
+            REQUIRE(checkVecValuesEqual(expectedliterals, actualLiterals));
+
+            // Check statements
+            std::vector<int> expectedStmts = {1, 2, 3, 4, 5, 6, 7, 8};
+            std::vector<int> actualStmts = pkbFacade->getAllStatementNum();
+            REQUIRE(checkVecValuesEqual(expectedStmts, actualStmts));
+
+            // Check if statements
+            std::vector<int> expectedIfStmts = {1, 6};
+            std::vector<int> actualIfStmts = pkbFacade->getAllIfStmtNum();
+            REQUIRE(checkVecValuesEqual(expectedIfStmts, actualIfStmts));
+
+            // Check print statements
+            std::vector<int> expectedPrintStmts = {3};
+            std::vector<int> actualPrintStmts = pkbFacade->getAllPrintStmtNum();
+            REQUIRE(checkVecValuesEqual(expectedPrintStmts, actualPrintStmts));
+
+            // Check assignment statements
+            std::vector<int> expectedAssignStmts = {2, 4, 5, 7, 8};
+            std::vector<int> actualAssignStmts = pkbFacade->getAllAssignStmtNum();
+            REQUIRE(checkVecValuesEqual(expectedAssignStmts, actualAssignStmts));
+
+            // No read statements
+            REQUIRE(pkbFacade->getAllReadStmtNum().empty());
+
+            // No while statements
+            REQUIRE(pkbFacade->getAllWhileStmtNum().empty());
+        }
+    }
+}

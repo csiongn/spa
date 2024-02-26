@@ -17,6 +17,17 @@ namespace SP {
     };
 }
 
+const static std::vector<SP::TokenType> keywords = {
+    SP::TokenType::KEYWORD_PROCEDURE,
+    SP::TokenType::KEYWORD_IF,
+    SP::TokenType::KEYWORD_THEN,
+    SP::TokenType::KEYWORD_ELSE,
+    SP::TokenType::KEYWORD_READ,
+    SP::TokenType::KEYWORD_CALL,
+    SP::TokenType::KEYWORD_PRINT,
+    SP::TokenType::KEYWORD_WHILE
+};
+
 /// <summary>
 /// Maps token types to specific strings.
 /// excludes INTEGER and NAME as they do not have 1:1 mapping with a string

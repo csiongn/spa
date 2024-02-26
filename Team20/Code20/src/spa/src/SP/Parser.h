@@ -15,6 +15,7 @@ private:
     bool check(SP::TokenType type);
     Token advance();
     bool isAtEnd();
+    bool isKeyword();
 
     void throwParseError(const std::string& message);
 
