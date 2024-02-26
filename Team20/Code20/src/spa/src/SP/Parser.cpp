@@ -110,14 +110,16 @@ std::shared_ptr<ExprNode> Parser::condExpr() {
 		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 
 		while (match({SP::TokenType::AND, SP::TokenType::OR})) {
-			if (check({SP::TokenType::NOT})) {
-				return negExpr();
-			}
 			std::string op = tokens[current - 1].value;
-			consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
-			std::shared_ptr<ExprNode> left = condExpr();
-			consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
-			expr = std::make_shared<LogicalOpNode>(std::move(left), op, std::move(expr));
+			std::shared_ptr<ExprNode> right;
+			if (check({SP::TokenType::NOT})) {
+				right = negExpr();
+			} else {
+				consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
+				right = condExpr();
+				consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+			}
+			expr = std::make_shared<LogicalOpNode>(std::move(expr), op, std::move(right));
 		}
 	} else {
 		expr = relExpr();

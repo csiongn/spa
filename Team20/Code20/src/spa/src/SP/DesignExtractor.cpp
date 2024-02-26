@@ -265,4 +265,3 @@ void DesignExtractor::insertRead(const int stmtNum) {
 void DesignExtractor::insertWhile(const int stmtNum) {
     whileStmts.insert(stmtNum);
 }
-
