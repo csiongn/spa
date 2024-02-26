@@ -553,7 +553,7 @@ PQL::Synonym QueryParser::parseSelectClause() {
     }
 
     if (pos + 1 >= tokens.size()) {
-        throw QuerySyntaxError("Syntax Error: Missing Relationship Reference for Select clause");
+        throw QuerySyntaxError("Syntax Error: Missing synonym for Select clause");
     }
 
     auto selectSynonymToken = tokens[++pos];
