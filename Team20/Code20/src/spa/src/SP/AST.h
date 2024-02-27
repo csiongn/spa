@@ -64,11 +64,11 @@ public:
         setHashValue(result);
         return result;
     }
-//public:
+
     bool isLeaf() {
         return this->left == nullptr && this->right == nullptr;
     }
-    // Do we need these getter methods
+
     std::shared_ptr<ExprNode> getLeft() const {
         return this->left;
     }
@@ -189,8 +189,6 @@ public:
 
 class BinaryExprNode : public ExprNode {
 public:
-    //std::shared_ptr<ExprNode> left;
-    //std::shared_ptr<ExprNode> right;
     std::string op;
 
     BinaryExprNode(std::shared_ptr<ExprNode> left, std::string op, std::shared_ptr<ExprNode> right): op(std::move(op)) {
@@ -222,8 +220,6 @@ public:
 
 class LogicalOpNode : public ExprNode {
 public:
-    //std::shared_ptr<ExprNode> left;
-    //std::shared_ptr<ExprNode> right;
     std::string op;
 
     LogicalOpNode(std::shared_ptr<ExprNode> left, std::string op, std::shared_ptr<ExprNode> right)
@@ -240,8 +236,6 @@ public:
 
 class RelExprNode : public ExprNode {
 public:
-    //std::shared_ptr<ExprNode> left;
-    //std::shared_ptr<ExprNode> right;
     std::string relational_op; // Relational operators are >, <, ==, !=, >=, <=
 
     RelExprNode(std::shared_ptr<ExprNode> left, std::string relational_op, std::shared_ptr<ExprNode> right)
