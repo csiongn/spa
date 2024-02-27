@@ -1,0 +1,20 @@
+1 - assign with exact variable
+assign a; 
+Select a pattern a ( _ , "x" )
+2
+5000
+2 - assign with wildcard variable
+assign a;
+Select a pattern a (_, _"x"_)
+2, 6
+5000
+3 - assign with wildcard constant
+assign a;
+Select a pattern a (_, _"2")
+SyntaxError
+5000
+4 - all assign with only wildcard
+assign a;
+Select a pattern a (_, _)
+2, 3, 6, 8
+5000

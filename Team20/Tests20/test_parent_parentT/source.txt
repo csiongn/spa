@@ -1,0 +1,21 @@
+procedure Main {
+  read x;
+  if (x > 10) then {
+    y = x + 1;
+    if (y < 5) then {
+      print y;
+    } else {
+      z = y * 2;
+    }
+    w = z + 1;
+  }
+  while (x < 100) {
+    read y;
+    if (y > 5) then {
+      z = y / 2;
+      while (z > 0) {
+        z = z - 1;
+      }
+    }
+  }
+}

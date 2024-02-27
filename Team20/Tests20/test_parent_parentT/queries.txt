@@ -1,0 +1,35 @@
+1 - Transitive parent relationships
+stmt s1, s2;
+Select s1 such that Parent*(s1, s2)
+2, 4, 8, 10, 12
+5000
+2 - All parent relationships
+stmt s;
+Select s such that Parent(s, _)
+2, 4, 8, 10, 12
+5000
+3 - Direct parent relationships
+stmt s1, s2;
+Select s1 such that Parent(s1, s2)
+2, 4, 8, 10, 12
+5000
+4 - Direct parent of nested statement
+stmt s;
+Select s such that Parent(s, 5)
+4
+5000
+5 - Direct parent of nested statement - else
+stmt s;
+Select s such that Parent(s, 6)
+4
+5000
+6 - Transitive parent of nested statement
+stmt s;
+Select s such that Parent*(s, 5)
+2, 4
+5000
+7 - Transitive parent of nested statement - else
+stmt s;
+Select s such that Parent*(s, 6)
+2, 4
+5000
