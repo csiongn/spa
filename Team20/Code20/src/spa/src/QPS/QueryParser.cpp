@@ -20,13 +20,11 @@ PQL::Query QueryParser::parse() {
 
 std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::shared_ptr<QueryToken>& token) {
     std::string tokenId = token->getValue();
-    if (token->getType() == TokenType::INTEGER) {
-        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
-    }
 
     if (token->getType() == TokenType::WILDCARD) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::WILDCARD);
     }
+
     for (const auto& syn : initialDeclarations) {
         if (syn.identity == tokenId) {
             // Populate usedDeclarations array if not already in array
@@ -37,6 +35,11 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
             return std::make_tuple(true, syn.entityType);
         }
     }
+
+    if (token->getType() == TokenType::INTEGER) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
+    }
+
     return std::make_tuple(false, SimpleProgram::DesignEntity{});
 }
 
@@ -158,7 +161,9 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
         }
     }
 
-    if (isFollowsOrParent && hasValidFirstArgument && tokens[start-1]->getType() != TokenType::WILDCARD && !isName(tokens[start-1]->getValue())) {
+    auto firstArgToken = tokens[start-1];
+
+    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != TokenType::NAME && firstArgToken->getType() != TokenType::INTEGER && firstArgToken->getType() != TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
         if (!isStmtSubtype(tokens[start-1])) {
             throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
         }
@@ -397,11 +402,18 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
     } else if (tokenValue == "_") {
         return SimpleProgram::DesignEntity::WILDCARD;
     } else {
-        throw QuerySyntaxError("Syntax Error for the following token: " + tokenValue);
+        throw QuerySyntaxError("Syntax Error for the following token IN PARSER: " + tokenValue);
     }
 }
 
 SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token) {
+    auto declarationVerification = verifyDeclarationExists(token);
+    auto hasDeclarationOfTypeInteger = std::get<0>(declarationVerification);
+
+    if (hasDeclarationOfTypeInteger) {
+        return std::get<1>(declarationVerification);
+    }
+
     if (token->getType() == TokenType::INTEGER) {
         return SimpleProgram::DesignEntity::STMT_NO;
     }

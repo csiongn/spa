@@ -109,6 +109,7 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
+
     SECTION("Uses relationship with non-variable synonym as second argument") {
         QueryTokenizer queryTokenizer{};
         std::string query = "stmt s; variable v; \nSelect s such that Uses(6, s)";
@@ -257,6 +258,188 @@ TEST_CASE("Parse") {
         args.emplace_back(arg1);
         args.emplace_back(arg2);
         PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with stmt synonym as first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s;\n Select s such that Follows*(s, 1)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT, "s");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "1");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with stmt synonym as second argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s;\n Select s such that Follows*(1, s)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with stmt subtype synonym as first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "call c;\n Select c such that Follows*(c, 1)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::CALL, "c");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::CALL, "c");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::CALL, "c");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "1");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with both arguments as stmt nos") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s;\n Select s such that Follows*(1, 1)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "1");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with both arguments as different stmt nos") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s;\n Select s such that Follows*(1, 3)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "3");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with both arguments as stmt synonym") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s;\n Select s such that Follows*(s, s)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT, "s");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "s");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* relationship with both arguments as stmt synonym using integer as declaration") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt 1;\n Select 1 such that Follows*(1, 1)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "1");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "1");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT, "1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "1");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
         expectedClauses.emplace_back(clause);
 
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
