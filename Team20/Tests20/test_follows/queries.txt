@@ -148,3 +148,13 @@ while w;
 Select w such that Follows(1, w)
 
 5000
+31 - variable - Valid Follows
+variable v;
+Select v such that Follows(1, 2)
+v,x,y,z
+5000
+32 - constant - Valid Follows
+constant c;
+Select c such that Follows(1, 2)
+0,1,2
+5000
