@@ -248,17 +248,15 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
 
 std::shared_ptr<IfNode> Parser::parseIf() {
 	uint16_t stmtNum = ++stmtNumber;
-	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' while parsing if block.");
+	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' keyword while parsing if statement.");
 	std::shared_ptr<ExprNode> condition = condExpr();
-	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if block.");
+	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if statement.");
 
-	consume(SP::TokenType::KEYWORD_THEN, "Expect 'then' after condition while parsing if block.");
+	consume(SP::TokenType::KEYWORD_THEN, "Expect 'then' keyword after condition while parsing if statement.");
 	std::shared_ptr<BlockNode> thenBranch = parseBlock();
 
-	std::shared_ptr<BlockNode> elseBranch = nullptr;
-	if (match({SP::TokenType::KEYWORD_ELSE})) {
-		elseBranch = parseBlock();
-	}
+	consume(SP::TokenType::KEYWORD_ELSE, "Expect 'else' keyword after then block while parsing if statement.");
+	std::shared_ptr<BlockNode> elseBranch = parseBlock();
 
 	return std::make_shared<IfNode>(stmtNum, std::move(condition), std::move(thenBranch), std::move(elseBranch));
 }

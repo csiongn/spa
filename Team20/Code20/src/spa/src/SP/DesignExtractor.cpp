@@ -168,9 +168,7 @@ void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
     std::vector<int> thenStmtList, elseStmtList;
     visitExprNode(*node.condition, stmtNumber);
     visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
-    if (node.elseBranch) { // If 'else' branch exists
-        visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
-    }
+    visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
 }
 
 void DesignExtractor::visitWhileNode(const WhileNode& node, int stmtNumber) {
