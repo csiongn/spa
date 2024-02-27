@@ -1,13 +1,13 @@
 #pragma once
 
 #include "AST.h"
-#include "PKB/facade/PKBFacade.h"
+#include "PKB/facade/IPKBWriter.h"
 #include <unordered_map>
 #include <unordered_set>
 
 class DesignExtractor {
 public:
-    explicit DesignExtractor(std::shared_ptr<PKBFacade> pkbFacade) : pkbFacade(std::move(pkbFacade)) {}
+    explicit DesignExtractor(std::shared_ptr<IPKBWriter> pkbWriter) : pkbWriter(std::move(pkbWriter)) {}
 
     void extractDesign(const ProgramNode& astRoot);
 
@@ -42,7 +42,7 @@ public:
 
 private:
 
-    std::shared_ptr<PKBFacade> pkbFacade;
+    std::shared_ptr<IPKBWriter> pkbWriter;
 
     // Design abstractions
     std::unordered_map<int, int> follows;

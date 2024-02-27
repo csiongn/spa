@@ -24,8 +24,8 @@ TEST_CASE("Integration test SP to PKB") {
                                   "print avg;"
                               "}";
 
-    auto pkb = std::make_shared<PKB>();
-    std::shared_ptr<PKBFacade> pkbFacade = pkb->pkbFacade;
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
     SPFacade SPFacade(pkbFacade, testProgram);
 
     WHEN("The SP processes the program expression") {
@@ -245,8 +245,8 @@ TEST_CASE("Integration test from SP Parser to PKB") {
         // SP parser
         Parser parser(tokens);
         // PKB
-        auto pkb = std::make_shared<PKB>();
-        std::shared_ptr<PKBFacade> pkbFacade = pkb->pkbFacade;
+        auto db = std::make_shared<Database>();
+        std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
 
         WHEN("The parser attempts to parse the expression") {
             auto root = parser.parse();
@@ -323,8 +323,8 @@ TEST_CASE("Integration test SP to PKB with keywords used as name") {
                                   "}"
                               "}";
 
-    auto pkb = std::make_shared<PKB>();
-    std::shared_ptr<PKBFacade> pkbFacade = pkb->pkbFacade;
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
     SPFacade SPFacade(pkbFacade, testProgram);
 
     WHEN("The SP processes the program expression") {

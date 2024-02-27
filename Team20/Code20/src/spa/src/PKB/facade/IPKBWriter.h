@@ -1,6 +1,10 @@
 #pragma once
 
-#include "unordered_set"
+#include <memory>
+#include <string>
+#include <unordered_set>
+
+#include "SP/AST.h"
 
 class IPKBWriter {
 
@@ -86,6 +90,8 @@ public:
 
     // Pattern
     // T is string, U is hash, stmt number, V is Ptr to node
-    virtual void insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
+    virtual void insertAssignPattern(std::string const & lhsVar, 
+                                     const size_t& rhsExprNodeHash, 
+                                     const int& stmtNum,
                                      const std::shared_ptr<ExprNode>& nodePtr) = 0;
 };
