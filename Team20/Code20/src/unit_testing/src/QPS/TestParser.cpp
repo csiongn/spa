@@ -347,6 +347,74 @@ TEST_CASE("Parse") {
 
     }
 
+    SECTION("pattern clause variable synonym first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a; variable v;\nSelect a pattern a ( v , _ )";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg0);
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+
+    }
+
+    SECTION("pattern clause non-variable synonym first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a; print pn;\nSelect a pattern a ( pn , _ )";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_WITH(queryParser.parse(), "Semantic Error: Synonym for first argument should be a variable synonym");
+    }
+
+    SECTION("pattern clause ident first argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a;\nSelect a pattern a ( \"v\" , _ )";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg0);
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+
+    }
+
     SECTION("Uses relationship") {
         QueryTokenizer queryTokenizer{};
         std::string query = "variable v;\n"

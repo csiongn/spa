@@ -248,8 +248,11 @@ bool QueryParser::isValidPattern(int start, int end) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
 
-    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
-        verifyDeclarationExists(tokens[start-1]);
+    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+        auto isValidSynonym = verifyDeclarationExists(tokens[start-1]);
+        if (std::get<1>(isValidSynonym) != SimpleProgram::DesignEntity::VARIABLE) {
+            throw QuerySemanticError("Semantic Error: Synonym for first argument should be a variable synonym");
+        }
     }
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
@@ -523,7 +526,7 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
 
             std::vector<PQL::Synonym> patternArgs;
             auto assignArg = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, tokens[pos+1]->getValue());
-            auto arg1 = PQL::Synonym(getEntityType(tokens[pos+3]), tokens[pos+3]->getValue());
+            auto arg1 = PQL::Synonym(getEntityTypeFromSynonym(tokens[pos+3]), tokens[pos+3]->getValue());
             SimpleProgram::DesignEntity exprType;
             std::string exprId;
             if ((curr - (pos + 5)) > 1) {
