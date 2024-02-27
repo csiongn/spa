@@ -226,6 +226,10 @@ bool QueryParser::isValidAssignSynonym(std::shared_ptr<QueryToken>& token) {
 
     for (const auto& declaration : initialDeclarations) {
         if (declaration.entityType ==  SimpleProgram::DesignEntity::ASSIGN) {
+            bool usedDeclarationExists = std::find(std::begin(usedDeclarations), std::end(usedDeclarations), declaration) != std::end(usedDeclarations);
+            if (!usedDeclarationExists) {
+                usedDeclarations.push_back(declaration);
+            }
             return declaration.identity == tokenValue;
         }
     }
@@ -574,7 +578,6 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                 auto clause = PQL::Clause(abstraction, args);
                 clauses.push_back(clause);
             }
-            pos++;
         }
     }
 

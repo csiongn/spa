@@ -723,6 +723,88 @@ TEST_CASE("Parse") {
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
         REQUIRE(expectedQuery == results);
     }
+
+    SECTION("such that clause then pattern clause") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a; variable v; stmt s1, s2;\n Select s1 such that Parent*(s1, s2) pattern a (v, _)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s1");
+
+        PQL::Synonym parentArg1(SimpleProgram::DesignEntity::STMT, "s1");
+        PQL::Synonym parentArg2(SimpleProgram::DesignEntity::STMT, "s2");
+        std::vector<PQL::Synonym> parentArgs;
+        parentArgs.emplace_back(parentArg1);
+        parentArgs.emplace_back(parentArg2);
+        PQL::Clause clause1 = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, parentArgs);
+        expectedClauses.emplace_back(clause1);
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> patternArgs;
+        patternArgs.emplace_back(arg0);
+        patternArgs.emplace_back(arg1);
+        patternArgs.emplace_back(arg2);
+        PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+        expectedClauses.emplace_back(clause2);
+
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("pattern clause then such that clause") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a; variable v; stmt s1, s2; \n"
+                            "Select s1 pattern a (v, _) such that Parent*(s1, s2)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s1");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> patternArgs;
+        patternArgs.emplace_back(arg0);
+        patternArgs.emplace_back(arg1);
+        patternArgs.emplace_back(arg2);
+        PQL::Clause clause1 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+        expectedClauses.emplace_back(clause1);
+
+        PQL::Synonym parentArg1(SimpleProgram::DesignEntity::STMT, "s1");
+        PQL::Synonym parentArg2(SimpleProgram::DesignEntity::STMT, "s2");
+        std::vector<PQL::Synonym> parentArgs;
+        parentArgs.emplace_back(parentArg1);
+        parentArgs.emplace_back(parentArg2);
+        PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, parentArgs);
+        expectedClauses.emplace_back(clause2);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
 }
 
 
