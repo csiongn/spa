@@ -13,7 +13,7 @@ TEST_CASE("Parser correctly parses procedure", "[parser]") {
          *
          *    procedure main {
          * 1.    x = v * y + z * t;
-         * 2.    if ((x > 2) || (y == 1) && !(x == 0)) then {
+         * 2.    if ((x > 2) || ((y == 1) && !(x == 0))) then {
          * 3.       x = v * y + z * t;
          * 4.       x = v * y + z * t;
          * 5.       x = v * y + z * t;
@@ -50,7 +50,7 @@ TEST_CASE("Parser correctly parses procedure", "[parser]") {
             Token(SP::TokenType::NAME, "t"),
             Token(SP::TokenType::SEMICOLON, ";"),
 
-            // 2. if ((x > 2) || (y == 1) && (x == 0)) then {
+            // 2. if ((x > 2) || ((y == 1) && (!(x == 0)))) then {
             Token(SP::TokenType::KEYWORD_IF, "if"),
             Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::LEFT_PAREN, "("),
@@ -60,16 +60,20 @@ TEST_CASE("Parser correctly parses procedure", "[parser]") {
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::OR, "||"),
             Token(SP::TokenType::LEFT_PAREN, "("),
+            Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NAME, "y"),
             Token(SP::TokenType::DOUBLE_EQUAL, "=="),
             Token(SP::TokenType::INTEGER, "1"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::AND, "&&"),
+            Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NOT, "!"),
             Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NAME, "x"),
             Token(SP::TokenType::DOUBLE_EQUAL, "=="),
             Token(SP::TokenType::INTEGER, "0"),
+            Token(SP::TokenType::RIGHT_PAREN, ")"),
+            Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::KEYWORD_THEN, "then"),
@@ -197,7 +201,7 @@ TEST_CASE("Parser correctly parses procedure", "[parser]") {
             }
 
             AND_THEN("It should be serialized correctly") {
-                auto expected_serialization = "Program [Procedure main [Block [Assign-1 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-2 [LogicalOp [LogicalOp [RelExpr [Variable x > Literal 0] || RelExpr [Variable y == Literal 1]] && Not [RelExpr [Variable x == Literal 0]]]] then [Block [Assign-3 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-4 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-5 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-6 [RelExpr [Variable x > Literal 2]] then [Block [Assign-7 y [Variable x] Assign-8 x [Variable y] Assign-9 z [Variable y]]] else [Block [Assign-10 x [Variable t]]]]] else [Block [Assign-11 x [Variable t]]] Assign-12 y [Variable x]]]]";
+                auto expected_serialization = "Program [Procedure main [Block [Assign-1 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-2 [LogicalOp [RelExpr [Variable x > Literal 0] || LogicalOp [RelExpr [Variable y == Literal 1] && Not [RelExpr [Variable x == Literal 0]]]]] then [Block [Assign-3 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-4 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] Assign-5 x [BinaryExpr [BinaryExpr [Variable v + BinaryExpr [Variable x * Variable y]] + BinaryExpr [Variable z * Variable t]]] If-6 [RelExpr [Variable x > Literal 2]] then [Block [Assign-7 y [Variable x] Assign-8 x [Variable y] Assign-9 z [Variable y]]] else [Block [Assign-10 x [Variable t]]]]] else [Block [Assign-11 x [Variable t]]] Assign-12 y [Variable x]]]]";
                 auto actual_serialization = root->serialize();
                 REQUIRE(expected_serialization == actual_serialization);
             }

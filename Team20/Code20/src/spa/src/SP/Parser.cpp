@@ -24,6 +24,15 @@ Token Parser::consume(SP::TokenType type, const std::string& message) {
 	throwParseError(message);
 }
 
+Token Parser::consume(const std::vector<SP::TokenType>& types, const std::string& message) {
+	for (SP::TokenType type : types) {
+		if (check(type)) {
+			return consume(type, message);
+		}
+	}
+	throwParseError(message);
+}
+
 // Checks if current token type in parser in of type type
 bool Parser::check(SP::TokenType type) {
 	if (isAtEnd()) return false;
@@ -116,27 +125,27 @@ std::shared_ptr<ExprNode> Parser::condExpr() {
 		return negExpr();
 	}
 
+	if (!check({SP::TokenType::LEFT_PAREN})) {
+		return relExpr();
+	}
+
 	std::shared_ptr<ExprNode> expr;
 
 	if (match({SP::TokenType::LEFT_PAREN})) {
 		expr = condExpr();
 		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 
-		while (match({SP::TokenType::AND, SP::TokenType::OR})) {
-			std::string op = tokens[current - 1].value;
-			std::shared_ptr<ExprNode> right;
-			if (check({SP::TokenType::NOT})) {
-				right = negExpr();
-			} else {
-				consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
-				right = condExpr();
-				consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
-			}
-			expr = std::make_shared<LogicalOpNode>(std::move(expr), op, std::move(right));
-		}
-	} else {
-		expr = relExpr();
+		consume({SP::TokenType::AND, SP::TokenType::OR},
+			"Expected logical operator && or || when parsing conditional expressions with parentheses");
+
+		std::string op = tokens[current - 1].value;
+		std::shared_ptr<ExprNode> right;
+		consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
+		right = condExpr();
+		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+		expr = std::make_shared<LogicalOpNode>(std::move(expr), op, std::move(right));
 	}
+
 	return expr;
 }
 

@@ -6,7 +6,7 @@
 TEST_CASE("Integration test SP to PKB") {
     std::string testProgram = "procedure main {"
                                   "x = v * y + z * t;"
-                                  "if ((x > 2) || (y == 1) && !(x == 0)) then {"
+                                  "if ((x > 2) || ((y == 1) && (!(x == 0)))) then {"
                                       "x = v * y + z * t;"
                                       "y = 1 + 3 / 5 % x;"
                                       "if (x>2) then {"
@@ -97,7 +97,7 @@ TEST_CASE("Integration test from SP Parser to PKB") {
             Token(SP::TokenType::NAME, "t"),
             Token(SP::TokenType::SEMICOLON, ";"),
 
-            // 2. if ((x > 2) || (y == 1) && (x == 0)) then {
+            // 2. if ((x > 2) || ((y == 1) && (!(x == 0)))) then {
             Token(SP::TokenType::KEYWORD_IF, "if"),
             Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::LEFT_PAREN, "("),
@@ -107,16 +107,20 @@ TEST_CASE("Integration test from SP Parser to PKB") {
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::OR, "||"),
             Token(SP::TokenType::LEFT_PAREN, "("),
+            Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NAME, "y"),
             Token(SP::TokenType::DOUBLE_EQUAL, "=="),
             Token(SP::TokenType::INTEGER, "1"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::AND, "&&"),
+            Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NOT, "!"),
             Token(SP::TokenType::LEFT_PAREN, "("),
             Token(SP::TokenType::NAME, "x"),
             Token(SP::TokenType::DOUBLE_EQUAL, "=="),
             Token(SP::TokenType::INTEGER, "0"),
+            Token(SP::TokenType::RIGHT_PAREN, ")"),
+            Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::RIGHT_PAREN, ")"),
             Token(SP::TokenType::KEYWORD_THEN, "then"),
@@ -371,6 +375,114 @@ TEST_CASE("Integration test SP to PKB with keywords used as name") {
 
             // No while statements
             REQUIRE(pkbFacade->getAllWhileStmtNum().empty());
+        }
+    }
+}
+
+TEST_CASE("Integration test SP to PKB with invalid extraneous brackets surrounding cond_expr") {
+    std::string testProgram = "procedure test {"
+                                  "if ((less < b + c * d)) then {"
+                                      "hello = (5 + 10) / 3;"
+                                      "print world;"
+                                  "} else {"
+                                    "hoho = 10;"
+                                    "hehe = haha * 3;"
+                                    "if (1 < more) then {"
+                                        "huhu = hihi * 5;"
+                                    "} else {"
+                                        "hbhb = if / 3;"
+                                    "}"
+                                  "}"
+                              "}";
+
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
+    SPFacade SPFacade(pkbFacade, testProgram);
+
+    WHEN("The SP processes the program expression") {
+        THEN("The processing should fail") {
+            REQUIRE_THROWS(SPFacade.populatePKB());
+        }
+    }
+}
+
+TEST_CASE("Integration test SP to PKB with excessive extraneous brackets surrounding cond_expr") {
+    std::string testProgram = "procedure test {"
+                                  "if ((((((less < b + c * d)))))) then {"
+                                      "hello = (5 + 10) / 3;"
+                                      "print world;"
+                                  "} else {"
+                                    "hoho = 10;"
+                                    "hehe = haha * 3;"
+                                    "if (1 < more) then {"
+                                        "huhu = hihi * 5;"
+                                    "} else {"
+                                        "hbhb = if / 3;"
+                                    "}"
+                                  "}"
+                              "}";
+
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
+    SPFacade SPFacade(pkbFacade, testProgram);
+
+    WHEN("The SP processes the program expression") {
+        THEN("The processing should fail") {
+            REQUIRE_THROWS(SPFacade.populatePKB());
+        }
+    }
+}
+
+TEST_CASE("Integration test SP to PKB with wrongly used negation and brackets surrounding cond_expr") {
+    std::string testProgram = "procedure test {"
+                                  "if ((a < b) || !(5 < 15 || 5 > 15)) then {"
+                                      "hello = (5 + 10) / 3;"
+                                      "print world;"
+                                  "} else {"
+                                    "hoho = 10;"
+                                    "hehe = haha * 3;"
+                                    "if (1 < more) then {"
+                                        "huhu = hihi * 5;"
+                                    "} else {"
+                                        "hbhb = if / 3;"
+                                    "}"
+                                  "}"
+                              "}";
+
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
+    SPFacade SPFacade(pkbFacade, testProgram);
+
+    WHEN("The SP processes the program expression") {
+        THEN("The processing should fail") {
+            REQUIRE_THROWS(SPFacade.populatePKB());
+        }
+    }
+}
+
+TEST_CASE("Integration test SP to PKB with valid extraneous negations surrounding cond_expr") {
+    std::string testProgram = "procedure test {"
+                                  "if (!(!(!(!(i < like + testing * exclamation))))) then {"
+                                      "hello = (5 + 10) / 3;"
+                                      "print world;"
+                                  "} else {"
+                                    "hoho = 10;"
+                                    "hehe = haha * 3;"
+                                    "if (1 < more) then {"
+                                        "huhu = hihi * 5;"
+                                    "} else {"
+                                        "hbhb = if / 3;"
+                                    "}"
+                                  "}"
+                              "}";
+
+    auto db = std::make_shared<Database>();
+    std::shared_ptr<PKBFacade> pkbFacade = std::make_shared<PKBFacade>(db);
+    SPFacade SPFacade(pkbFacade, testProgram);
+
+    WHEN("The SP processes the program expression") {
+        THEN("The processing should not throw any exception") {
+            REQUIRE_NOTHROW(SPFacade.populatePKB());
         }
     }
 }
