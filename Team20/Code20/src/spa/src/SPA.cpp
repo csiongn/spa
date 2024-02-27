@@ -12,7 +12,8 @@ void SPA::parseSimple(const std::string &program) {
         spFacade.populatePKB();
     }
     catch (const std::exception& e) {
-        std::cerr << "An error occurred in parsing simple program: " << e.what() << std::endl;
+        std::cerr << "An error occurred in parsing simple program, exiting with error: " << e.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
