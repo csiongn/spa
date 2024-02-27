@@ -312,7 +312,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
             throw QuerySyntaxError("Syntax Error occurred: Relationship has wrong format");
         }
 
-    } else if (tokenValue == "Follows*" || tokenValue == "Parents*") {
+    } else if (tokenValue == "Follows*" || tokenValue == "Parent*") {
         SimpleProgram::DesignAbstraction abstraction;
         std::vector<PQL::Synonym> args;
 
@@ -446,16 +446,20 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
     std::vector<PQL::Synonym> declarations;
 
     std::vector<std::shared_ptr<QueryToken>> currDeclarations;
-    while (pos < tokens.size()) {
-        auto currToken = tokens[pos];
+    int lastSemicolonPos = pos;
+    int curr = pos;
+    while (curr < tokens.size()) {
+        auto currToken = tokens[curr];
 
         if (currToken->getValue() == "Select") {
+            pos = lastSemicolonPos + 1;
             break;
         }
 
         if (currToken->getValue() == ";") {
             // Add all the declarations in the array.
             // First element should always be the type, following elements will be the synonyms used
+            lastSemicolonPos = curr;
             auto entityType = getEntityType(currDeclarations[0]);
             for (int i = 1; i < currDeclarations.size(); i++) {
                 auto currIdentity = currDeclarations[i]->getValue();
@@ -467,18 +471,19 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
                 declarations.push_back(declaration);
             }
             currDeclarations.clear();
-            pos++;
+            curr++;
             continue;
         }
 
         if (currToken->getValue() == ",") {
-            pos++;
+            curr++;
             continue;
         }
 
         currDeclarations.push_back(currToken);
-        pos++;
+        curr++;
     }
+    pos = lastSemicolonPos + 1;
     return declarations;
 }
 
@@ -565,7 +570,7 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
 PQL::Synonym QueryParser::parseSelectClause() {
     auto currToken = tokens[pos];
     if (currToken->getValue() != "Select") {
-        throw QuerySemanticError("Semantic Error: Select clause should come first");
+        throw QuerySyntaxError("Syntax Error: Select clause should come first");
     }
 
     if (pos + 1 >= tokens.size()) {

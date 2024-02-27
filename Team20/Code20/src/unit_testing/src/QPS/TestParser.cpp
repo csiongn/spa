@@ -474,6 +474,96 @@ TEST_CASE("Parse") {
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
         REQUIRE(expectedQuery == results);
     }
+
+    SECTION("Invalid select clause") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "variable v; \nselect v";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Select clause should come first");
+    }
+
+    SECTION("multiple declarations") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a1, a2; \nSelect a1 such that Follows(a1,a2)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a2");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a1");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("multiple declarations 2") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a1, a2;\nSelect a2 such that Follows(a1, a2)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a2");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a2");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Parent* relationship") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "stmt s1, s2;\n Select s1 such that Parent*(s1, s2)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s1");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT, "s1");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "s2");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
 }
 
 
