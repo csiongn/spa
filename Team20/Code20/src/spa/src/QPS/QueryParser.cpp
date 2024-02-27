@@ -518,7 +518,11 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                 exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
                 exprId = id;
             } else {
-                exprType = SimpleProgram::DesignEntity::EXPR;
+                if (tokens[pos+5]->getType() == TokenType::WILDCARD) {
+                    exprType = SimpleProgram::DesignEntity::WILDCARD;
+                } else {
+                    exprType = SimpleProgram::DesignEntity::EXPR;
+                }
                 exprId = tokens[pos+5]->getValue();
             }
 

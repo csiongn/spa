@@ -237,6 +237,35 @@ TEST_CASE("Parse") {
 
     }
 
+    SECTION("pattern clause double wildcard") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a; \nSelect a pattern a ( _ , _ )";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg0);
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+
+    }
+
     SECTION("Uses relationship") {
         QueryTokenizer queryTokenizer{};
         std::string query = "variable v;\n"
