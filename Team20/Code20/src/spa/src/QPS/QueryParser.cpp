@@ -165,20 +165,20 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
         auto declarationVerification = verifyDeclarationExists(tokens[start-1]);
         auto synonymType = std::get<1>(declarationVerification);
         // Check synonym types used
+        bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
+                             synonymType == SimpleProgram::DesignEntity::STMT ||
+                             synonymType == SimpleProgram::DesignEntity::CALL ||
+                             synonymType == SimpleProgram::DesignEntity::WHILE ||
+                             synonymType == SimpleProgram::DesignEntity::IF ||
+                             synonymType == SimpleProgram::DesignEntity::PROCEDURE;
         if (isUses) {
-            bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
-                    synonymType == SimpleProgram::DesignEntity::PRINT ||
-                    synonymType == SimpleProgram::DesignEntity::CALL ||
-                    synonymType == SimpleProgram::DesignEntity::PROCEDURE;
+            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::PRINT;
             if (!isAllowedType) {
                 throw QuerySemanticError("Semantic Error: Synonym type used for Uses relationship is not allowed");
             }
         }
         if (isModifies) {
-            bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
-                                 synonymType == SimpleProgram::DesignEntity::READ ||
-                                 synonymType == SimpleProgram::DesignEntity::CALL ||
-                                 synonymType == SimpleProgram::DesignEntity::PROCEDURE;
+            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::READ;
             if (!isAllowedType) {
                 throw QuerySemanticError("Semantic Error: Synonym type used for Modifies relationship is not allowed");
             }

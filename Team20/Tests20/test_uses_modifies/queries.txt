@@ -56,20 +56,50 @@ Select pn such that Uses(pn, "east")
 12 - Uses (v, v) - incorrect first arg type
 variable v;
 Select v such that Uses(v, "east")
-SyntaxError
+SemanticError
 5000
 13 - Modifies (v, v) - incorrect first arg type
 variable v;
 Select v such that Modifies(v, "east")
-SyntaxError
+SemanticError
 5000
 14 - Uses (re, v) - incorrect first arg type
 read re; assign a;
 Select a such that Uses(re, "east")
-SyntaxError
+SemanticError
 5000
 15 - Modifies (pn, v) - incorrect first arg type
 print pn; assign a;
 Select a such that Modifies(pn, "east")
-SyntaxError
+SemanticError
+5000
+16 - Modifies (w, v) - while first arg type
+while w;
+Select w such that Modifies(w, "east")
+7
+5000
+17 - Uses (w, v) - while first arg type
+while w; stmt s;
+Select s such that Uses(w, "east")
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+18 - Modifies (if, v) - if first arg type
+if if;
+Select if such that Modifies(if, "east")
+9
+5000
+19 - Uses (if, v) - if first arg type
+stmt s; if if;
+Select s such that Uses(if, "east")
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+20 - Uses (s, v) - test 1
+while w; stmt s;
+Select s such that Uses(s, "east")
+1, 2, 3, 7, 8, 9, 12
+5000
+21 - Uses (w, v) - non-existent second ident
+while w; stmt s;
+Select s such that Uses(w, "asdfion")
+none
 5000
