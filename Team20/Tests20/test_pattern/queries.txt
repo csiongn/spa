@@ -18,3 +18,128 @@ assign a;
 Select a pattern a (_, _)
 2, 3, 6, 8
 5000
+5 - assign, exact variable
+variable v;assign a;
+Select v pattern a (_, "x")
+x,y,z
+5000
+6 - string, exact variable
+assign a;
+Select a pattern a ("y", "x")
+2
+5000
+7 - Uses - pattern
+assign a;
+Select a such that Uses (a, "x") pattern a("z", _)
+6
+5000
+8 - Modifies - pattern
+assign a;
+Select a such that Modifies (a, "x") pattern a ("x", _)
+3
+5000
+9 - Modifies - pattern
+assign a;
+Select a such that Modifies (a, _) pattern a (_, _)
+2,3,6,8
+5000
+10 - Modifies - pattern
+assign a;read r;
+Select r such that Modifies (r, _) pattern a (_, "x")
+1,10
+5000
+11 - string, partial string
+assign a;
+Select a pattern a ("y", _"x"_)
+2
+5000
+12 - string, wildcard
+assign a;
+Select a pattern a ("x", _)
+3
+5000
+13 - variable, wildcard
+variable v;assign a;
+Select a pattern a (v, _)
+2,3,6,8
+5000
+14 - variable, exact string
+variable v;assign a;
+Select a pattern a (v, "x")
+2
+5000
+15 - variable, partial string
+variable v;assign a;
+Select a pattern a (v, _"x"_)
+2,6
+5000
+16 - Parent - pattern
+assign a;if ifs;
+Select ifs such that Parent (ifs, a) pattern a (_, _)
+5
+5000
+17 - Non variable synonym 1st arg
+assign a; print pn;
+Select a pattern a ( pn , _ )
+SemanticError
+5000
+18 - Non variable synonym 2nd arg
+assign a; print pn;
+Select a pattern a ( _ , pn )
+SyntaxError
+5000
+19 - FollowsT - pattern WRONG
+assign a; stmt s;variable v;
+Select s such that Follows*(s,a) pattern a ("x", _)
+1,2
+5000
+20 - Parent - pattern
+assign a; stmt s; variable v;
+Select v such that Parent*(s,a) pattern a (v, _)
+z
+5000
+21 - pattern with one such that - find uses and modifies on same variable e.g. x=x+1
+assign a; variable v;
+Select a such that Uses (a,v) pattern a (v, _)
+none
+5000
+22 - FollowsT - pattern
+assign a; stmt s; variable v;
+Select v such that Follows*(s,a) pattern a (v, _)
+x,y
+5000
+23 - FollowsT - pattern
+assign a; stmt s; variable v;
+Select s such that Follows*(s,a) pattern a (v, _)
+1,2
+5000
+24 - FollowsT - pattern
+assign a; stmt s; variable v;
+Select a such that Follows*(a,s) pattern a (v, _)
+2,3,6
+5000
+25 - FollowsT - pattern
+assign a; stmt s; variable v;if ifs;
+Select a such that Parent(ifs, a) pattern a (_, _"x"_)
+6
+5000
+26 - Uses - pattern
+assign a;stmt s;print pn;
+Select a such that Uses (a, "x") pattern a("z", _)
+6
+5000
+27 - Modifies - pattern
+assign a;stmt s;print pn;
+Select a such that Modifies (a, "x") pattern a ("x", _)
+3
+5000
+28 - Modifies - pattern
+assign a;
+Select a such that Uses (a, "x") pattern a ("x", _)
+
+5000
+29 - Modifies - pattern
+assign a;
+Select a such that Uses (a, "x") pattern a (_, "x")
+2
+5000

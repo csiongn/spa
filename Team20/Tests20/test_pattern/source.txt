@@ -5,12 +5,9 @@ procedure Main {
   print y;
   if (x < 5) then {
     z = x * 2;
-    print z;
-  } else {
-    z = 0;
-  }
+    print z;} else {
+    z = 0;}
   while (z < 10) {
     read z;
-    print z;
-  }
+    print z;}
 }
