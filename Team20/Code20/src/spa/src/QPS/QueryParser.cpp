@@ -151,12 +151,38 @@ bool QueryParser::isStmtSubtype(std::shared_ptr<QueryToken>& token) {
     return false;
 }
 
-bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
+bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstraction relationship) {
+    bool isFollowsOrParent = relationship == SimpleProgram::DesignAbstraction::FOLLOWS ||
+            relationship == SimpleProgram::DesignAbstraction::FOLLOWST ||
+            relationship == SimpleProgram::DesignAbstraction::PARENT ||
+            relationship == SimpleProgram::DesignAbstraction::PARENTT;
+    bool isUses = relationship == SimpleProgram::DesignAbstraction::USESS;
+    bool isModifies = relationship == SimpleProgram::DesignAbstraction::MODIFIESS;
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
 
-    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
-        verifyDeclarationExists(tokens[start-1]);
+    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+        auto declarationVerification = verifyDeclarationExists(tokens[start-1]);
+        auto synonymType = std::get<1>(declarationVerification);
+        // Check synonym types used
+        if (isUses) {
+            bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
+                    synonymType == SimpleProgram::DesignEntity::PRINT ||
+                    synonymType == SimpleProgram::DesignEntity::CALL ||
+                    synonymType == SimpleProgram::DesignEntity::PROCEDURE;
+            if (!isAllowedType) {
+                throw QuerySemanticError("Semantic Error: Synonym type used for Uses relationship is not allowed");
+            }
+        }
+        if (isModifies) {
+            bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
+                                 synonymType == SimpleProgram::DesignEntity::READ ||
+                                 synonymType == SimpleProgram::DesignEntity::CALL ||
+                                 synonymType == SimpleProgram::DesignEntity::PROCEDURE;
+            if (!isAllowedType) {
+                throw QuerySemanticError("Semantic Error: Synonym type used for Modifies relationship is not allowed");
+            }
+        }
     }
 
     if (!isFollowsOrParent && hasValidFirstArgument) {
@@ -302,8 +328,8 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
             if (nextPos + 4 >= tokens.size()) {
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
-
-            bool isValidRs = isValidRelationship(nextPos, true);
+            abstraction = tokenValue == "Follows" ? SimpleProgram::DesignAbstraction::FOLLOWS : SimpleProgram::DesignAbstraction::PARENT;
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, true);
@@ -317,7 +343,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                     throw QuerySemanticError("Semantic Error on arguments: arguments used not declared");
                 }
             }
-            abstraction = tokenValue == "Follows" ? SimpleProgram::DesignAbstraction::FOLLOWS : SimpleProgram::DesignAbstraction::PARENT;
+
             return std::make_tuple(isValidRs, isValidRs ? abstraction : SimpleProgram::DesignAbstraction{}, args);
 
         } else {
@@ -334,7 +360,8 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
 
-            bool isValidRs = isValidRelationship(nextPos, true);
+            abstraction = tokenValue == "Follows*" ? SimpleProgram::DesignAbstraction::FOLLOWST : SimpleProgram::DesignAbstraction::PARENTT;
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, true);
@@ -348,7 +375,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                     throw QuerySemanticError("Semantic Error on arguments: arguments used not declared");
                 }
             }
-            abstraction = tokenValue == "Follows*" ? SimpleProgram::DesignAbstraction::FOLLOWST : SimpleProgram::DesignAbstraction::PARENTT;
+
 
             return std::make_tuple(isValidRs, isValidRs ? abstraction : SimpleProgram::DesignAbstraction{}, args);
 
@@ -366,7 +393,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
 
-            bool isValidRs = isValidRelationship(nextPos, false);
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, false);

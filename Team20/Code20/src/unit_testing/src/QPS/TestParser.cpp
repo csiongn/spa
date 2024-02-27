@@ -207,9 +207,9 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
-    SECTION("Modifies relationship with IDENT as second argument and variable as first argument with same value") {
+    SECTION("Modifies relationship with IDENT as second argument and read as first argument") {
         QueryTokenizer queryTokenizer{};
-        std::string query = "variable v; \nSelect v such that Modifies(v, \"v\")";
+        std::string query = "variable v; read re; \nSelect v such that Modifies(re, \"v\")";
         auto tokens = queryTokenizer.tokenize(query);
         QueryParser queryParser(tokens);
 
@@ -217,11 +217,12 @@ TEST_CASE("Parse") {
 
         std::vector<PQL::Synonym> expectedDeclarations;
         expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::READ, "re");
         std::vector<PQL::Clause> expectedClauses;
 
         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 
-        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::READ, "re");
         PQL::Synonym arg2(SimpleProgram::DesignEntity::IDENT, "v");
         std::vector<PQL::Synonym> args;
         args.emplace_back(arg1);

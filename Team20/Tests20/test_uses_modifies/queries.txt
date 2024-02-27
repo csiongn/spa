@@ -53,3 +53,23 @@ print pn;
 Select pn such that Uses(pn, "east")
 1
 5000
+12 - Uses (v, v) - incorrect first arg type
+variable v;
+Select v such that Uses(v, "east")
+SyntaxError
+5000
+13 - Modifies (v, v) - incorrect first arg type
+variable v;
+Select v such that Modifies(v, "east")
+SyntaxError
+5000
+14 - Uses (re, v) - incorrect first arg type
+read re; assign a;
+Select a such that Uses(re, "east")
+SyntaxError
+5000
+15 - Modifies (pn, v) - incorrect first arg type
+print pn; assign a;
+Select a such that Modifies(pn, "east")
+SyntaxError
+5000
