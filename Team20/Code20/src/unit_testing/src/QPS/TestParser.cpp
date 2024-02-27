@@ -180,6 +180,87 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
+    SECTION("Modifies relationship with IDENT as second argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "variable v; \nSelect v such that Modifies(7, \"v\")";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "7");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::IDENT, "v");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Modifies relationship with IDENT as second argument and variable as first argument with same value") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "variable v; \nSelect v such that Modifies(v, \"v\")";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::IDENT, "v");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Uses relationship with wildcard as second argument") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a;\n Select a such that Uses(a, _)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
+
     SECTION("pattern clause full expression") {
         QueryTokenizer queryTokenizer{};
         std::string query = "assign a; \nSelect a pattern a ( _ , \"x\" )";
@@ -482,6 +563,16 @@ TEST_CASE("Parse") {
         QueryParser queryParser(tokens);
 
         REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Select clause should come first");
+    }
+
+    SECTION("Invalid declaration syntax") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "print stmt pn;\n Select pn such that Uses(pn, \"east\")";
+        auto tokens = queryTokenizer.tokenize(query);
+
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Invalid declaration syntax");
     }
 
     SECTION("multiple declarations") {

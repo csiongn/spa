@@ -25,6 +25,10 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
         return std::make_tuple(true, SimpleProgram::DesignEntity::WILDCARD);
     }
 
+    if (token->getType() == TokenType::CONSTANT_STRING) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::IDENT);
+    }
+
     for (const auto& syn : initialDeclarations) {
         if (syn.identity == tokenId) {
             // Populate usedDeclarations array if not already in array
@@ -171,14 +175,15 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
     bool hasValidSecondArgument;
+    auto secondArgToken = tokens[start++];
 
     if (isFollowsOrParent) {
-        hasValidSecondArgument = isStmtRef(tokens[start++]);
+        hasValidSecondArgument = isStmtRef(secondArgToken);
     }
 
     if (!isFollowsOrParent) {
-        hasValidSecondArgument = isEntRef(tokens[start++]);
-        if (hasValidSecondArgument && tokens[start-1]->getType() != TokenType::CONSTANT_STRING && isName(tokens[start-1]->getValue()) && getEntityTypeFromSynonym(tokens[start-1]) != SimpleProgram::DesignEntity::VARIABLE) {
+        hasValidSecondArgument = isEntRef(secondArgToken);
+        if (hasValidSecondArgument && secondArgToken->getType() != TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
             throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
         }
     }
@@ -408,9 +413,9 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
 
 SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token) {
     auto declarationVerification = verifyDeclarationExists(token);
-    auto hasDeclarationOfTypeInteger = std::get<0>(declarationVerification);
+    auto hasDeclaration = std::get<0>(declarationVerification);
 
-    if (hasDeclarationOfTypeInteger) {
+    if (hasDeclaration) {
         return std::get<1>(declarationVerification);
     }
 
@@ -446,8 +451,9 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
     std::vector<PQL::Synonym> declarations;
 
     std::vector<std::shared_ptr<QueryToken>> currDeclarations;
-    int lastSemicolonPos = pos;
+    int lastSemicolonPos = -1;
     int curr = pos;
+    bool hasMultipleDeclarations = false;
     while (curr < tokens.size()) {
         auto currToken = tokens[curr];
 
@@ -457,9 +463,12 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
         }
 
         if (currToken->getValue() == ";") {
+            if (!hasMultipleDeclarations && (curr - lastSemicolonPos) > 3) {
+                throw QuerySyntaxError("Syntax Error: Invalid declaration syntax");
+            }
+            lastSemicolonPos = curr;
             // Add all the declarations in the array.
             // First element should always be the type, following elements will be the synonyms used
-            lastSemicolonPos = curr;
             auto entityType = getEntityType(currDeclarations[0]);
             for (int i = 1; i < currDeclarations.size(); i++) {
                 auto currIdentity = currDeclarations[i]->getValue();
@@ -470,12 +479,14 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
                 auto declaration = PQL::Synonym(entityType, currIdentity);
                 declarations.push_back(declaration);
             }
+            hasMultipleDeclarations = false;
             currDeclarations.clear();
             curr++;
             continue;
         }
 
         if (currToken->getValue() == ",") {
+            hasMultipleDeclarations = true;
             curr++;
             continue;
         }
