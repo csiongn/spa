@@ -1,0 +1,19 @@
+procedure naw {
+    if (less < b + c * d) then {
+        hello = (5 + 10) / 3;
+        print world;
+    } else {
+        testing = 10;
+        notTesting = testing * 3;
+        if (1 < more) then {
+            no = yes * 5;
+        } else {
+            nah = hell / 3;
+        }
+        while (more < less) {
+            more = more + 1;
+        }
+        read book;
+        call me;
+    }
+}

@@ -1,14 +1,13 @@
 #pragma once
 
 #include "AST.h"
-#include "PKB/facade/PKBFacade.h"
+#include "PKB/facade/IPKBWriter.h"
 #include <unordered_map>
 #include <unordered_set>
-#include <utility>
 
 class DesignExtractor {
 public:
-    explicit DesignExtractor(std::shared_ptr<PKBFacade> pkbFacade) : pkbFacade(std::move(pkbFacade)) {}
+    explicit DesignExtractor(std::shared_ptr<IPKBWriter> pkbWriter) : pkbWriter(std::move(pkbWriter)) {}
 
     void extractDesign(const ProgramNode& astRoot);
 
@@ -29,25 +28,44 @@ public:
         return parentT;
     }
 
+    const std::unordered_map<int, std::unordered_set<std::string>>& getUses() const {
+        return uses;
+    }
+
+    const std::unordered_map<int, std::unordered_set<std::string>>& getModifies() const {
+        return modifies;
+    }
+
     const std::unordered_set<std::string>& getVariables() const {
         return variables;
     }
 
 private:
 
-    std::shared_ptr<PKBFacade> pkbFacade;
+    std::shared_ptr<IPKBWriter> pkbWriter;
+
+    // Design abstractions
     std::unordered_map<int, int> follows;
     std::unordered_map<int, std::unordered_set<int>> followsT;
     std::unordered_map<int, int> parent;
     std::unordered_map<int, std::unordered_set<int>> parentT;
+    std::unordered_map<int, std::unordered_set<std::string>> uses;
+    std::unordered_map<int, std::unordered_set<std::string>> modifies;
+
+    // Entities
+    std::unordered_set<std::string> procedures;
     std::unordered_set<std::string> variables;
     std::unordered_set<std::string> literals;
+    std::unordered_set<int> stmts;
     std::unordered_set<int> assignStmts;
     std::unordered_set<int> callStmts;
     std::unordered_set<int> ifStmts;
     std::unordered_set<int> readStmts;
     std::unordered_set<int> printStmts;
     std::unordered_set<int> whileStmts;
+
+    // Specific Nodes
+    std::unordered_set<std::shared_ptr<AssignNode>> assignNodes;
 
 
     // Methods to traverse the AST
@@ -56,13 +74,19 @@ private:
     void visitBlockNode(const BlockNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitStmtNode(const StmtNode& node, int parentStmt, std::vector<int>& stmtList);
     void visitIfNode(const IfNode& node, int stmtNumber);
+    void visitWhileNode(const WhileNode& node, int stmtNumber);
     void visitExprNode(const ExprNode& node, int stmtNumber);
 
     // Utility Methods
     void updateFollows(int stmtNumber, std::vector<int>& stmtList);
     void updateParent(int childStmtNumber, int parentStmtNumber);
+    void updateUses(int stmtNumber, const std::string& variableName);
+    void updateModifies(int stmtNumber, const std::string& variableName);
+
+    void insertProcedure(const std::string& procName);
     void insertVariable(const std::string& var);
     void insertLiteral(const std::string& var);
+    void insertStmt(const int stmtNum);
     void insertAssign(const int stmtNum);
     void insertCall(const int stmtNum);
     void insertIf(const int stmtNum);

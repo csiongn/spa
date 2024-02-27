@@ -17,6 +17,17 @@ namespace SP {
     };
 }
 
+const static std::vector<SP::TokenType> keywords = {
+    SP::TokenType::KEYWORD_PROCEDURE,
+    SP::TokenType::KEYWORD_IF,
+    SP::TokenType::KEYWORD_THEN,
+    SP::TokenType::KEYWORD_ELSE,
+    SP::TokenType::KEYWORD_READ,
+    SP::TokenType::KEYWORD_CALL,
+    SP::TokenType::KEYWORD_PRINT,
+    SP::TokenType::KEYWORD_WHILE
+};
+
 /// <summary>
 /// Maps token types to specific strings.
 /// excludes INTEGER and NAME as they do not have 1:1 mapping with a string
@@ -118,6 +129,29 @@ struct Token {
     static bool isStringInTokenMapping(const std::string& key) {
         auto result = tokenMapping.find(key);
         return result != tokenMapping.end();
+    }
+
+    /// <summary>
+    /// Checks if string is supposed to be a unique symbol I.e. 
+    /// - It is len(1)
+    /// - It does not have any combination with any other symbol e.g. =, > is not counted as it can form >=
+    /// </summary>
+    /// <param name="key">String input</param>
+    /// <returns>True if string is brace or parenthesis.</returns>
+    static bool isUniqueSymbol(const std::string& key) {
+        auto result = tokenMapping.find(key);
+        if (result != tokenMapping.end()) {
+            switch (result->second) {
+                case SP::TokenType::LEFT_BRACE:
+                case SP::TokenType::LEFT_PAREN:
+                case SP::TokenType::RIGHT_BRACE:
+                case SP::TokenType::RIGHT_PAREN:
+                case SP::TokenType::SEMICOLON:
+                    return true;
+                default:
+                    return false;
+                }
+        }
     }
 
     /// <summary>

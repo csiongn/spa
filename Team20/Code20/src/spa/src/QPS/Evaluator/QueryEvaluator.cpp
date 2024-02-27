@@ -6,17 +6,19 @@
 #include "Models/SimpleProgram.h"
 #include "PKB/facade/IPKBReader.h"
 #include "QueryEvaluator.h"
-#include "Result.h"
 #include "ResultStore.h"
 #include "StatementEvaluator.h"
+#include "EntityEvaluator.h"
+#include "AssignPatternEvaluator.h"
 
 namespace QueryEvaluator {
-    QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(), reader(r) {}
+    QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(std::make_shared<ResultStore>()),
+                                                                    reader(r) {}
 
     std::vector<std::string> QueryEvaluator::evaluateQuery(const PQL::Query &q) {
         initialiseDeclaration(q);
 
-        for (const auto &clause : q.clauses) {
+        for (const auto &clause: q.clauses) {
             auto isTrue = evaluateClause(clause);
             if (!isTrue) {
                 // empty result, final result will also be empty, can just return
@@ -25,26 +27,31 @@ namespace QueryEvaluator {
         }
 
         // need to select from the results
-        return resultStore.retrieveSelect(q.selectSynonym);
+        std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonym);
+//        return resultStore.retrieveSelect(q.selectSynonym);
+        return selectResult;
     }
 
     bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
-        // TODO: Add clause evaluator for follows, parent
-
-        if (clause.clauseType == SimpleProgram::DesignAbstraction::FOLLOWS
-                || clause.clauseType == SimpleProgram::DesignAbstraction::FOLLOWST
-                || clause.clauseType == SimpleProgram::DesignAbstraction::PARENT
-                || clause.clauseType == SimpleProgram::DesignAbstraction::PARENTT) {
-            StatementEvaluator clauseEvaluator{reader, clause, resultStore};
-            return clauseEvaluator.evaluate();
+        switch (clause.clauseType) {
+            case SimpleProgram::DesignAbstraction::FOLLOWS:
+            case SimpleProgram::DesignAbstraction::FOLLOWST:
+            case SimpleProgram::DesignAbstraction::PARENT:
+            case SimpleProgram::DesignAbstraction::PARENTT:
+                return StatementEvaluator{reader, clause, resultStore}.evaluate();
+            case SimpleProgram::DesignAbstraction::USESS:
+            case SimpleProgram::DesignAbstraction::MODIFIESS:
+                return EntityEvaluator{reader, clause, resultStore}.evaluate();
+            case SimpleProgram::DesignAbstraction::PATTERN_ASSIGN:
+                return AssignPatternEvaluator{reader, clause, resultStore}.evaluate();
+            default:
+                return false;
         }
-
-        return false;
     }
 
     void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
         // Add all declarations to the
-        for (const auto &syn : q.declarations) {
+        for (const auto &syn: q.declarations) {
             addSynonymToStore(syn);
         }
     }
@@ -55,60 +62,90 @@ namespace QueryEvaluator {
         switch (syn.entityType) {
             case SimpleProgram::DesignEntity::PROCEDURE:
                 strRes = reader->getAllProcedures();
-                resultStore.createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
+                if (strRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::STMT:
                 intRes = reader->getAllStatementNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::READ:
                 intRes = reader->getAllReadStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::PRINT:
                 intRes = reader->getAllPrintStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::ASSIGN:
                 intRes = reader->getAllAssignStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::CALL:
                 intRes = reader->getAllCallStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::WHILE:
                 intRes = reader->getAllWhileStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::IF:
                 intRes = reader->getAllIfStmtNum();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::VARIABLE:
                 strRes = reader->getAllVariables();
-                resultStore.createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
+                if (strRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
                 break;
 
             case SimpleProgram::DesignEntity::CONSTANT:
                 intRes = reader->getAllConstants();
-                resultStore.createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                if (intRes.empty()) {
+                    return;
+                }
+                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
 
             case SimpleProgram::DesignEntity::STMT_NO:
             case SimpleProgram::DesignEntity::WILDCARD:
             case SimpleProgram::DesignEntity::IDENT:
             case SimpleProgram::DesignEntity::EXPR:
+            case SimpleProgram::DesignEntity::PARTIAL_EXPR:
             case SimpleProgram::DesignEntity::INTEGER:
                 return;
-
         }
     }
 }

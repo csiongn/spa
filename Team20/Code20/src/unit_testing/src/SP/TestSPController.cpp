@@ -3,19 +3,19 @@
 
 #include "catch.hpp"
 
-#include "SP/facade/SPFacade.h"
+#include "Models/SimpleProgram.h"
 #include "PKB/Database.h"
 #include "PKB/PKB.h"
+#include "SP/SPController.h"
 #include "../TestUtils.h"
-#include "Models/SimpleProgram.h"
 
 
-TEST_CASE("SPFacade Test") {
-    // initialise SPFacade
+TEST_CASE("SPController Test") {
+    // initialise SPController
     auto pkb = std::make_shared<PKB>();
     auto pkbFacade = pkb->pkbFacade;
-    // no input for SPFacade
-    auto spFacade = SPFacade(pkbFacade, "");
+    // no input for SPController
+    auto spController = SPController(pkbFacade, "");
     std::unordered_map<int, std::unordered_set<int>> follows = {
             {1, {2}},
             {2, {3}},
@@ -42,10 +42,10 @@ TEST_CASE("SPFacade Test") {
 
     SECTION("Test insertion of relationship") {
         // set of relationships for follows, followsT, parents, parentT
-        spFacade.insertRelationship(SimpleProgram::DesignAbstraction::FOLLOWS, follows);
-        spFacade.insertRelationship(SimpleProgram::DesignAbstraction::FOLLOWST, followsT);
-        spFacade.insertRelationship(SimpleProgram::DesignAbstraction::PARENT, parent);
-        spFacade.insertRelationship(SimpleProgram::DesignAbstraction::PARENTT, parentT);
+        spController.insertRelationship(SimpleProgram::DesignAbstraction::FOLLOWS, follows);
+        spController.insertRelationship(SimpleProgram::DesignAbstraction::FOLLOWST, followsT);
+        spController.insertRelationship(SimpleProgram::DesignAbstraction::PARENT, parent);
+        spController.insertRelationship(SimpleProgram::DesignAbstraction::PARENTT, parentT);
 
         // check if the relationships are inserted correctly
         // use pkbFacade as reader to verify results
@@ -60,8 +60,8 @@ TEST_CASE("SPFacade Test") {
     }
 
     SECTION("Test insertion of entity") {
-        spFacade.insertEntity(SimpleProgram::DesignEntity::STMT, stmtSet);
-        spFacade.insertEntity(SimpleProgram::DesignEntity::VARIABLE, varSet);
+        spController.insertEntity(SimpleProgram::DesignEntity::STMT, stmtSet);
+        spController.insertEntity(SimpleProgram::DesignEntity::VARIABLE, varSet);
 
         std::vector<int> expectedStmtValue = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         std::vector<std::string> expectedVarValue = {"x", "y", "z"};

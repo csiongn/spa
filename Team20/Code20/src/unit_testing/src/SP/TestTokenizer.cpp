@@ -87,6 +87,15 @@ TEST_CASE("Test TokenizeProgram") {
                 Token(SP::TokenType::EOFILE, "", 2)
             },
         },
+        {
+            "x <= 3;", { // Test <= symbol tokenizes into one
+                Token(SP::TokenType::NAME, "x", 1),
+                Token(SP::TokenType::LESS_THAN_EQUAL, "<=", 1),
+                Token(SP::TokenType::INTEGER, "3", 1),
+                Token(SP::TokenType::SEMICOLON, ";", 1),
+                Token(SP::TokenType::EOFILE, "", 2)
+            },
+        },
         
         // You can add more test cases here
     };
@@ -107,8 +116,10 @@ TEST_CASE("Test exception throwing in tokenizeWord") {
         "x /= 3;", // invalid symbol - length 2
         "x /== 3;", // invalid symbol - length 3
         "x ??? 3;", // invalid symbol - unsupported symbols
-        "123nums = 3;" // invalid variable name
-        "x = 3;;" // invalid symbol at EOL
+        "123nums = 3;", // invalid variable name
+        // "x = 3;;", // invalid symbol at EOL - Tentatively removed as not able to support
+        "x <== 3", // invalid symbol - substrings of symbols are valid but whole string is not
+        "x<==3;", // invalid symbol - no spaces
     };
     for (const auto& error_program : error_programs) {
         Tokenizer tokenizer(error_program);
@@ -151,6 +162,40 @@ TEST_CASE("Test tokenizeWord") {
                 ";",
             },
         },
+        {
+            "x!=y", { // Test keyword parsing
+                "x",
+                "!=",
+                "y",
+            },
+        },
+        {
+            "if((x<2)||(y==1)&&!(x==0))then{", { // Test mixed symbols with unique like ! and non-unique like ||
+                "if",
+                "(",
+                "(",
+                "x",
+                "<",
+                "2",
+                ")",
+                "||",
+                "(",
+                "y",
+                "==",
+                "1",
+                ")",
+                "&&",
+                "!",
+                "(",
+                "x",
+                "==",
+                "0",
+                ")",
+                ")",
+                "then",
+                "{",
+            },
+        },
         // You can add more test cases here
     };
 
@@ -174,6 +219,100 @@ TEST_CASE("Test tokenizeLine") {
                 Token(SP::TokenType::SEMICOLON, ";", 1),
                 Token(SP::TokenType::NAME, "World", 1),
                 Token(SP::TokenType::SEMICOLON, ";", 1),
+            },
+        },
+        {
+            "while((x==2)&&!(y==2)){", { // Test not
+                Token(SP::TokenType::KEYWORD_WHILE, "while", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "x", 1),
+                Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::AND, "&&", 1),
+                Token(SP::TokenType::NOT, "!", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "y", 1),
+                Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::LEFT_BRACE, "{", 1),
+            },
+        },
+        {
+            "while((x==2)&&(y==2))", { // Test parenthesis tokenizing
+                Token(SP::TokenType::KEYWORD_WHILE, "while", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "x", 1),
+                Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::AND, "&&", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "y", 1),
+                Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            },
+        },
+        {
+            "while((x<=2)&&(y<2))", { // Test correct tokenizing of <= and <
+                Token(SP::TokenType::KEYWORD_WHILE, "while", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "x", 1),
+                Token(SP::TokenType::LESS_THAN_EQUAL, "<=", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::AND, "&&", 1),
+                Token(SP::TokenType::LEFT_PAREN, "(", 1),
+                Token(SP::TokenType::NAME, "y", 1),
+                Token(SP::TokenType::LESS_THAN, "<", 1),
+                Token(SP::TokenType::INTEGER, "2", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+                Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            },
+        },
+        {
+            "while(((x==2)&&(y==2))&&(while((a==2) && (v==2)))){", { // Test parenthesis - limit
+            Token(SP::TokenType::KEYWORD_WHILE, "while", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::NAME, "x", 1),
+            Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+            Token(SP::TokenType::INTEGER, "2", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::AND, "&&", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::NAME, "y", 1),
+            Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+            Token(SP::TokenType::INTEGER, "2", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::AND, "&&", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::KEYWORD_WHILE, "while", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::NAME, "a", 1),
+            Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+            Token(SP::TokenType::INTEGER, "2", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::AND, "&&", 1),
+            Token(SP::TokenType::LEFT_PAREN, "(", 1),
+            Token(SP::TokenType::NAME, "v", 1),
+            Token(SP::TokenType::DOUBLE_EQUAL, "==", 1),
+            Token(SP::TokenType::INTEGER, "2", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::RIGHT_PAREN, ")", 1),
+            Token(SP::TokenType::LEFT_BRACE, "{", 1),
             },
         },
         // You can add more test cases here

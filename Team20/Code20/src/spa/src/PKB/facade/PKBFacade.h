@@ -144,4 +144,27 @@ public:
     bool containsModifiesVariable(std::string const & variable) override;
     bool containsModifiesRelationship(int stmtNum, std::string const & variable) override;
     bool hasModifiesRelationship() override;
+
+    // Assign Pattern
+    void insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
+                             const std::shared_ptr<ExprNode>& nodePtr) override;
+
+    std::vector<std::string> getAssignPatternLHS(size_t const & rhsExprNodeHash) override;
+    std::vector<size_t> getAssignPatternRHS(std::string const & variable) override;
+    std::vector<std::string> getAssignPatternLHS() override;
+    std::vector<size_t> getAssignPatternRHS() override;
+
+    // get stmt number
+    std::vector<int> getAssignPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) override;
+    std::vector<int> getAssignPatternLHSStmtNum(std::string const & variable) override;
+    std::vector<int> getAssignPatternRHSStmtNum(size_t const & rhsExprNodeHash) override;
+
+    std::vector<std::shared_ptr<ExprNode>> getAssignPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) override;
+    // get all assign pattern RHS node ptrs
+    std::vector<std::shared_ptr<ExprNode>> getAssignPatternRHSExprNodePtr() override;
+
+    bool containsAssignPattern(std::string const & variable, size_t const & rhsExprNodeHash) override;
+    bool containsAssignPatternLHS(std::string const & variable) override;
+    bool containsAssignPatternRHS(size_t const & rhsExprNodeHash) override;
+    bool hasAssignPattern() override;
 };

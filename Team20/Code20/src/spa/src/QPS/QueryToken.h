@@ -9,15 +9,12 @@
 // Select s such that Uses (s, "x")
 enum class TokenType {
     SPECIAL_CHARACTER, // (, ), +, -, *, /, %, ;, \n,
-    // ', '
-    // ", "
-    // "x" and select is the same kind of token?
     WILDCARD, // _
     // procedure, stmt, read, print, assign, call, while, if, variable, constant
     STRING, // normal string token, procedure, stmt, assign, call, while, if, variable, constant, Select
     INTEGER, // statement number given in relationship arguments
     NAME, // NAME, has to start with LETTER variable name, procedure name, constant name, CAN BE ALPHANUMERIC
-    CONSTANT_STRING, // within " " will refer to as constant string as they are immutable and shldnt be splitted up
+    CONSTANT_STRING, // single NAME without whitespace within " " will refer to as constant string as they are immutable
 };
 
 

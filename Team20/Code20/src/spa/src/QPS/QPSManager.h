@@ -14,5 +14,5 @@ class QPSManager {
 public:
     explicit QPSManager(std::shared_ptr<IPKBReader> pkb);
 
-    void evaluate(const std::string &query, std::list<std::string> results);
+    void evaluate(const std::string &query, std::list<std::string> &results);
 };
