@@ -6,7 +6,7 @@
 #include "SP/Parser.h"
 #include "SP/DesignExtractor.h"
 
-TEST_CASE("Parser correctly parses procedure", "[parser]") {
+TEST_CASE("Parser correctly parses procedure with lecture example", "[parser]") {
     GIVEN("A parser with a valid input sequence") {
 
         /*    SIMPLE Code

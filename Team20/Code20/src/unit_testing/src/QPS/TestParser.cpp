@@ -109,7 +109,6 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
-
     SECTION("Uses relationship with non-variable synonym as second argument") {
         QueryTokenizer queryTokenizer{};
         std::string query = "stmt s; variable v; \nSelect s such that Uses(6, s)";

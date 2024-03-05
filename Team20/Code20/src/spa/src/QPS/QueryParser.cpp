@@ -183,6 +183,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
                 throw QuerySemanticError("Semantic Error: Synonym type used for Modifies relationship is not allowed");
             }
         }
+
     }
 
     if (!isFollowsOrParent && hasValidFirstArgument) {
@@ -191,9 +192,11 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
         }
     }
 
+
     auto firstArgToken = tokens[start-1];
 
     if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != TokenType::NAME && firstArgToken->getType() != TokenType::INTEGER && firstArgToken->getType() != TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
+
         if (!isStmtSubtype(tokens[start-1])) {
             throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
         }
@@ -210,6 +213,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
     if (!isFollowsOrParent) {
         hasValidSecondArgument = isEntRef(secondArgToken);
         if (hasValidSecondArgument && secondArgToken->getType() != TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
+
             throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
         }
     }
