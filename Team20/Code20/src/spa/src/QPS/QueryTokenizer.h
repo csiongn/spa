@@ -6,7 +6,7 @@ public:
     std::istream *inputStream;
 
     explicit QueryTokenizer() = default;
-    // Cannot send in query here, need to return the tokenizer
+
     std::vector<std::shared_ptr<QueryToken> > tokenize(const std::string &query);
 
     bool startsWithLetter(const std::string& str) const;

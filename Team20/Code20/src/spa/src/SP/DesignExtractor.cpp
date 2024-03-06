@@ -9,75 +9,75 @@ void DesignExtractor::extractDesign(const ProgramNode& astRoot) {
 
 void DesignExtractor::pushToPKB() {
     for (const auto& pair: follows) {
-        pkbFacade->insertFollows(pair.second, pair.first);
+        pkbWriter->insertFollows(pair.second, pair.first);
     }
 
     for (const auto& pair: parent) {
-        pkbFacade->insertParent(pair.second, pair.first);
+        pkbWriter->insertParent(pair.second, pair.first);
     }
 
     for (const auto& pair: uses) {
-        pkbFacade->insertUsesStmt(pair.first, pair.second);
+        pkbWriter->insertUsesStmt(pair.first, pair.second);
     }
 
     for (const auto& pair: modifies) {
-        pkbFacade->insertModifiesStmt(pair.first, pair.second);
+        pkbWriter->insertModifiesStmt(pair.first, pair.second);
     }
 
     for (const auto& pair: followsT) { // Iterate through the map of all followsT relationships
         for (const auto& followerStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive follower of the key statement
-            pkbFacade->insertFollowsT(pair.first, followerStmtNum);
+            pkbWriter->insertFollowsT(pair.first, followerStmtNum);
         }
     }
 
     for (const auto& pair: parentT) { // Iterate through the map of all parentT relationships
         for (const auto& childStmtNum : pair.second) { // Iterate through pair.second – the set of statements that is a transitive child of the key statement
-            pkbFacade->insertParentT(pair.first, childStmtNum);
+            pkbWriter->insertParentT(pair.first, childStmtNum);
         }
     }
 
     for (const auto& proc: procedures) {
-        pkbFacade->insertProcedure(proc);
+        pkbWriter->insertProcedure(proc);
     }
 
     for (const auto& var: variables) {
-        pkbFacade->insertVariable(var);
+        pkbWriter->insertVariable(var);
     }
 
     for (const auto& val: literals) {
-        pkbFacade->insertConstant(std::stoi(val));
+        pkbWriter->insertConstant(std::stoi(val));
     }
 
     for (const auto& stmtNum: stmts) {
-        pkbFacade->insertStatement(stmtNum);
+        pkbWriter->insertStatement(stmtNum);
     }
 
     for (const auto& stmtNum: assignStmts) {
-        pkbFacade->insertAssign(stmtNum);
+        pkbWriter->insertAssign(stmtNum);
     }
 
     for (const auto& stmtNum: callStmts) {
-        pkbFacade->insertCall(stmtNum);
+        pkbWriter->insertCall(stmtNum);
     }
 
     for (const auto& stmtNum: ifStmts) {
-        pkbFacade->insertIf(stmtNum);
+        pkbWriter->insertIf(stmtNum);
     }
 
     for (const auto& stmtNum: readStmts) {
-        pkbFacade->insertRead(stmtNum);
+        pkbWriter->insertRead(stmtNum);
     }
 
     for (const auto& stmtNum: printStmts) {
-        pkbFacade->insertPrint(stmtNum);
+        pkbWriter->insertPrint(stmtNum);
     }
 
     for (const auto& stmtNum: whileStmts) {
-        pkbFacade->insertWhile(stmtNum);
+        pkbWriter->insertWhile(stmtNum);
     }
 
     for (const auto& assignNode: assignNodes) {
-        pkbFacade->insertAssignPattern(assignNode->varName,
+        pkbWriter->insertAssignPattern(assignNode->varName,
             assignNode->value->getHashValue(), assignNode->stmtNumber, assignNode->value);
     }
 
@@ -168,9 +168,7 @@ void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
     std::vector<int> thenStmtList, elseStmtList;
     visitExprNode(*node.condition, stmtNumber);
     visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
-    if (node.elseBranch) { // If 'else' branch exists
-        visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
-    }
+    visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
 }
 
 void DesignExtractor::visitWhileNode(const WhileNode& node, int stmtNumber) {

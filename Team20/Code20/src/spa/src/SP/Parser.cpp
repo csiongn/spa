@@ -4,6 +4,7 @@
 
 #include "Parser.h"
 #include "AST.h"
+#include "Token.h"
 
 // Utilities
 
@@ -23,10 +24,20 @@ Token Parser::consume(SP::TokenType type, const std::string& message) {
 	throwParseError(message);
 }
 
+Token Parser::consume(const std::vector<SP::TokenType>& types, const std::string& message) {
+	for (SP::TokenType type : types) {
+		if (check(type)) {
+			return consume(type, message);
+		}
+	}
+	throwParseError(message);
+}
+
 // Checks if current token type in parser in of type type
 bool Parser::check(SP::TokenType type) {
 	if (isAtEnd()) return false;
-	return tokens[current].type == type;
+	return tokens[current].type == type ||
+		(type == SP::TokenType::NAME && isKeyword()); // Allow token type to be keyword when we expect a name token
 }
 
 // Returns the current token and advances the parser to the next token
@@ -37,6 +48,17 @@ Token Parser::advance() {
 
 bool Parser::isAtEnd() {
 	return tokens[current].type == SP::TokenType::EOFILE;
+}
+
+bool Parser::isKeyword() {
+	// Retrieve the current token type
+	SP::TokenType type = tokens[current].type;
+
+	// Find the current token type in the keywords vector
+	auto it = std::find(keywords.begin(), keywords.end(), type);
+
+	// If the iterator is not at the end, the token type was found in the keywords vector
+	return it != keywords.end();
 }
 
 // Error handler
@@ -103,27 +125,27 @@ std::shared_ptr<ExprNode> Parser::condExpr() {
 		return negExpr();
 	}
 
+	if (!check({SP::TokenType::LEFT_PAREN})) {
+		return relExpr();
+	}
+
 	std::shared_ptr<ExprNode> expr;
 
 	if (match({SP::TokenType::LEFT_PAREN})) {
 		expr = condExpr();
 		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
 
-		while (match({SP::TokenType::AND, SP::TokenType::OR})) {
-			std::string op = tokens[current - 1].value;
-			std::shared_ptr<ExprNode> right;
-			if (check({SP::TokenType::NOT})) {
-				right = negExpr();
-			} else {
-				consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
-				right = condExpr();
-				consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
-			}
-			expr = std::make_shared<LogicalOpNode>(std::move(expr), op, std::move(right));
-		}
-	} else {
-		expr = relExpr();
+		consume({SP::TokenType::AND, SP::TokenType::OR},
+			"Expected logical operator && or || when parsing conditional expressions with parentheses");
+
+		std::string op = tokens[current - 1].value;
+		std::shared_ptr<ExprNode> right;
+		consume(SP::TokenType::LEFT_PAREN, "Expected '(' after '&&' or '||'.");
+		right = condExpr();
+		consume(SP::TokenType::RIGHT_PAREN, "Expected ')' after expression.");
+		expr = std::make_shared<LogicalOpNode>(std::move(expr), op, std::move(right));
 	}
+
 	return expr;
 }
 
@@ -176,12 +198,17 @@ std::shared_ptr<ProcedureNode> Parser::parseProcedure() {
 }
 
 std::shared_ptr<StmtNode> Parser::parseStatement() {
+	// Look-ahead to determine whether current token is being used as name or keyword
+	if (isKeyword() && tokens[current + 1].type == SP::TokenType::EQUAL) {
+		// The keyword is being used as a variable name in an assignment
+		return parseAssign();
+	}
+	// parseAssign does not use match (which automatically consumes the checked token and advances) as
+	// the assigned variable is important
+	if (check(SP::TokenType::NAME) && tokens[current + 1].type == SP::TokenType::EQUAL) return parseAssign();
 	if (match({SP::TokenType::KEYWORD_CALL})) return parseCall();
 	if (match({SP::TokenType::KEYWORD_PRINT})) return parsePrint();
 	if (match({SP::TokenType::KEYWORD_READ})) return parseRead();
-	if (check(SP::TokenType::NAME) && tokens[current + 1].type == SP::TokenType::EQUAL) return parseAssign();
-	// parseAssign does not use match (which automatically consumes the checked token and advances) as
-	// the assigned variable is important
 	if (match({SP::TokenType::KEYWORD_IF})) return parseIf();
 	if (match({SP::TokenType::KEYWORD_WHILE})) return parseWhile();
 	throwParseError("Expected statement keyword or identifier when parsing statement");
@@ -230,17 +257,15 @@ std::shared_ptr<BlockNode> Parser::parseBlock() {
 
 std::shared_ptr<IfNode> Parser::parseIf() {
 	uint16_t stmtNum = ++stmtNumber;
-	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' while parsing if block.");
+	consume(SP::TokenType::LEFT_PAREN, "Expect '(' after 'if' keyword while parsing if statement.");
 	std::shared_ptr<ExprNode> condition = condExpr();
-	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if block.");
+	consume(SP::TokenType::RIGHT_PAREN, "Expect ')' after condition while parsing if statement.");
 
-	consume(SP::TokenType::KEYWORD_THEN, "Expect 'then' after condition while parsing if block.");
+	consume(SP::TokenType::KEYWORD_THEN, "Expect 'then' keyword after condition while parsing if statement.");
 	std::shared_ptr<BlockNode> thenBranch = parseBlock();
 
-	std::shared_ptr<BlockNode> elseBranch = nullptr;
-	if (match({SP::TokenType::KEYWORD_ELSE})) {
-		elseBranch = parseBlock();
-	}
+	consume(SP::TokenType::KEYWORD_ELSE, "Expect 'else' keyword after then block while parsing if statement.");
+	std::shared_ptr<BlockNode> elseBranch = parseBlock();
 
 	return std::make_shared<IfNode>(stmtNum, std::move(condition), std::move(thenBranch), std::move(elseBranch));
 }

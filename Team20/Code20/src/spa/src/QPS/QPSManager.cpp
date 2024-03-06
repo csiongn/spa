@@ -16,11 +16,14 @@ void QPSManager::evaluate(const std::string &query, std::list<std::string> &resu
             results.push_back(string);
         }
     } catch (const QuerySyntaxError &e){
-        results.emplace_back(e.what());
+        results.emplace_back("SyntaxError");
     } catch (const QuerySemanticError &e) {
-        results.emplace_back(e.what());
-    } catch (...) {
+        results.emplace_back("SemanticError");
+    } catch (const std::exception& e){
+        std::cerr << "Exception caught while evaluating query: " << e.what() << std::endl;
         // unknown error, does nothing
+    } catch (...) {
+        std::cerr << "Unknown exception caught while evaluating query." << std::endl;
     }
 }
 

@@ -20,13 +20,15 @@ PQL::Query QueryParser::parse() {
 
 std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::shared_ptr<QueryToken>& token) {
     std::string tokenId = token->getValue();
-    if (token->getType() == TokenType::INTEGER) {
-        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
-    }
 
     if (token->getType() == TokenType::WILDCARD) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::WILDCARD);
     }
+
+    if (token->getType() == TokenType::CONSTANT_STRING) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::IDENT);
+    }
+
     for (const auto& syn : initialDeclarations) {
         if (syn.identity == tokenId) {
             // Populate usedDeclarations array if not already in array
@@ -37,6 +39,11 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
             return std::make_tuple(true, syn.entityType);
         }
     }
+
+    if (token->getType() == TokenType::INTEGER) {
+        return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
+    }
+
     return std::make_tuple(false, SimpleProgram::DesignEntity{});
 }
 
@@ -144,12 +151,39 @@ bool QueryParser::isStmtSubtype(std::shared_ptr<QueryToken>& token) {
     return false;
 }
 
-bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
+bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstraction relationship) {
+    bool isFollowsOrParent = relationship == SimpleProgram::DesignAbstraction::FOLLOWS ||
+            relationship == SimpleProgram::DesignAbstraction::FOLLOWST ||
+            relationship == SimpleProgram::DesignAbstraction::PARENT ||
+            relationship == SimpleProgram::DesignAbstraction::PARENTT;
+    bool isUses = relationship == SimpleProgram::DesignAbstraction::USESS;
+    bool isModifies = relationship == SimpleProgram::DesignAbstraction::MODIFIESS;
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
 
-    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
-        verifyDeclarationExists(tokens[start-1]);
+    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+        auto declarationVerification = verifyDeclarationExists(tokens[start-1]);
+        auto synonymType = std::get<1>(declarationVerification);
+        // Check synonym types used
+        bool isAllowedType = synonymType == SimpleProgram::DesignEntity::ASSIGN ||
+                             synonymType == SimpleProgram::DesignEntity::STMT ||
+                             synonymType == SimpleProgram::DesignEntity::CALL ||
+                             synonymType == SimpleProgram::DesignEntity::WHILE ||
+                             synonymType == SimpleProgram::DesignEntity::IF ||
+                             synonymType == SimpleProgram::DesignEntity::PROCEDURE;
+        if (isUses) {
+            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::PRINT;
+            if (!isAllowedType) {
+                throw QuerySemanticError("Semantic Error: Synonym type used for Uses relationship is not allowed");
+            }
+        }
+        if (isModifies) {
+            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::READ;
+            if (!isAllowedType) {
+                throw QuerySemanticError("Semantic Error: Synonym type used for Modifies relationship is not allowed");
+            }
+        }
+
     }
 
     if (!isFollowsOrParent && hasValidFirstArgument) {
@@ -158,7 +192,11 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
         }
     }
 
-    if (isFollowsOrParent && hasValidFirstArgument && tokens[start-1]->getType() != TokenType::WILDCARD && !isName(tokens[start-1]->getValue())) {
+
+    auto firstArgToken = tokens[start-1];
+
+    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != TokenType::NAME && firstArgToken->getType() != TokenType::INTEGER && firstArgToken->getType() != TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
+
         if (!isStmtSubtype(tokens[start-1])) {
             throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
         }
@@ -166,14 +204,16 @@ bool QueryParser::isValidRelationship(int start, bool isFollowsOrParent) {
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
     bool hasValidSecondArgument;
+    auto secondArgToken = tokens[start++];
 
     if (isFollowsOrParent) {
-        hasValidSecondArgument = isStmtRef(tokens[start++]);
+        hasValidSecondArgument = isStmtRef(secondArgToken);
     }
 
     if (!isFollowsOrParent) {
-        hasValidSecondArgument = isEntRef(tokens[start++]);
-        if (hasValidSecondArgument && tokens[start-1]->getType() != TokenType::CONSTANT_STRING && isName(tokens[start-1]->getValue()) && getEntityTypeFromSynonym(tokens[start-1]) != SimpleProgram::DesignEntity::VARIABLE) {
+        hasValidSecondArgument = isEntRef(secondArgToken);
+        if (hasValidSecondArgument && secondArgToken->getType() != TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
+
             throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
         }
     }
@@ -216,6 +256,10 @@ bool QueryParser::isValidAssignSynonym(std::shared_ptr<QueryToken>& token) {
 
     for (const auto& declaration : initialDeclarations) {
         if (declaration.entityType ==  SimpleProgram::DesignEntity::ASSIGN) {
+            bool usedDeclarationExists = std::find(std::begin(usedDeclarations), std::end(usedDeclarations), declaration) != std::end(usedDeclarations);
+            if (!usedDeclarationExists) {
+                usedDeclarations.push_back(declaration);
+            }
             return declaration.identity == tokenValue;
         }
     }
@@ -238,8 +282,11 @@ bool QueryParser::isValidPattern(int start, int end) {
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
 
-    if (hasValidFirstArgument && isName(tokens[start-1]->getValue())) {
-        verifyDeclarationExists(tokens[start-1]);
+    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+        auto isValidSynonym = verifyDeclarationExists(tokens[start-1]);
+        if (std::get<1>(isValidSynonym) != SimpleProgram::DesignEntity::VARIABLE) {
+            throw QuerySemanticError("Semantic Error: Synonym for first argument should be a variable synonym");
+        }
     }
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
@@ -285,8 +332,8 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
             if (nextPos + 4 >= tokens.size()) {
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
-
-            bool isValidRs = isValidRelationship(nextPos, true);
+            abstraction = tokenValue == "Follows" ? SimpleProgram::DesignAbstraction::FOLLOWS : SimpleProgram::DesignAbstraction::PARENT;
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, true);
@@ -300,14 +347,14 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                     throw QuerySemanticError("Semantic Error on arguments: arguments used not declared");
                 }
             }
-            abstraction = tokenValue == "Follows" ? SimpleProgram::DesignAbstraction::FOLLOWS : SimpleProgram::DesignAbstraction::PARENT;
+
             return std::make_tuple(isValidRs, isValidRs ? abstraction : SimpleProgram::DesignAbstraction{}, args);
 
         } else {
             throw QuerySyntaxError("Syntax Error occurred: Relationship has wrong format");
         }
 
-    } else if (tokenValue == "Follows*" || tokenValue == "Parents*") {
+    } else if (tokenValue == "Follows*" || tokenValue == "Parent*") {
         SimpleProgram::DesignAbstraction abstraction;
         std::vector<PQL::Synonym> args;
 
@@ -317,7 +364,8 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
 
-            bool isValidRs = isValidRelationship(nextPos, true);
+            abstraction = tokenValue == "Follows*" ? SimpleProgram::DesignAbstraction::FOLLOWST : SimpleProgram::DesignAbstraction::PARENTT;
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, true);
@@ -331,7 +379,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                     throw QuerySemanticError("Semantic Error on arguments: arguments used not declared");
                 }
             }
-            abstraction = tokenValue == "Follows*" ? SimpleProgram::DesignAbstraction::FOLLOWST : SimpleProgram::DesignAbstraction::PARENTT;
+
 
             return std::make_tuple(isValidRs, isValidRs ? abstraction : SimpleProgram::DesignAbstraction{}, args);
 
@@ -349,7 +397,7 @@ std::tuple<bool, SimpleProgram::DesignAbstraction, std::vector<PQL::Synonym>> Qu
                 throw QuerySyntaxError("Syntax Error occurred: " + tokenValue + " relationship has wrong format");
             }
 
-            bool isValidRs = isValidRelationship(nextPos, false);
+            bool isValidRs = isValidRelationship(nextPos, abstraction);
 
             if (isValidRs) {
                 bool areArgumentsValid = isValidRelationshipArguments(nextPos + 1, nextPos + 3, false);
@@ -397,11 +445,18 @@ SimpleProgram::DesignEntity QueryParser::getEntityType(const std::shared_ptr<Que
     } else if (tokenValue == "_") {
         return SimpleProgram::DesignEntity::WILDCARD;
     } else {
-        throw QuerySyntaxError("Syntax Error for the following token: " + tokenValue);
+        throw QuerySyntaxError("Syntax Error for the following token IN PARSER: " + tokenValue);
     }
 }
 
 SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::shared_ptr<QueryToken>& token) {
+    auto declarationVerification = verifyDeclarationExists(token);
+    auto hasDeclaration = std::get<0>(declarationVerification);
+
+    if (hasDeclaration) {
+        return std::get<1>(declarationVerification);
+    }
+
     if (token->getType() == TokenType::INTEGER) {
         return SimpleProgram::DesignEntity::STMT_NO;
     }
@@ -434,14 +489,22 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
     std::vector<PQL::Synonym> declarations;
 
     std::vector<std::shared_ptr<QueryToken>> currDeclarations;
-    while (pos < tokens.size()) {
-        auto currToken = tokens[pos];
+    int lastSemicolonPos = -1;
+    int curr = pos;
+    bool hasMultipleDeclarations = false;
+    while (curr < tokens.size()) {
+        auto currToken = tokens[curr];
 
         if (currToken->getValue() == "Select") {
+            pos = lastSemicolonPos + 1;
             break;
         }
 
         if (currToken->getValue() == ";") {
+            if (!hasMultipleDeclarations && (curr - lastSemicolonPos) > 3) {
+                throw QuerySyntaxError("Syntax Error: Invalid declaration syntax");
+            }
+            lastSemicolonPos = curr;
             // Add all the declarations in the array.
             // First element should always be the type, following elements will be the synonyms used
             auto entityType = getEntityType(currDeclarations[0]);
@@ -454,19 +517,22 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
                 auto declaration = PQL::Synonym(entityType, currIdentity);
                 declarations.push_back(declaration);
             }
+            hasMultipleDeclarations = false;
             currDeclarations.clear();
-            pos++;
+            curr++;
             continue;
         }
 
         if (currToken->getValue() == ",") {
-            pos++;
+            hasMultipleDeclarations = true;
+            curr++;
             continue;
         }
 
         currDeclarations.push_back(currToken);
-        pos++;
+        curr++;
     }
+    pos = lastSemicolonPos + 1;
     return declarations;
 }
 
@@ -495,7 +561,7 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
 
             std::vector<PQL::Synonym> patternArgs;
             auto assignArg = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, tokens[pos+1]->getValue());
-            auto arg1 = PQL::Synonym(getEntityType(tokens[pos+3]), tokens[pos+3]->getValue());
+            auto arg1 = PQL::Synonym(getEntityTypeFromSynonym(tokens[pos+3]), tokens[pos+3]->getValue());
             SimpleProgram::DesignEntity exprType;
             std::string exprId;
             if ((curr - (pos + 5)) > 1) {
@@ -506,7 +572,11 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                 exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
                 exprId = id;
             } else {
-                exprType = SimpleProgram::DesignEntity::EXPR;
+                if (tokens[pos+5]->getType() == TokenType::WILDCARD) {
+                    exprType = SimpleProgram::DesignEntity::WILDCARD;
+                } else {
+                    exprType = SimpleProgram::DesignEntity::EXPR;
+                }
                 exprId = tokens[pos+5]->getValue();
             }
 
@@ -539,7 +609,6 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                 auto clause = PQL::Clause(abstraction, args);
                 clauses.push_back(clause);
             }
-            pos++;
         }
     }
 
@@ -549,11 +618,11 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
 PQL::Synonym QueryParser::parseSelectClause() {
     auto currToken = tokens[pos];
     if (currToken->getValue() != "Select") {
-        throw QuerySemanticError("Semantic Error: Select clause should come first");
+        throw QuerySyntaxError("Syntax Error: Select clause should come first");
     }
 
     if (pos + 1 >= tokens.size()) {
-        throw QuerySyntaxError("Syntax Error: Missing Relationship Reference for Select clause");
+        throw QuerySyntaxError("Syntax Error: Missing synonym for Select clause");
     }
 
     auto selectSynonymToken = tokens[++pos];

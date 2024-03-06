@@ -12,9 +12,11 @@ private:
 
     bool match(const std::vector<SP::TokenType>& types);
     Token consume(SP::TokenType type, const std::string& message);
+    Token consume(const std::vector<SP::TokenType>& types, const std::string& message);
     bool check(SP::TokenType type);
     Token advance();
     bool isAtEnd();
+    bool isKeyword();
 
     void throwParseError(const std::string& message);
 

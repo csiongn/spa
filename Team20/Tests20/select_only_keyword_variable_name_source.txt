@@ -1,0 +1,19 @@
+procedure procedure {
+    if (less < b + c * d) then {
+        hello = (5 + 10) / 3;
+        print print;
+    } else {
+        if = 10;
+        then = if * 3;
+        if (1 < more) then {
+            else = yes * 5;
+        } else {
+            if = hell / 3;
+        }
+        while (more < less) {
+            while = more + 1;
+        }
+        read read;
+        call me;
+    }
+}
