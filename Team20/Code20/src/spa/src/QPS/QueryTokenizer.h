@@ -32,4 +32,14 @@ public:
     bool isCharStar(char &c) const;
 
     bool isCharWhitespace(char &c) const;
+
+    bool isValidIDENT(const std::string &str) const;
+
+    bool isValidIDENT(std::string &str) const;
+
+    bool isNotAlphanumric(const std::string &str) const;
+
+    bool isCharSpecialCharIDENT(char &c) const;
+
+    bool isCharSpecialCharSeparator(char &c) const;
 };

@@ -11,7 +11,7 @@ enum class TokenType {
     SPECIAL_CHARACTER, // (, ), +, -, *, /, %, ;, \n,
     WILDCARD, // _
     // procedure, stmt, read, print, assign, call, while, if, variable, constant
-    STRING, // normal string token, procedure, stmt, assign, call, while, if, variable, constant, Select
+
     INTEGER, // statement number given in relationship arguments
     NAME, // NAME, has to start with LETTER variable name, procedure name, constant name, CAN BE ALPHANUMERIC
     CONSTANT_STRING, // single NAME without whitespace within " " will refer to as constant string as they are immutable
@@ -37,8 +37,6 @@ class QueryToken {
                     return "SPECIAL_CHARACTER";
                 case TokenType::WILDCARD:
                     return "WILDCARD";
-                case TokenType::STRING:
-                    return "STRING";
                 case TokenType::INTEGER:
                     return "INTEGER";
                 case TokenType::NAME:
