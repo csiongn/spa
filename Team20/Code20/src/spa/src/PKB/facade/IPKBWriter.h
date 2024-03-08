@@ -80,13 +80,21 @@ public:
     // Support set operations
     virtual void insertParentT(int parentStmtNum, const std::unordered_set<int>& childStmtSet) = 0;
 
-    // Uses
+    // Uses Stmt
     virtual void insertUsesStmt(int stmtNum, std::string const & variable) = 0;
     virtual void insertUsesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) = 0;
 
-    // Modifies
+    // Modifies Stmt
     virtual void insertModifiesStmt(int stmtNum, std::string const & variable) = 0;
     virtual void insertModifiesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) = 0;
+
+    // Uses Procedure
+    virtual void insertUsesProc(std::string const & procedureName, std::string const & variable) = 0;
+    virtual void insertUsesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) = 0;
+
+    // Modifies Procedure
+    virtual void insertModifiesProc(std::string const & procedureName, std::string const & variable) = 0;
+    virtual void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) = 0;
 
     // Pattern
     // T is string, U is hash, stmt number, V is Ptr to node

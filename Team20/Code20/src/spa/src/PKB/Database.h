@@ -21,6 +21,8 @@
 #include "PKB/manager/relationship/UsesStmtManager.h"
 #include "PKB/manager/relationship/ModifiesStmtManager.h"
 #include "PKB/manager/pattern/AssignPatternManager.h"
+#include "PKB/manager/relationship/UsesProcManager.h"
+#include "PKB/manager/relationship/ModifiesProcManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -55,6 +57,10 @@ private:
 
     std::shared_ptr<ModifiesStmtManager> modifiesStmtManager = std::make_shared<ModifiesStmtManager>();
 
+    std::shared_ptr<UsesProcManager> usesProcManager = std::make_shared<UsesProcManager>();
+
+    std::shared_ptr<ModifiesProcManager> modifiesProcManager = std::make_shared<ModifiesProcManager>();
+
     // Pattern
     std::shared_ptr<AssignPatternManager> assignPatternManager = std::make_shared<AssignPatternManager>();
 public:
@@ -77,6 +83,8 @@ public:
     std::shared_ptr<ParentTManager> getParentTManager();
     std::shared_ptr<UsesStmtManager> getUsesStmtManager();
     std::shared_ptr<ModifiesStmtManager> getModifiesStmtManager();
+    std::shared_ptr<UsesProcManager> getUsesProcManager();
+    std::shared_ptr<ModifiesProcManager> getModifiesProcManager();
 
     std::shared_ptr<AssignPatternManager> getAssignPatternManager();
 

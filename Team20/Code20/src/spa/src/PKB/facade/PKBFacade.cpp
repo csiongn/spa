@@ -462,6 +462,85 @@ bool PKBFacade::hasModifiesRelationship() {
     return db->getModifiesStmtManager()->hasRelationship();
 }
 
+// Procedure
+// Uses Proc
+void PKBFacade::insertUsesProc(std::string const & procedureName, std::string const & variable) {
+    db->getUsesProcManager()->insert(procedureName, variable);
+}
+
+void PKBFacade::insertUsesProc(std::string const & procedureName, const std::unordered_set<std::string>& variableSet) {
+    for (const auto &variable: variableSet) {
+        insertUsesProc(procedureName, variable);
+    }
+}
+
+std::vector<std::string> PKBFacade::getUsesProcVariable(std::string const & procedureName) {
+    return db->getUsesProcManager()->get(procedureName);
+}
+
+std::vector<std::string> PKBFacade::getUsesProcVariable() {
+    return db->getUsesProcManager()->getValues();
+}
+
+std::vector<std::string> PKBFacade::getUsesProcName() {
+    return db->getUsesProcManager()->getKeys();
+}
+
+bool PKBFacade::containsUsesProc(std::string const & procedureName) {
+    return db->getUsesProcManager()->contains(procedureName);
+}
+
+bool PKBFacade::containsUsesProcVariable(std::string const & variable) {
+    return db->getUsesProcManager()->containsReverse(variable);
+}
+
+bool PKBFacade::containsUsesProcRelationship(std::string const & procedureName, std::string const & variable) {
+    return db->getUsesProcManager()->containsValueInKeySet(procedureName, variable);
+}
+
+bool PKBFacade::hasUsesProcRelationship() {
+    return db->getUsesProcManager()->hasRelationship();
+}
+
+// Modifies Proc
+void PKBFacade::insertModifiesProc(std::string const & procedureName, std::string const & variable) {
+    db->getModifiesProcManager()->insert(procedureName, variable);
+}
+
+void PKBFacade::insertModifiesProc(std::string const & procedureName, const std::unordered_set<std::string>& variableSet) {
+    for (const auto &variable: variableSet) {
+        insertModifiesProc(procedureName, variable);
+    }
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcVariable(std::string const & procedureName) {
+    return db->getModifiesProcManager()->get(procedureName);
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcVariable() {
+    return db->getModifiesProcManager()->getValues();
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcName() {
+    return db->getModifiesProcManager()->getKeys();
+}
+
+bool PKBFacade::containsModifiesProc(std::string const & procedureName) {
+    return db->getModifiesProcManager()->contains(procedureName);
+}
+
+bool PKBFacade::containsModifiesProcVariable(std::string const & variable) {
+    return db->getModifiesProcManager()->containsReverse(variable);
+}
+
+bool PKBFacade::containsModifiesProcRelationship(std::string const & procedureName, std::string const & variable) {
+    return db->getModifiesProcManager()->containsValueInKeySet(procedureName, variable);
+}
+
+bool PKBFacade::hasModifiesProcRelationship() {
+    return db->getModifiesProcManager()->hasRelationship();
+}
+
 // Assign Pattern
 void PKBFacade::insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
                                     const std::shared_ptr<ExprNode>& nodePtr) {

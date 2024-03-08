@@ -503,6 +503,80 @@ TEST_CASE("PKB Test") {
         bool containsModifiesRelationship = pkbFacade->containsModifiesRelationship(4, "a");
         REQUIRE(containsModifiesRelationship == true);
     }
+
+    SECTION("UsesProc") {
+    std::cout << "Section: PKBFacade - UsesProcManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // hasUsesProcRelationship
+        bool hasUsesProcRelationship = pkbFacade->hasUsesProcRelationship();
+        REQUIRE(hasUsesProcRelationship == false);
+
+        // insertUsesProc
+        pkbFacade->insertUsesProc("main", "x");
+        pkbFacade->insertUsesProc("main", "y");
+        pkbFacade->insertUsesProc("main", "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertUsesProc("main", variableSet);
+
+        // Query: Select v such that Uses("main", v)
+        // getUsesProcVariable
+        std::vector<std::string> variables = pkbFacade->getUsesProcVariable("main");
+        std::vector<std::string> expectedValues = {"x", "y", "z", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsUsesProc
+        bool containsUsesProc = pkbFacade->containsUsesProc("main");
+        REQUIRE(containsUsesProc == true);
+
+        // containsUsesProcVariable
+        bool containsUsesProcVariable = pkbFacade->containsUsesProcVariable("a");
+        REQUIRE(containsUsesProcVariable == true);
+
+        // containsUsesProcRelationship
+        bool containsUsesProcRelationship = pkbFacade->containsUsesProcRelationship("main", "a");
+        REQUIRE(containsUsesProcRelationship == true);
+    }
+
+    SECTION("ModifiesProc") {
+        std::cout << "Section: PKBFacade - ModifiesProcManager" << std::endl;
+        // Create an instance of PKB
+        auto pkb = std::make_shared<PKB>();
+        auto pkbFacade = pkb->pkbFacade;
+
+        // hasModifiesProcRelationship
+        bool hasModifiesProcRelationship = pkbFacade->hasModifiesProcRelationship();
+        REQUIRE(hasModifiesProcRelationship == false);
+
+        // insertModifiesProc
+        pkbFacade->insertModifiesProc("modifiesFunction", "x");
+        pkbFacade->insertModifiesProc("modifiesFunction", "y");
+        pkbFacade->insertModifiesProc("modifiesFunction", "z");
+        // insert Set
+        std::unordered_set<std::string> variableSet = {"a", "b", "c"};
+        pkbFacade->insertModifiesProc("modifiesFunction", variableSet);
+
+        // Query: Select v such that Modifies("modifiesFunction", v)
+        // getModifiesProcVariable
+        std::vector<std::string> variables = pkbFacade->getModifiesProcVariable("modifiesFunction");
+        std::vector<std::string> expectedValues = {"x", "y", "z", "a", "b", "c"};
+        REQUIRE(checkVecValuesEqual(variables, expectedValues));
+
+        // containsModifiesProc
+        bool containsModifiesProc = pkbFacade->containsModifiesProc("modifiesFunction");
+        REQUIRE(containsModifiesProc == true);
+
+        // containsModifiesProcVariable
+        bool containsModifiesProcVariable = pkbFacade->containsModifiesProcVariable("a");
+        REQUIRE(containsModifiesProcVariable == true);
+
+        // containsModifiesProcRelationship
+        bool containsModifiesProcRelationship = pkbFacade->containsModifiesProcRelationship("modifiesFunction", "a");
+        REQUIRE(containsModifiesProcRelationship == true);
+    }
 }
 
 

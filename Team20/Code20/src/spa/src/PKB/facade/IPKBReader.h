@@ -112,6 +112,26 @@ public:
     virtual bool containsModifiesRelationship(int stmtNum, std::string const & variable) = 0;
     virtual bool hasModifiesRelationship() = 0;
 
+    // Procedures
+    // Uses
+    virtual std::vector<std::string> getUsesProcVariable(std::string const & procedureName) = 0;
+    virtual std::vector<std::string> getUsesProcVariable() = 0;
+    virtual std::vector<std::string> getUsesProcName() = 0;
+    virtual bool containsUsesProc(std::string const & procedureName) = 0;
+    virtual bool containsUsesProcVariable(std::string const & variable) = 0;
+    virtual bool containsUsesProcRelationship(std::string const & procedureName, std::string const & variable) = 0;
+    virtual bool hasUsesProcRelationship() = 0;
+
+    // Modifies
+    virtual std::vector<std::string> getModifiesProcVariable(std::string const & procedureName) = 0;
+    virtual std::vector<std::string> getModifiesProcVariable() = 0;
+    virtual std::vector<std::string> getModifiesProcName() = 0;
+    virtual bool containsModifiesProc(std::string const & procedureName) = 0;
+    virtual bool containsModifiesProcVariable(std::string const & variable) = 0;
+    virtual bool containsModifiesProcRelationship(std::string const & procedureName, std::string const & variable) = 0;
+    virtual bool hasModifiesProcRelationship() = 0;
+
+
     // Pattern
     // LHS, RHS
     // return variables that has RHS expression

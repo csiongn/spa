@@ -121,7 +121,7 @@ public:
     bool containsParentTRelationship(int parentStmtNum, int childStmtNum) override;
     bool hasParentTRelationship() override;
 
-    // Uses Writer - Reader
+    // Uses Stmt Writer - Reader
     void insertUsesStmt(int stmtNum, std::string const & variable) override;
     void insertUsesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getUsesVariable(int stmtNum) override;
@@ -133,7 +133,7 @@ public:
     bool containsUsesRelationship(int stmtNum, std::string const & variable) override;
     bool hasUsesRelationship() override;
 
-    // Modifies Writer - Reader
+    // Modifies Stmt Writer - Reader
     void insertModifiesStmt(int stmtNum, std::string const & variable) override;
     void insertModifiesStmt(int stmtNum, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getModifiesVariable(int stmtNum) override;
@@ -144,6 +144,30 @@ public:
     bool containsModifiesVariable(std::string const & variable) override;
     bool containsModifiesRelationship(int stmtNum, std::string const & variable) override;
     bool hasModifiesRelationship() override;
+
+    // Procedures
+    // Uses Proc
+    void insertUsesProc(std::string const & procedureName, std::string const & variable) override;
+    void insertUsesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override;
+    std::vector<std::string> getUsesProcVariable(std::string const & procedureName) override;
+    std::vector<std::string> getUsesProcVariable() override;
+    std::vector<std::string> getUsesProcName() override;
+    bool containsUsesProc(std::string const & procedureName) override;
+    bool containsUsesProcVariable(std::string const & variable) override;
+    bool containsUsesProcRelationship(std::string const & procedureName, std::string const & variable) override;
+    bool hasUsesProcRelationship() override;
+
+    // Modifies Proc
+    void insertModifiesProc(std::string const & procedureName, std::string const & variable) override;
+    void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override;
+    std::vector<std::string> getModifiesProcVariable(std::string const & procedureName) override;
+    std::vector<std::string> getModifiesProcVariable() override;
+    std::vector<std::string> getModifiesProcName() override;
+    bool containsModifiesProc(std::string const & procedureName) override;
+    bool containsModifiesProcVariable(std::string const & variable) override;
+    bool containsModifiesProcRelationship(std::string const & procedureName, std::string const & variable) override;
+    bool hasModifiesProcRelationship() override;
+
 
     // Assign Pattern
     void insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
