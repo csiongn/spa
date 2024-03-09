@@ -76,3 +76,11 @@ std::shared_ptr<ModifiesProcManager> Database::getModifiesProcManager() {
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
     return assignPatternManager;
 }
+
+std::shared_ptr<IfPatternManager> Database::getIfPatternManager() {
+    return ifPatternManager;
+}
+
+std::shared_ptr<WhilePatternManager> Database::getWhilePatternManager() {
+    return whilePatternManager;
+}

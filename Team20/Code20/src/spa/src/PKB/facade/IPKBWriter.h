@@ -97,9 +97,17 @@ public:
     virtual void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) = 0;
 
     // Pattern
+    // Assign
     // T is string, U is hash, stmt number, V is Ptr to node
     virtual void insertAssignPattern(std::string const & lhsVar, 
                                      const size_t& rhsExprNodeHash, 
                                      const int& stmtNum,
                                      const std::shared_ptr<ExprNode>& nodePtr) = 0;
+    // If
+    virtual void insertIfPattern(std::string const & variable, const int& stmtNum) = 0;
+    virtual void insertIfPattern(std::string const & variable, const std::unordered_set<int>& stmtSet) = 0;
+
+    // While
+    virtual void insertWhilePattern(std::string const & variable, const int& stmtNum) = 0;
+    virtual void insertWhilePattern(std::string const & variable, const std::unordered_set<int>& stmtSet) = 0;
 };

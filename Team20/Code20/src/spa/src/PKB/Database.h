@@ -23,6 +23,8 @@
 #include "PKB/manager/pattern/AssignPatternManager.h"
 #include "PKB/manager/relationship/UsesProcManager.h"
 #include "PKB/manager/relationship/ModifiesProcManager.h"
+#include "PKB/manager/pattern/IfPatternManager.h"
+#include "PKB/manager/pattern/WhilePatternManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -63,6 +65,10 @@ private:
 
     // Pattern
     std::shared_ptr<AssignPatternManager> assignPatternManager = std::make_shared<AssignPatternManager>();
+
+    std::shared_ptr<IfPatternManager> ifPatternManager = std::make_shared<IfPatternManager>();
+
+    std::shared_ptr<WhilePatternManager> whilePatternManager = std::make_shared<WhilePatternManager>();
 public:
 
     std::shared_ptr<ProcedureManager> getProcedureManager();
@@ -87,5 +93,7 @@ public:
     std::shared_ptr<ModifiesProcManager> getModifiesProcManager();
 
     std::shared_ptr<AssignPatternManager> getAssignPatternManager();
+    std::shared_ptr<IfPatternManager> getIfPatternManager();
+    std::shared_ptr<WhilePatternManager> getWhilePatternManager();
 
 };

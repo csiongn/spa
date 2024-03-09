@@ -598,3 +598,90 @@ bool PKBFacade::containsAssignPatternRHS(size_t const & rhsExprNodeHash) {
 bool PKBFacade::hasAssignPattern() {
     return db->getAssignPatternManager()->hasPattern();
 };
+
+// If Pattern
+void PKBFacade::insertIfPattern(std::string const & variable, const int& stmtNum) {
+    db->getIfPatternManager()->insert(variable, stmtNum);
+}
+
+void PKBFacade::insertIfPattern(std::string const & variable, const std::unordered_set<int>& stmtSet) {
+    for (const auto &stmt : stmtSet) {
+        insertIfPattern(variable, stmt);
+    }
+}
+
+std::vector<std::string> PKBFacade::getIfPatternVariable(int stmtNum) {
+    return db->getIfPatternManager()->getReverse(stmtNum);
+};
+
+std::vector<int> PKBFacade::getIfPatternStmtNum(std::string const & variable) {
+    return db->getIfPatternManager()->get(variable);
+};
+
+std::vector<std::string> PKBFacade::getIfPatternVariable() {
+    return db->getIfPatternManager()->getKeys();
+};
+
+std::vector<int> PKBFacade::getIfPatternStmtNum() {
+    return db->getIfPatternManager()->getValues();
+};
+
+bool PKBFacade::containsIfPattern(std::string const & variable, int stmtNum) {
+    return db->getIfPatternManager()->containsPattern(variable, stmtNum);
+};
+
+bool PKBFacade::containsIfPatternStmt(int stmtNum) {
+    return db->getIfPatternManager()->containsReverse(stmtNum);
+};
+
+bool PKBFacade::containsIfPatternVariable(std::string const & variable) {
+    return db->getIfPatternManager()->contains(variable);
+};
+
+bool PKBFacade::hasIfPattern() {
+    return db->getIfPatternManager()->hasPattern();
+};
+
+// While Pattern
+void PKBFacade::insertWhilePattern(std::string const & variable, const int& stmtNum) {
+    db->getWhilePatternManager()->insert(variable, stmtNum);
+}
+
+void PKBFacade::insertWhilePattern(std::string const & variable, const std::unordered_set<int>& stmtSet) {
+    for (const auto &stmt : stmtSet) {
+        insertWhilePattern(variable, stmt);
+    }
+}
+
+std::vector<std::string> PKBFacade::getWhilePatternVariable(int stmtNum) {
+    return db->getWhilePatternManager()->getReverse(stmtNum);
+};
+
+std::vector<int> PKBFacade::getWhilePatternStmtNum(std::string const & variable) {
+    return db->getWhilePatternManager()->get(variable);
+};
+
+std::vector<std::string> PKBFacade::getWhilePatternVariable() {
+    return db->getWhilePatternManager()->getKeys();
+};
+
+std::vector<int> PKBFacade::getWhilePatternStmtNum() {
+    return db->getWhilePatternManager()->getValues();
+};
+
+bool PKBFacade::containsWhilePattern(std::string const & variable, int stmtNum) {
+    return db->getWhilePatternManager()->containsPattern(variable, stmtNum);
+};
+
+bool PKBFacade::containsWhilePatternStmt(int stmtNum) {
+    return db->getWhilePatternManager()->containsReverse(stmtNum);
+};
+
+bool PKBFacade::containsWhilePatternVariable(std::string const & variable) {
+    return db->getWhilePatternManager()->contains(variable);
+};
+
+bool PKBFacade::hasWhilePattern() {
+    return db->getWhilePatternManager()->hasPattern();
+};
+

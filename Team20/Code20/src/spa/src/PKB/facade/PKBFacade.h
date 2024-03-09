@@ -191,4 +191,31 @@ public:
     bool containsAssignPatternLHS(std::string const & variable) override;
     bool containsAssignPatternRHS(size_t const & rhsExprNodeHash) override;
     bool hasAssignPattern() override;
+
+    // If Pattern
+    void insertIfPattern(std::string const & variable, const int& stmtNum) override;
+    void insertIfPattern(std::string const & variable, const std::unordered_set<int>& stmtSet) override;
+
+    std::vector<std::string> getIfPatternVariable(int stmtNum) override;
+    std::vector<int> getIfPatternStmtNum(std::string const & variable) override;
+    std::vector<std::string> getIfPatternVariable() override;
+    std::vector<int> getIfPatternStmtNum() override;
+    bool containsIfPattern(std::string const & variable, int stmtNum) override;
+    bool containsIfPatternStmt(int stmtNum) override;
+    bool containsIfPatternVariable(std::string const & variable) override;
+    bool hasIfPattern() override;
+
+    // While Pattern
+    void insertWhilePattern(std::string const & variable, const int& stmtNum) override;
+    void insertWhilePattern(std::string const & variable, const std::unordered_set<int>& stmtSet) override;
+
+    std::vector<std::string> getWhilePatternVariable(int stmtNum) override;
+    std::vector<int> getWhilePatternStmtNum(std::string const & variable) override;
+    std::vector<std::string> getWhilePatternVariable() override;
+    std::vector<int> getWhilePatternStmtNum() override;
+    bool containsWhilePattern(std::string const & variable, int stmtNum) override;
+    bool containsWhilePatternStmt(int stmtNum) override;
+    bool containsWhilePatternVariable(std::string const & variable) override;
+    bool hasWhilePattern() override;
+
 };

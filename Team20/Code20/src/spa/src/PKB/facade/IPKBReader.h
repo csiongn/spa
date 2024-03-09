@@ -133,6 +133,8 @@ public:
 
 
     // Pattern
+
+    // Assign
     // LHS, RHS
     // return variables that has RHS expression
     virtual std::vector<std::string> getAssignPatternLHS(size_t const & rhsExprNodeHash) = 0;
@@ -157,4 +159,24 @@ public:
     virtual bool containsAssignPatternRHS(size_t const & rhsExprNodeHash) = 0;
 
     virtual bool hasAssignPattern() = 0;
+
+    // If
+    virtual std::vector<std::string> getIfPatternVariable(int stmtNum) = 0;
+    virtual std::vector<int> getIfPatternStmtNum(std::string const & variable) = 0;
+    virtual std::vector<std::string> getIfPatternVariable() = 0;
+    virtual std::vector<int> getIfPatternStmtNum() = 0;
+    virtual bool containsIfPattern(std::string const & variable, int stmtNum) = 0;
+    virtual bool containsIfPatternStmt(int stmtNum) = 0;
+    virtual bool containsIfPatternVariable(std::string const & variable) = 0;
+    virtual bool hasIfPattern() = 0;
+
+    // While
+    virtual std::vector<std::string> getWhilePatternVariable(int stmtNum) = 0;
+    virtual std::vector<int> getWhilePatternStmtNum(std::string const & variable) = 0;
+    virtual std::vector<std::string> getWhilePatternVariable() = 0;
+    virtual std::vector<int> getWhilePatternStmtNum() = 0;
+    virtual bool containsWhilePattern(std::string const & variable, int stmtNum) = 0;
+    virtual bool containsWhilePatternStmt(int stmtNum) = 0;
+    virtual bool containsWhilePatternVariable(std::string const & variable) = 0;
+    virtual bool hasWhilePattern() = 0;
 };
