@@ -126,15 +126,11 @@ TEST_CASE("Tokenizer") {
 //        printTokens(tokens);
     }
 
-    SECTION("Invalid Tokens with whitespace after Follows*") {
+    SECTION("Valid Tokens with whitespace after Follows*") {
+        std::cout << "Valid Tokens with whitespace after Follows*" << std::endl;
         QueryTokenizer queryTokenizer;
         std::string query = "stmt s12d;\n Select s12d such that Follows* (s, \"x*y\")";
-        try {
-            auto tokens = queryTokenizer.tokenize(query);
-        } catch (const QuerySyntaxError &e) {
-            cout << "Invalid Tokens with whitespace after Follows*" << endl;
-            cout << e.what() << endl;
-        }
+        REQUIRE_NOTHROW(queryTokenizer.tokenize(query));
     }
 
     SECTION("Invalid Tokens with whitespace between Follows and *") {
@@ -142,7 +138,6 @@ TEST_CASE("Tokenizer") {
         std::string query = "assign a; variable v; constant c; Select a such that Uses (a, c) pattern a (\"8\", _)";
         try {
             auto tokens = queryTokenizer.tokenize(query);
-//            printTokens(tokens);
         } catch (const QuerySyntaxError &e) {
             cout << "Invalid Tokens with whitespace between Follows and *" << endl;
             cout << e.what() << endl;
@@ -170,7 +165,7 @@ TEST_CASE("Tokenizer") {
     SECTION("Invalid NAME Tokens with apostrophe - Should throw QuerySyntaxError") {
         QueryTokenizer queryTokenizer;
         // TODO: Fix such that 'hello' in apostrophe get passed as a NAME token
-        std::string query = "assign a; constant c; Select a such that Uses (a, \"a + hello\")";
+        std::string query = "assign a; constant c; Select a such that Uses (a, \"       quota\")";
         // REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
         try {
             cout << "Invalid NAME Tokens with apostrophe - Should throw QuerySyntaxError" << endl;

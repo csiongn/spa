@@ -98,11 +98,6 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
             }
             iss.get();
             nextChar = static_cast<char>(iss.peek());
-            // Check that nextChar after star character is not whitespace when it is not within apostrophe
-            if (isCharWhitespace(nextChar)) {
-                throw QuerySyntaxError(
-                        "Syntax Error: the current string with next char after star char being whitespace");
-            }
             continue;
         } else if (nextChar == '_') {
             // shouldnt need to care about string before and after, will be handled
