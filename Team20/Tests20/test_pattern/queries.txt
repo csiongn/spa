@@ -143,3 +143,28 @@ assign a;
 Select a such that Uses (a, "x") pattern a (_, "x")
 2
 5000
+30 - assign, exact integer on RHS
+assign a;
+Select a pattern a (_, _"1 "_)
+3
+5000
+31 - assign, whitespace within quotes
+assign a;
+Select a pattern a ("z", _"         x "_)
+6
+5000
+32 - constant within string as LHS - SyntaxError
+assign a; variable v;
+Select a pattern a("2", _)
+SyntaxError
+5000
+33 - constant as RHS - SyntaxError
+constant c; assign a; variable v;
+Select c pattern a (_, c)
+SyntaxError
+5000
+34 - Parent* - Assign Pattern
+assign a, a1; variable v; stmt s1, s2;
+Select s1 pattern a1 (v, _) such that Parent*(s1, s2)
+5,9
+5000
