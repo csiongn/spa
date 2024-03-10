@@ -36,6 +36,14 @@ public:
         return modifies;
     }
 
+    const std::unordered_map<int, std::unordered_set<std::string>>& getIfStmts() const {
+        return ifStmts;
+    }
+
+    const std::unordered_map<int, std::unordered_set<std::string>>& getWhileStmts() const {
+        return whileStmts;
+    }
+
     const std::unordered_set<std::string>& getVariables() const {
         return variables;
     }
@@ -59,10 +67,10 @@ private:
     std::unordered_set<int> stmts;
     std::unordered_set<int> assignStmts;
     std::unordered_set<int> callStmts;
-    std::unordered_set<int> ifStmts;
     std::unordered_set<int> readStmts;
     std::unordered_set<int> printStmts;
-    std::unordered_set<int> whileStmts;
+    std::unordered_map<int, std::unordered_set<std::string>> ifStmts;
+    std::unordered_map<int, std::unordered_set<std::string>> whileStmts;
 
     // Specific Nodes
     std::unordered_set<std::shared_ptr<AssignNode>> assignNodes;
@@ -77,6 +85,9 @@ private:
     void visitWhileNode(const WhileNode& node, int stmtNumber);
     void visitExprNode(const ExprNode& node, int stmtNumber);
 
+    // Helper Methods
+    void extractVariables(const ExprNode& node, std::unordered_set<std::string>& variables);
+
     // Utility Methods
     void updateFollows(int stmtNumber, std::vector<int>& stmtList);
     void updateParent(int childStmtNumber, int parentStmtNumber);
@@ -89,10 +100,10 @@ private:
     void insertStmt(const int stmtNum);
     void insertAssign(const int stmtNum);
     void insertCall(const int stmtNum);
-    void insertIf(const int stmtNum);
+    void insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables);
     void insertRead(const int stmtNum);
     void insertPrint(const int stmtNum);
-    void insertWhile(const int stmtNum);
+    void insertWhile(const int stmtNum, std::unordered_set<std::string> controlVariables);
 
     void pushToPKB();
 

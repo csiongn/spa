@@ -34,12 +34,21 @@ TEST_CASE("Simple program extractDesign") {
         blockNode,
         blockNode2);
 
-    // Create while node
     // Assign b = a + 3 * 4
     std::shared_ptr<StmtNode> assignStmt2 = std::make_shared<AssignNode>(7, "b", aPlusThreeTimesFour);
     auto stmtLst3 = {assignStmt2 };
     auto blockNode3 = std::make_shared<BlockNode>(stmtLst3);
-    auto whileStmt = std::make_shared<WhileNode>(6, aGreater3, blockNode3);
+
+    // Create condition z < z + 3 || a > 3
+    auto z = std::make_shared<VariableNode>("z");
+    auto zDup = std::make_shared<VariableNode>("z");
+    auto threeDup = std::make_shared<LiteralNode>("3");
+    auto zPlusThree = std::make_shared<BinaryExprNode>(z, "+", threeDup);
+    auto zLessZPlusThree = std::make_shared<RelExprNode>(z, "<", zPlusThree);
+
+    auto zLessZPlusThreeOrAGreaterThree = std::make_shared<LogicalOpNode>(zLessZPlusThree, "||", aGreater3);
+
+    auto whileStmt = std::make_shared<WhileNode>(6, zLessZPlusThreeOrAGreaterThree, blockNode3);
 
     // Create procedure "main" with previous three statements
     std::vector<std::shared_ptr<StmtNode>> procStmtLst = {assignStmt, ifStmt, whileStmt};
@@ -82,7 +91,7 @@ TEST_CASE("Simple program extractDesign") {
         std::unordered_set<std::string> stmt2_uses_expected = {"a", "x", "y"};
         std::unordered_set<std::string> stmt4_uses_expected = {"x"};
         std::unordered_set<std::string> stmt5_uses_expected = {"y"};
-        std::unordered_set<std::string> stmt6_uses_expected = {"a"};
+        std::unordered_set<std::string> stmt6_uses_expected = {"a", "z"};
         std::unordered_set<std::string> stmt7_uses_expected = {"a"};
 
         REQUIRE(stmt1_uses_expected == uses.at(1));
@@ -134,6 +143,24 @@ TEST_CASE("Simple program extractDesign") {
         REQUIRE_THROWS(modifies.at(4));
         REQUIRE_THROWS(modifies.at(5));
 
+    }
+
+    SECTION("Check corrent if condition variables") {
+        auto& ifStmts = extractor.getIfStmts();
+
+        std::unordered_set<std::string> stmt2_if_control_variables_expected = {"a"};
+
+        REQUIRE(ifStmts.size() == 1);
+        REQUIRE(stmt2_if_control_variables_expected == ifStmts.at(2));
+    }
+
+    SECTION("Check corrent while condition variables") {
+        auto& whileStmts = extractor.getWhileStmts();
+
+        std::unordered_set<std::string> stmt6_while_control_variables_expected = {"a", "z"};
+
+        REQUIRE(whileStmts.size() == 1);
+        REQUIRE(stmt6_while_control_variables_expected == whileStmts.at(6));
     }
 
 }

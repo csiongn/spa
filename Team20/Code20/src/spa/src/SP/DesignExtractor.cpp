@@ -1,6 +1,7 @@
 #include "DesignExtractor.h"
 
 #include <iostream>
+#include <utility>
 
 void DesignExtractor::extractDesign(const ProgramNode& astRoot) {
     visitProgramNode(astRoot);
@@ -60,10 +61,6 @@ void DesignExtractor::pushToPKB() {
         pkbWriter->insertCall(stmtNum);
     }
 
-    for (const auto& stmtNum: ifStmts) {
-        pkbWriter->insertIf(stmtNum);
-    }
-
     for (const auto& stmtNum: readStmts) {
         pkbWriter->insertRead(stmtNum);
     }
@@ -72,8 +69,18 @@ void DesignExtractor::pushToPKB() {
         pkbWriter->insertPrint(stmtNum);
     }
 
-    for (const auto& stmtNum: whileStmts) {
-        pkbWriter->insertWhile(stmtNum);
+    for (const auto& ifStmtMap: ifStmts) {
+        for (const auto& controlVariable: ifStmtMap.second) {
+            pkbWriter->insertIf(ifStmtMap.first);
+            pkbWriter->insertIfPattern(controlVariable, ifStmtMap.first);
+        }
+    }
+
+    for (const auto& whileStmtMap: whileStmts) {
+        for (const auto& controlVariable: whileStmtMap.second) {
+            pkbWriter->insertWhile(whileStmtMap.first);
+            pkbWriter->insertWhilePattern(controlVariable, whileStmtMap.first);
+        }
     }
 
     for (const auto& assignNode: assignNodes) {
@@ -139,10 +146,8 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
     insertStmt(stmtNumber); // Insert the current statement number
 
     if (const auto* ifNode = dynamic_cast<const IfNode*>(&node)) {
-        insertIf(stmtNumber);
         visitIfNode(*ifNode, stmtNumber);
     } else if (const auto* whileNode = dynamic_cast<const WhileNode*>(&node)) {
-        insertWhile(stmtNumber);
         visitWhileNode(*whileNode, stmtNumber);
     } else if (const auto* assignNode = dynamic_cast<const AssignNode*>(&node)) {
         insertAssign(stmtNumber);
@@ -165,17 +170,43 @@ void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::v
 }
 
 void DesignExtractor::visitIfNode(const IfNode& node, int stmtNumber) {
+
+    // Extract control variables and insert them
+    std::unordered_set<std::string> controlVariables;
+    extractVariables(*node.condition, controlVariables);
+    insertIf(stmtNumber, controlVariables);
+    visitExprNode(*node.condition, stmtNumber); // Needed to extract uses relationships
+
+    // Visit body of if statement
     std::vector<int> thenStmtList, elseStmtList;
-    visitExprNode(*node.condition, stmtNumber);
     visitBlockNode(*node.thenBranch, stmtNumber, thenStmtList); // Recursively visit 'then' branch
     visitBlockNode(*node.elseBranch, stmtNumber, elseStmtList); // Recursively visit 'else' branch
 }
 
 void DesignExtractor::visitWhileNode(const WhileNode& node, int stmtNumber) {
+
+    // Extract control variables and insert them
+    std::unordered_set<std::string> controlVariables;
+    extractVariables(*node.condition, controlVariables);
+    insertWhile(stmtNumber, controlVariables);
     visitExprNode(*node.condition, stmtNumber);
+
+    // Visit body of while statement
     std::vector<int> stmtList;
     visitBlockNode(*node.body, stmtNumber, stmtList);
 }
+
+void DesignExtractor::extractVariables(const ExprNode &node, std::unordered_set<std::string> &variables) {
+    if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
+        variables.insert(varNode->value);
+    } else if (const auto* binaryNode = dynamic_cast<const BinaryNode*>(&node)) {
+        extractVariables(*binaryNode->left, variables);
+        extractVariables(*binaryNode->right, variables);
+    } else if (const auto* negationNode = dynamic_cast<const NegationNode*>(&node)) {
+        extractVariables(*negationNode, variables);
+    }
+}
+
 
 void DesignExtractor::updateFollows(int stmtNumber, std::vector<int>& stmtList) {
     if (!stmtList.empty()) { // 'Follows' relationship is valid only if there is a predecessor
@@ -250,10 +281,6 @@ void DesignExtractor::insertCall(const int stmtNum) {
     callStmts.insert(stmtNum);
 }
 
-void DesignExtractor::insertIf(const int stmtNum) {
-    ifStmts.insert(stmtNum);
-}
-
 void DesignExtractor::insertPrint(const int stmtNum) {
     printStmts.insert(stmtNum);
 }
@@ -262,6 +289,10 @@ void DesignExtractor::insertRead(const int stmtNum) {
     readStmts.insert(stmtNum);
 }
 
-void DesignExtractor::insertWhile(const int stmtNum) {
-    whileStmts.insert(stmtNum);
+void DesignExtractor::insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables) {
+    ifStmts[stmtNum] = std::move(controlVariables);
+}
+
+void DesignExtractor::insertWhile(const int stmtNum, std::unordered_set<std::string> controlVariables) {
+    whileStmts[stmtNum] = std::move(controlVariables);
 }
