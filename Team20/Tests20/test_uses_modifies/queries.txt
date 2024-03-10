@@ -66,12 +66,12 @@ SemanticError
 14 - Uses (re, v) - incorrect first arg type
 read re; assign a;
 Select a such that Uses(re, "east")
-SemanticError
+none
 5000
 15 - Modifies (pn, v) - incorrect first arg type
 print pn; assign a;
 Select a such that Modifies(pn, "east")
-SemanticError
+none
 5000
 16 - Modifies (w, v) - while first arg type
 while w;

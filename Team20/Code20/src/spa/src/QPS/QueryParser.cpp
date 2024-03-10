@@ -66,7 +66,7 @@ bool QueryParser::isStmtRef(std::shared_ptr<QueryToken>& token) {
 bool QueryParser::isEntRef(std::shared_ptr<QueryToken>& token) {
     return token->getType() == TokenType::NAME ||
         token->getType() == TokenType::WILDCARD ||
-        token->getType() == TokenType::CONSTANT_STRING;
+            (token->getType() == TokenType::CONSTANT_STRING && isName(token->getValue()));
 }
 
 bool QueryParser::isLetter(char c) {
@@ -122,24 +122,21 @@ bool QueryParser::isInteger(const std::string& str) {
     return true;
 }
 
-bool QueryParser::isExpSpec(const std::string& str) {
-    if (str.empty()) {
+bool QueryParser::isExpSpec(const std::vector<std::shared_ptr<QueryToken>>& expSpecTokens) {
+    if (expSpecTokens.empty()) {
         return false;
+    } else if (expSpecTokens.size() == 1 ) {
+        return expSpecTokens[0]->getType() == TokenType::WILDCARD || expSpecTokens[0]->getType() == TokenType::CONSTANT_STRING && isFactor(expSpecTokens[0]);
+    } else if (expSpecTokens.size() == 3) {
+        return expSpecTokens[0]->getType() == TokenType::WILDCARD && expSpecTokens[2]->getType()==TokenType::WILDCARD && isFactor(expSpecTokens[1]);
     } else {
-        if (str.length() == 1 && str[0] == '_') {
-            return true;
-        } else if (str.length() == 1) {
-            return isFactor(str);
-        } else {
-            std::string partialExp = std::string(str.begin() + 1, str.end() - 1);
-            return str[0] == '_' && str[str.length() - 1] == '_' && isFactor(partialExp);
-        }
+        throw QuerySyntaxError("Syntax Error: Invalid expression syntax");
     }
 }
 
 
-bool QueryParser::isFactor(const std::string& str) {
-    bool isFactor = isName(str) || isInteger(str);
+bool QueryParser::isFactor(const std::shared_ptr<QueryToken>& token) {
+    bool isFactor = isName(token->getValue()) || isInteger(token->getValue());
     return isFactor;
 }
 
@@ -158,6 +155,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
             relationship == SimpleProgram::DesignAbstraction::PARENTT;
     bool isUses = relationship == SimpleProgram::DesignAbstraction::USESS;
     bool isModifies = relationship == SimpleProgram::DesignAbstraction::MODIFIESS;
+
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
 
@@ -170,20 +168,12 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
                              synonymType == SimpleProgram::DesignEntity::CALL ||
                              synonymType == SimpleProgram::DesignEntity::WHILE ||
                              synonymType == SimpleProgram::DesignEntity::IF ||
-                             synonymType == SimpleProgram::DesignEntity::PROCEDURE;
-        if (isUses) {
-            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::PRINT;
-            if (!isAllowedType) {
-                throw QuerySemanticError("Semantic Error: Synonym type used for Uses relationship is not allowed");
-            }
+                             synonymType == SimpleProgram::DesignEntity::PROCEDURE ||
+                             synonymType == SimpleProgram::DesignEntity::READ ||
+                             synonymType == SimpleProgram::DesignEntity::PRINT;
+        if (!isAllowedType) {
+            throw QuerySemanticError("Semantic Error: Synonym type used for first argument is not allowed");
         }
-        if (isModifies) {
-            isAllowedType = isAllowedType || synonymType == SimpleProgram::DesignEntity::READ;
-            if (!isAllowedType) {
-                throw QuerySemanticError("Semantic Error: Synonym type used for Modifies relationship is not allowed");
-            }
-        }
-
     }
 
     if (!isFollowsOrParent && hasValidFirstArgument) {
@@ -219,13 +209,15 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
     }
 
     if (hasValidSecondArgument && isName(tokens[start-1]->getValue())) {
-        verifyDeclarationExists(tokens[start-1]);
+        if (!std::get<0>(verifyDeclarationExists(tokens[start-1]))) {
+            throw QuerySemanticError("Semantic Error: Declaration does not exist");
+        }
     }
 
     bool hasClosingBrace = tokens[start]->getValue() == ")";
 
     if (!hasValidFirstArgument || !hasValidSecondArgument) {
-        throw QuerySemanticError("Semantic Error on arguments: should be in the form of a stmtRef");
+        throw QuerySyntaxError("Syntax Error: should be in the form of a stmtRef");
     }
 
     return hasOpeningBrace && hasValidCommaSeparator && hasClosingBrace;
@@ -254,16 +246,17 @@ bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, bool isFollow
 bool QueryParser::isValidAssignSynonym(std::shared_ptr<QueryToken>& token) {
     auto tokenValue = token->getValue();
 
+    bool isValid = false;
     for (const auto& declaration : initialDeclarations) {
-        if (declaration.entityType ==  SimpleProgram::DesignEntity::ASSIGN) {
+        if (declaration.entityType == SimpleProgram::DesignEntity::ASSIGN) {
+            isValid = isValid || declaration.identity == tokenValue;
             bool usedDeclarationExists = std::find(std::begin(usedDeclarations), std::end(usedDeclarations), declaration) != std::end(usedDeclarations);
-            if (!usedDeclarationExists) {
+            if (isValid && !usedDeclarationExists) {
                 usedDeclarations.push_back(declaration);
             }
-            return declaration.identity == tokenValue;
         }
     }
-    return false;
+    return isValid;
 }
 
 bool QueryParser::isValidPattern(int start, int end) {
@@ -291,12 +284,12 @@ bool QueryParser::isValidPattern(int start, int end) {
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
 
-    std::string expSpecStr;
+    std::vector<std::shared_ptr<QueryToken>> expSpecTokens;
     for (int i = start; i < end; i++) {
-        expSpecStr += tokens[i]->getValue();
+        expSpecTokens.push_back(tokens[i]);
     }
 
-    bool hasValidSecondArgument = isExpSpec(expSpecStr);
+    bool hasValidSecondArgument = isExpSpec(expSpecTokens);
 
     bool hasClosingBrace = tokens[end]->getValue() == ")";
 
@@ -495,7 +488,7 @@ std::vector<PQL::Synonym> QueryParser::parseDeclarations() {
     while (curr < tokens.size()) {
         auto currToken = tokens[curr];
 
-        if (currToken->getValue() == "Select") {
+        if (currToken->getValue() == "Select" && pos != (lastSemicolonPos + 1)) {
             pos = lastSemicolonPos + 1;
             break;
         }

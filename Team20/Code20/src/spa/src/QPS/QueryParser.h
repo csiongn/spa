@@ -32,8 +32,8 @@ private:
     static bool isDigit(char c);
     static bool isName(const std::string& str);
     static bool isInteger(const std::string& str);
-    bool isFactor(const std::string& str);
-    bool isExpSpec(const std::string& str);
+    bool isFactor(const std::shared_ptr<QueryToken>& token);
+    bool isExpSpec(const std::vector<std::shared_ptr<QueryToken>>& expSpecTokens);
 
     static bool isStmtRef(std::shared_ptr<QueryToken>& token);
     static bool isEntRef(std::shared_ptr<QueryToken>& token);

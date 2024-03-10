@@ -2,6 +2,7 @@
 #include "QPS/QueryParser.h"
 #include "QPS/QueryTokenizer.h"
 #include "QPS/QuerySemanticError.h"
+#include "QPS/QuerySyntaxError.h"
 using namespace std;
 
 TEST_CASE("Parse") {
@@ -860,6 +861,201 @@ TEST_CASE("Parse") {
 
         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
         REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("pattern clause with assign synonym as second declared") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = "assign a, a1; variable v; stmt s1, s2; \n"
+                            "Select s1 pattern a1 (v, _) such that Parent*(s1, s2)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s1");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a1");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::VARIABLE, "v");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        std::vector<PQL::Synonym> patternArgs;
+        patternArgs.emplace_back(arg0);
+        patternArgs.emplace_back(arg1);
+        patternArgs.emplace_back(arg2);
+        PQL::Clause clause1 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+        expectedClauses.emplace_back(clause1);
+
+        PQL::Synonym parentArg1(SimpleProgram::DesignEntity::STMT, "s1");
+        PQL::Synonym parentArg2(SimpleProgram::DesignEntity::STMT, "s2");
+        std::vector<PQL::Synonym> parentArgs;
+        parentArgs.emplace_back(parentArg1);
+        parentArgs.emplace_back(parentArg2);
+        PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, parentArgs);
+        expectedClauses.emplace_back(clause2);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+        REQUIRE(expectedQuery == results);
+    }
+
+   SECTION("pattern clause with whitespace in expr") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(assign a; Select a such that Uses (a, "x") pattern a ("x", _" x"_))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       auto results = queryParser.parse();
+
+       std::vector<PQL::Synonym> expectedDeclarations;
+       expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+       std::vector<PQL::Clause> expectedClauses;
+
+       PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+       PQL::Synonym usesArg1(SimpleProgram::DesignEntity::ASSIGN, "a");
+       PQL::Synonym usesArg2(SimpleProgram::DesignEntity::IDENT, "x");
+       std::vector<PQL::Synonym> usesArgs;
+       usesArgs.emplace_back(usesArg1);
+       usesArgs.emplace_back(usesArg2);
+       PQL::Clause clause1 = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, usesArgs);
+       expectedClauses.emplace_back(clause1);
+
+       PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+       PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "x");
+       PQL::Synonym arg2(SimpleProgram::DesignEntity::PARTIAL_EXPR, "_x_");
+       std::vector<PQL::Synonym> patternArgs;
+       patternArgs.emplace_back(arg0);
+       patternArgs.emplace_back(arg1);
+       patternArgs.emplace_back(arg2);
+       PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+       expectedClauses.emplace_back(clause2);
+
+       PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+       REQUIRE(expectedQuery == results);
+   }
+
+   SECTION("pattern clause with whitespace in expr") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(assign a; Select a pattern a (_, _"1 "_))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       auto results = queryParser.parse();
+
+       std::vector<PQL::Synonym> expectedDeclarations;
+       expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+       std::vector<PQL::Clause> expectedClauses;
+
+       PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+       PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+       PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym arg2(SimpleProgram::DesignEntity::PARTIAL_EXPR, "_1_");
+       std::vector<PQL::Synonym> args;
+       args.emplace_back(arg0);
+       args.emplace_back(arg1);
+       args.emplace_back(arg2);
+       PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+       expectedClauses.emplace_back(clause);
+
+       PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+       REQUIRE(expectedQuery == results);
+   }
+
+
+    SECTION("pattern clause with whitespace in expr") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(assign a; Select a pattern a ("temp", _"temp "_))";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "temp");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::PARTIAL_EXPR, "_temp_");
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg0);
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("assign synonym as Select") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(assign Select; Select Select)";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "Select");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "Select");
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
+
+    SECTION("Follows* with non-statement synonym should throw QuerySyntaxError") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(stmt s, s1; Select s such that Follows*(s, "s1"))";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
+    }
+
+   SECTION("pattern clause with non expr or partial expr in second argument should throw QuerySyntaxError") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(constant c; assign a; variable v; Select c pattern a (_, c))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
+   }
+
+    SECTION("entRef ident to pattern clause first arg starting with digit should throw QuerySyntaxError") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(assign a; variable v; constant c; Select a pattern a ("8", _))";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
+    }
+
+    SECTION("pattern assign clause expr invalid partial expr should throw QuerySyntaxError") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(assign a; Select a pattern a (_, _"x"))";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
     }
 }
 
