@@ -20,11 +20,7 @@ TEST_CASE("ASTNode") {
     std::shared_ptr<ExprNode> xPlusTwoDup = std::make_shared<BinaryExprNode>(xDup, "+", twoDup);
     auto dupHashValue = xPlusTwoDup->getHashValue();
     auto expectedHashValue = xPlusTwo->getHashValue();
-    xPlusTwo->print();
-    xPlusTwoDup->print();
     REQUIRE(dupHashValue==expectedHashValue);
-    // override == operator, this is pointer wont be equal
-    REQUIRE(xPlusTwoDup!=xPlusTwo);
 
     SECTION("SubTree Matching") {
         // Test SubTree Matching

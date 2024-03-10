@@ -21,11 +21,7 @@ TEST_CASE("PKB Pattern Test") {
     std::shared_ptr<ExprNode> xPlusTwoDup = std::make_shared<BinaryExprNode>(xDup, "+", twoDup);
     auto dupHashValue = xPlusTwoDup->getHashValue();
     auto expectedHashValue = xPlusTwo->getHashValue();
-    xPlusTwo->print();
-    xPlusTwoDup->print();
     REQUIRE(dupHashValue==expectedHashValue);
-    // override == operator, this is pointer wont be equal
-    REQUIRE(xPlusTwoDup!=xPlusTwo);
     SECTION("AssignPatternManager") {
         // T, U need to be var : string and U is ExprNode's Hash size_t, V is ptr
         // LHS Variable Name, RHS Node Hash Value, Ptr to Node

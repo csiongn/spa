@@ -120,8 +120,8 @@ void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
 
     // Unary nodes (variable nodes)
     else if (const auto* varNode = dynamic_cast<const VariableNode*>(&node)) {
-        updateUses(stmtNumber, varNode->name);
-        insertVariable(varNode->name);
+        updateUses(stmtNumber, varNode->value);
+        insertVariable(varNode->value);
     }
     else if (const auto* literalNode = dynamic_cast<const LiteralNode*>(&node)) {
         insertLiteral(literalNode->value);
