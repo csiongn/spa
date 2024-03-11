@@ -29,6 +29,8 @@ namespace SimpleProgram {
         USESP,
         MODIFIESS,
         MODIFIESP,
-        PATTERN_ASSIGN
+        PATTERN_ASSIGN,
+        PATTERN_IF,
+        PATTERN_WHILE
     };
 }

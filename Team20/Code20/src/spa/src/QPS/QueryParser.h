@@ -24,7 +24,7 @@ private:
     bool verifyNoDuplicateDeclarations(std::string synonymIdentity);
     bool isValidRelationship(int start, SimpleProgram::DesignAbstraction relationship);
     bool isValidRelationshipArguments(int pos1, int pos2, bool isFollowsOrParent);
-    bool isValidAssignSynonym(std::shared_ptr<QueryToken>& token);
+    bool isValidPatternSynonym(std::shared_ptr<QueryToken>& token);
     bool isValidPattern(int start, int end);
     bool isStmtSubtype(std::shared_ptr<QueryToken>& token);
 

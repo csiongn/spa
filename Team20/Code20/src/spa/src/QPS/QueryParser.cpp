@@ -243,12 +243,19 @@ bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, bool isFollow
     return isFirstArgValid && isSecondArgValid;
 }
 
-bool QueryParser::isValidAssignSynonym(std::shared_ptr<QueryToken>& token) {
+bool QueryParser::isValidPatternSynonym(std::shared_ptr<QueryToken>& token) {
     auto tokenValue = token->getValue();
 
     bool isValid = false;
     for (const auto& declaration : initialDeclarations) {
-        if (declaration.entityType == SimpleProgram::DesignEntity::ASSIGN) {
+        if (isValid) {
+            break;
+        }
+
+        const bool isAllowedPatternSynonyms = declaration.entityType == SimpleProgram::DesignEntity::ASSIGN
+                || declaration.entityType == SimpleProgram::DesignEntity::IF
+                || declaration.entityType == SimpleProgram::DesignEntity::WHILE;
+        if (isAllowedPatternSynonyms) {
             isValid = isValid || declaration.identity == tokenValue;
             bool usedDeclarationExists = std::find(std::begin(usedDeclarations), std::end(usedDeclarations), declaration) != std::end(usedDeclarations);
             if (isValid && !usedDeclarationExists) {
@@ -266,13 +273,21 @@ bool QueryParser::isValidPattern(int start, int end) {
 
     // pattern syntax:
     // 'pattern' {syn-assign} '(' {entRef} ',' {expSpec} ')'
+    // 'pattern' {syn-ifs} '(' {entRef} ',' '_' ',' '_' ')'
+    // 'pattern' {syn-while} '(' {entRef} ',' '_' ')'
     if (end >= tokens.size()) {
         throw QuerySyntaxError("Syntax Error: Pattern clause has wrong format");
     }
-    auto assignSynonym = tokens[start++];
+    auto patternSynonym = tokens[start++];
+    SimpleProgram::DesignEntity patternSynonymEntityType;
 
-    bool isValidAssignSyn = isValidAssignSynonym(assignSynonym);
+    bool isValidPatternSyn = isValidPatternSynonym(patternSynonym);
+    if (isValidPatternSyn) {
+        patternSynonymEntityType = getEntityTypeFromSynonym(patternSynonym);
+    }
+
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
+    // All pattern clause allows entRef as first argument for language rules
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
 
     if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
@@ -284,16 +299,34 @@ bool QueryParser::isValidPattern(int start, int end) {
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
 
-    std::vector<std::shared_ptr<QueryToken>> expSpecTokens;
-    for (int i = start; i < end; i++) {
-        expSpecTokens.push_back(tokens[i]);
+    bool hasValidSecondArgument = true;
+    bool hasValidSecondCommaSeparator = true;
+    bool hasValidThirdArgument = true;
+
+    if (patternSynonymEntityType == SimpleProgram::DesignEntity::ASSIGN) {
+        std::vector<std::shared_ptr<QueryToken>> expSpecTokens;
+        for (int i = start; i < end; i++) {
+            expSpecTokens.push_back(tokens[i]);
+        }
+
+        hasValidSecondArgument = isExpSpec(expSpecTokens);
+    } else if (patternSynonymEntityType == SimpleProgram::DesignEntity::IF) {
+        hasValidSecondArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+        hasValidSecondCommaSeparator = tokens[start++]->getValue() == ",";
+        hasValidThirdArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+    } else if (patternSynonymEntityType == SimpleProgram::DesignEntity::WHILE) {
+        hasValidSecondArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+    } else {
+        throw QuerySyntaxError("Syntax Error: Invalid pattern clause");
     }
 
-    bool hasValidSecondArgument = isExpSpec(expSpecTokens);
 
     bool hasClosingBrace = tokens[end]->getValue() == ")";
 
-    bool isValidPatternRes = isValidAssignSyn && hasOpeningBrace && hasValidFirstArgument && hasValidCommaSeparator && hasValidSecondArgument && hasClosingBrace;
+    bool isValidPatternRes = isValidPatternSyn && hasOpeningBrace && hasValidFirstArgument
+            && hasValidCommaSeparator && hasValidSecondArgument && hasValidSecondCommaSeparator
+            && hasValidThirdArgument && hasClosingBrace;
+
     if (!isValidPatternRes) {
         throw QuerySyntaxError("Syntax Error: Invalid pattern syntax");
     }
@@ -553,31 +586,48 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
             isValidPattern(pos+1,curr);
 
             std::vector<PQL::Synonym> patternArgs;
-            auto assignArg = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, tokens[pos+1]->getValue());
+            auto patternArgType = getEntityTypeFromSynonym(tokens[pos+1]);
+            PQL::Synonym patternArg = PQL::Synonym(patternArgType, tokens[pos+1]->getValue());
             auto arg1 = PQL::Synonym(getEntityTypeFromSynonym(tokens[pos+3]), tokens[pos+3]->getValue());
-            SimpleProgram::DesignEntity exprType;
-            std::string exprId;
-            if ((curr - (pos + 5)) > 1) {
-                std::string id;
-                for (int i = pos+5; i < curr; i++) {
-                    id += tokens[i]->getValue();
-                }
-                exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
-                exprId = id;
-            } else {
-                if (tokens[pos+5]->getType() == TokenType::WILDCARD) {
-                    exprType = SimpleProgram::DesignEntity::WILDCARD;
+            patternArgs.push_back(patternArg);
+            patternArgs.push_back(arg1);
+            SimpleProgram::DesignAbstraction clauseType;
+
+            if (patternArgType == SimpleProgram::DesignEntity::ASSIGN) {
+                SimpleProgram::DesignEntity exprType;
+                std::string exprId;
+                if ((curr - (pos + 5)) > 1) {
+                    std::string id;
+                    for (int i = pos + 5; i < curr; i++) {
+                        id += tokens[i]->getValue();
+                    }
+                    exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
+                    exprId = id;
                 } else {
-                    exprType = SimpleProgram::DesignEntity::EXPR;
+                    if (tokens[pos + 5]->getType() == TokenType::WILDCARD) {
+                        exprType = SimpleProgram::DesignEntity::WILDCARD;
+                    } else {
+                        exprType = SimpleProgram::DesignEntity::EXPR;
+                    }
+                    exprId = tokens[pos + 5]->getValue();
                 }
-                exprId = tokens[pos+5]->getValue();
+
+                auto arg2 = PQL::Synonym(exprType, exprId);
+                patternArgs.push_back(arg2);
+                clauseType = SimpleProgram::DesignAbstraction::PATTERN_ASSIGN;
+            } else if (patternArgType == SimpleProgram::DesignEntity::IF) {
+                auto arg2 = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+                auto arg3 = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+                patternArgs.push_back(arg2);
+                patternArgs.push_back(arg3);
+                clauseType = SimpleProgram::DesignAbstraction::PATTERN_IF;
+            } else {
+                auto arg2 = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+                patternArgs.push_back(arg2);
+                clauseType = SimpleProgram::DesignAbstraction::PATTERN_WHILE;
             }
 
-            auto arg2 = PQL::Synonym(exprType, exprId);
-            patternArgs.push_back(assignArg);
-            patternArgs.push_back(arg1);
-            patternArgs.push_back(arg2);
-            auto clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
+            auto clause = PQL::Clause(clauseType, patternArgs);
             clauses.push_back(clause);
             pos = curr + 1;
 

@@ -1057,6 +1057,103 @@ TEST_CASE("Parse") {
 
         REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
     }
+
+   SECTION("pattern if clause") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(if ifs; Select ifs pattern ifs(_,_,_))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       auto results = queryParser.parse();
+
+       std::vector<PQL::Synonym> expectedDeclarations;
+       expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::IF, "ifs");
+
+       std::vector<PQL::Clause> expectedClauses;
+
+       PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::IF, "ifs");
+
+       PQL::Synonym arg0(SimpleProgram::DesignEntity::IF, "ifs");
+       PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym arg3(SimpleProgram::DesignEntity::WILDCARD, "_");
+
+       std::vector<PQL::Synonym> args;
+       args.emplace_back(arg0);
+       args.emplace_back(arg1);
+       args.emplace_back(arg2);
+       args.emplace_back(arg3);
+       PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, args);
+       expectedClauses.emplace_back(clause);
+
+       PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+       REQUIRE(expectedQuery == results);
+   }
+
+   SECTION("pattern while clause") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(while w; Select w pattern w(_,_))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       auto results = queryParser.parse();
+
+       std::vector<PQL::Synonym> expectedDeclarations;
+       expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::WHILE, "w");
+
+       std::vector<PQL::Clause> expectedClauses;
+
+       PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::WHILE, "w");
+
+       PQL::Synonym arg0(SimpleProgram::DesignEntity::WHILE, "w");
+       PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+
+       std::vector<PQL::Synonym> args;
+       args.emplace_back(arg0);
+       args.emplace_back(arg1);
+       args.emplace_back(arg2);
+       PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE, args);
+       expectedClauses.emplace_back(clause);
+
+       PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+       REQUIRE(expectedQuery == results);
+   }
+
+    SECTION("pattern if clause with while declaration") {
+        QueryTokenizer queryTokenizer{};
+        std::string query = R"(if ifs; while w; Select ifs pattern ifs(_,_,_))";
+        auto tokens = queryTokenizer.tokenize(query);
+        QueryParser queryParser(tokens);
+
+        auto results = queryParser.parse();
+
+        std::vector<PQL::Synonym> expectedDeclarations;
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::IF, "ifs");
+
+        std::vector<PQL::Clause> expectedClauses;
+
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::IF, "ifs");
+
+        PQL::Synonym arg0(SimpleProgram::DesignEntity::IF, "ifs");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+        PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+        PQL::Synonym arg3(SimpleProgram::DesignEntity::WILDCARD, "_");
+
+        std::vector<PQL::Synonym> args;
+        args.emplace_back(arg0);
+        args.emplace_back(arg1);
+        args.emplace_back(arg2);
+        args.emplace_back(arg3);
+        PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, args);
+        expectedClauses.emplace_back(clause);
+
+        PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+        REQUIRE(expectedQuery == results);
+    }
 }
 
 
