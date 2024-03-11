@@ -21,11 +21,11 @@ PQL::Query QueryParser::parse() {
 std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExists(const std::shared_ptr<QueryToken>& token) {
     std::string tokenId = token->getValue();
 
-    if (token->getType() == TokenType::WILDCARD) {
+    if (token->getType() == QPS::TokenType::WILDCARD) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::WILDCARD);
     }
 
-    if (token->getType() == TokenType::CONSTANT_STRING) {
+    if (token->getType() == QPS::TokenType::CONSTANT_STRING) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::IDENT);
     }
 
@@ -40,7 +40,7 @@ std::tuple<bool, SimpleProgram::DesignEntity> QueryParser::verifyDeclarationExis
         }
     }
 
-    if (token->getType() == TokenType::INTEGER) {
+    if (token->getType() == QPS::TokenType::INTEGER) {
         return std::make_tuple(true, SimpleProgram::DesignEntity::STMT_NO);
     }
 
@@ -58,15 +58,15 @@ bool QueryParser::verifyNoDuplicateDeclarations(const std::string synonymIdentit
 }
 
 bool QueryParser::isStmtRef(std::shared_ptr<QueryToken>& token) {
-    return token->getType() == TokenType::INTEGER  ||
-        token->getType() == TokenType::NAME ||
-        token->getType() == TokenType::WILDCARD;
+    return token->getType() == QPS::TokenType::INTEGER  ||
+        token->getType() == QPS::TokenType::NAME ||
+        token->getType() == QPS::TokenType::WILDCARD;
 }
 
 bool QueryParser::isEntRef(std::shared_ptr<QueryToken>& token) {
-    return token->getType() == TokenType::NAME ||
-        token->getType() == TokenType::WILDCARD ||
-            (token->getType() == TokenType::CONSTANT_STRING && isName(token->getValue()));
+    return token->getType() == QPS::TokenType::NAME ||
+        token->getType() == QPS::TokenType::WILDCARD ||
+            (token->getType() == QPS::TokenType::CONSTANT_STRING && isName(token->getValue()));
 }
 
 bool QueryParser::isLetter(char c) {
@@ -126,9 +126,9 @@ bool QueryParser::isExpSpec(const std::vector<std::shared_ptr<QueryToken>>& expS
     if (expSpecTokens.empty()) {
         return false;
     } else if (expSpecTokens.size() == 1 ) {
-        return expSpecTokens[0]->getType() == TokenType::WILDCARD || expSpecTokens[0]->getType() == TokenType::CONSTANT_STRING && isFactor(expSpecTokens[0]);
+        return expSpecTokens[0]->getType() == QPS::TokenType::WILDCARD || expSpecTokens[0]->getType() == QPS::TokenType::CONSTANT_STRING && isFactor(expSpecTokens[0]);
     } else if (expSpecTokens.size() == 3) {
-        return expSpecTokens[0]->getType() == TokenType::WILDCARD && expSpecTokens[2]->getType()==TokenType::WILDCARD && isFactor(expSpecTokens[1]);
+        return expSpecTokens[0]->getType() == QPS::TokenType::WILDCARD && expSpecTokens[2]->getType()==QPS::TokenType::WILDCARD && isFactor(expSpecTokens[1]);
     } else {
         throw QuerySyntaxError("Syntax Error: Invalid expression syntax");
     }
@@ -159,7 +159,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
     bool hasOpeningBrace = tokens[start++]->getValue() == "(";
     bool hasValidFirstArgument = isStmtRef(tokens[start++]);
 
-    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+    if (hasValidFirstArgument && tokens[start-1]->getType() == QPS::TokenType::NAME) {
         auto declarationVerification = verifyDeclarationExists(tokens[start-1]);
         auto synonymType = std::get<1>(declarationVerification);
         // Check synonym types used
@@ -177,7 +177,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
     }
 
     if (!isFollowsOrParent && hasValidFirstArgument) {
-        if (tokens[start - 1]->getType() == TokenType::WILDCARD) {
+        if (tokens[start - 1]->getType() == QPS::TokenType::WILDCARD) {
             throw QuerySemanticError("Semantic Error: First argument to Modifies or Uses cannot be _");
         }
     }
@@ -185,7 +185,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
 
     auto firstArgToken = tokens[start-1];
 
-    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != TokenType::NAME && firstArgToken->getType() != TokenType::INTEGER && firstArgToken->getType() != TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
+    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != QPS::TokenType::NAME && firstArgToken->getType() != QPS::TokenType::INTEGER && firstArgToken->getType() != QPS::TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
 
         if (!isStmtSubtype(tokens[start-1])) {
             throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
@@ -202,7 +202,7 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
 
     if (!isFollowsOrParent) {
         hasValidSecondArgument = isEntRef(secondArgToken);
-        if (hasValidSecondArgument && secondArgToken->getType() != TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
+        if (hasValidSecondArgument && secondArgToken->getType() != QPS::TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
 
             throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
         }
@@ -235,7 +235,7 @@ bool QueryParser::isValidRelationshipArguments(int pos1, int pos2, bool isFollow
         isSecondArgValid = std::get<0>(secondArgVerification);
     }
 
-    if (!isFollowsOrParent && tokens[pos2]->getType() != TokenType::CONSTANT_STRING) {
+    if (!isFollowsOrParent && tokens[pos2]->getType() != QPS::TokenType::CONSTANT_STRING) {
         secondArgVerification = verifyDeclarationExists(tokens[pos2]);
         isSecondArgValid = std::get<0>(secondArgVerification);
     }
@@ -290,7 +290,7 @@ bool QueryParser::isValidPattern(int start, int end) {
     // All pattern clause allows entRef as first argument for language rules
     bool hasValidFirstArgument = isEntRef(tokens[start++]);
 
-    if (hasValidFirstArgument && tokens[start-1]->getType() == TokenType::NAME) {
+    if (hasValidFirstArgument && tokens[start-1]->getType() == QPS::TokenType::NAME) {
         auto isValidSynonym = verifyDeclarationExists(tokens[start-1]);
         if (std::get<1>(isValidSynonym) != SimpleProgram::DesignEntity::VARIABLE) {
             throw QuerySemanticError("Semantic Error: Synonym for first argument should be a variable synonym");
@@ -311,11 +311,11 @@ bool QueryParser::isValidPattern(int start, int end) {
 
         hasValidSecondArgument = isExpSpec(expSpecTokens);
     } else if (patternSynonymEntityType == SimpleProgram::DesignEntity::IF) {
-        hasValidSecondArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+        hasValidSecondArgument = tokens[start++]->getType() == QPS::TokenType::WILDCARD;
         hasValidSecondCommaSeparator = tokens[start++]->getValue() == ",";
-        hasValidThirdArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+        hasValidThirdArgument = tokens[start++]->getType() == QPS::TokenType::WILDCARD;
     } else if (patternSynonymEntityType == SimpleProgram::DesignEntity::WHILE) {
-        hasValidSecondArgument = tokens[start++]->getType() == TokenType::WILDCARD;
+        hasValidSecondArgument = tokens[start++]->getType() == QPS::TokenType::WILDCARD;
     } else {
         throw QuerySyntaxError("Syntax Error: Invalid pattern clause");
     }
@@ -483,15 +483,15 @@ SimpleProgram::DesignEntity QueryParser::getEntityTypeFromSynonym(const std::sha
         return std::get<1>(declarationVerification);
     }
 
-    if (token->getType() == TokenType::INTEGER) {
+    if (token->getType() == QPS::TokenType::INTEGER) {
         return SimpleProgram::DesignEntity::STMT_NO;
     }
 
-    if (token->getType() == TokenType::CONSTANT_STRING) {
+    if (token->getType() == QPS::TokenType::CONSTANT_STRING) {
         return SimpleProgram::DesignEntity::IDENT;
     }
 
-    if (token->getType() == TokenType::WILDCARD) {
+    if (token->getType() == QPS::TokenType::WILDCARD) {
         return SimpleProgram::DesignEntity::WILDCARD;
     }
 
@@ -604,7 +604,7 @@ std::vector<PQL::Clause> QueryParser::parseClauses() {
                     exprType = SimpleProgram::DesignEntity::PARTIAL_EXPR;
                     exprId = id;
                 } else {
-                    if (tokens[pos + 5]->getType() == TokenType::WILDCARD) {
+                    if (tokens[pos + 5]->getType() == QPS::TokenType::WILDCARD) {
                         exprType = SimpleProgram::DesignEntity::WILDCARD;
                     } else {
                         exprType = SimpleProgram::DesignEntity::EXPR;

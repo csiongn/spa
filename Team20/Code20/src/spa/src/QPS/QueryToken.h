@@ -7,43 +7,40 @@
 // entities declaration: procedure p, variable v, constant c, stmt s, call c, while w, if i, assign a
 // First letter capitalise for Clauses, Select, Follows, Parent
 // Select s such that Uses (s, "x")
-enum class TokenType {
-    SPECIAL_CHARACTER, // (, ), +, -, *, /, %, ;, \n,
-    WILDCARD, // _
-    // procedure, stmt, read, print, assign, call, while, if, variable, constant
-
-    INTEGER, // statement number given in relationship arguments
-    NAME, // NAME, has to start with LETTER variable name, procedure name, constant name, CAN BE ALPHANUMERIC
-    CONSTANT_STRING, // single NAME without whitespace within " " will refer to as constant string as they are immutable
-};
-
+namespace QPS {
+    enum class TokenType {
+        SPECIAL_CHARACTER, // (, ), +, -, *, /, %, ;, \n,
+        WILDCARD, // _
+        // procedure, stmt, read, print, assign, call, while, if, variable, constant
+        INTEGER, // statement number given in relationship arguments
+        NAME, // NAME, has to start with LETTER variable name, procedure name, constant name, CAN BE ALPHANUMERIC
+        CONSTANT_STRING, // single NAME without whitespace within " " will refer to as constant string as they are immutable
+        EXPRESSION, // expression in the form of EXPR, TERM, FACTOR
+    };
+}
 
 
 class QueryToken {
     protected:
-        TokenType type;
+        QPS::TokenType type;
         std::string value;
-
+        const std::unordered_map<QPS::TokenType, std::string> specialCharactersMap = {
+                {QPS::TokenType::SPECIAL_CHARACTER, "SPECIAL_CHARACTER"},
+                {QPS::TokenType::WILDCARD, "WILDCARD"},
+                {QPS::TokenType::INTEGER, "INTEGER"},
+                {QPS::TokenType::NAME, "NAME"},
+                {QPS::TokenType::CONSTANT_STRING, "CONSTANT_STRING"},
+                {QPS::TokenType::EXPRESSION, "EXPRESSION"}
+        };
     public:
-        QueryToken(TokenType type, std::string value): type(type), value(std::move(value)) {}
+        QueryToken(QPS::TokenType type, std::string value): type(type), value(std::move(value)) {}
 
-        TokenType getType() const {
+        QPS::TokenType getType() const {
             return type;
         };
 
         std::string getTypeString() const {
-            switch (type) {
-                case TokenType::SPECIAL_CHARACTER:
-                    return "SPECIAL_CHARACTER";
-                case TokenType::WILDCARD:
-                    return "WILDCARD";
-                case TokenType::INTEGER:
-                    return "INTEGER";
-                case TokenType::NAME:
-                    return "NAME";
-                case TokenType::CONSTANT_STRING:
-                    return "CONSTANT_STRING";
-            }
+            return specialCharactersMap.at(type);
         }
 
         std::string getValue() const {

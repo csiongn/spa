@@ -1,15 +1,29 @@
 #pragma once
 #include <sstream>
+#include <vector>
 #include "QueryToken.h"
+
 class QueryTokenizer {
+
+private:
+    void processApostrophe();
+
+    void processStar(std::string currentStr);
+
+    void processWildcard();
+
+    void processSeparator(std::string currentStr, char separatorChar);
+
+protected:
+    // Move stream to an attribute in enclosing class so that helper functions can access
+    std::shared_ptr<std::istream> iss;
+    std::vector<std::shared_ptr<QueryToken>> queryTokens;
+
 public:
-    std::istream *inputStream;
 
     explicit QueryTokenizer() = default;
 
     std::vector<std::shared_ptr<QueryToken> > tokenize(const std::string &query);
-
-    bool startsWithLetter(const std::string& str) const;
 
     bool isAlpha(const std::string& str) const;
 
@@ -21,25 +35,26 @@ public:
 
     bool isCharAlpha(char& c) const;
 
-    bool containsSpecialChar(const std::string &str) const;
+    bool containsFactor(const std::string &str) const;
 
-    bool containsFactorSpecialChar(const std::string &str) const;
-
-    bool isCharSpecialChar(char &c) const;
-
-    bool isCharFactorSpecialChar(char &c) const;
+    bool isCharFactor(char &c) const;
 
     bool isCharStar(char &c) const;
 
     bool isCharWhitespace(char &c) const;
 
-    bool isValidIDENT(const std::string &str) const;
-
     bool isValidIDENT(std::string &str) const;
 
-    bool isNotAlphanumric(const std::string &str) const;
+    bool isNotAlphanumeric(const std::string &str) const;
 
-    bool isCharSpecialCharIDENT(char &c) const;
+    bool isCharSeparator(char &c) const;
 
-    bool isCharSpecialCharSeparator(char &c) const;
+    char isStreamEmpty() const;
+    // Function to peek but not pop character
+    char peekChar() const;
+    // Function to pop character
+    void removeChar() const;
+
+    void addToken(const std::shared_ptr<QueryToken> & queryToken);
+
 };
