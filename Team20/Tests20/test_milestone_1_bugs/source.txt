@@ -1,0 +1,16 @@
+procedure Main {
+  read x;
+  temp = 0;
+  temp = temp + 1;
+  left = quota;
+  x = 7;
+  print y;
+  while (x > 0) {
+    if (x < 5) then {
+        z = x * 2;
+        print z;} else {
+        z = 0;}
+    while (z < 10) {
+        read z;
+        print z;}}
+}

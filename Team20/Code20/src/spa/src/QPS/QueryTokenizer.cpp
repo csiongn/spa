@@ -62,8 +62,15 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
         }
     }
 
+    // Reach EOF
     // if current char is EOF, add remaining string if any
     if (!currentStr.empty()) {
+        if (!isValidIDENT(currentStr)) {
+            std::cout << "Invalid IDENT: " << currentStr << std::endl;
+            // check if invalid string, throw error
+            throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
+
+        }
         addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
     }
 

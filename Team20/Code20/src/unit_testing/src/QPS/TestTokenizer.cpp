@@ -239,4 +239,11 @@ TEST_CASE("Tokenizer") {
         std::string query = "\"   x +     quota     % 5 - 10 && a\"";
         REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
     }
+
+    SECTION("Invalid NAME token - SyntaxError" ) {
+        std::cout << "Invalid NAME token" << std::endl;
+        QueryTokenizer queryTokenizer;
+        std::string query = "Select 1v";
+        REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+    }
 }
