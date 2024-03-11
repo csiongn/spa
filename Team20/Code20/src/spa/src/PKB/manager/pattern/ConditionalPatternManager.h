@@ -25,46 +25,30 @@ public:
 
     // Get the value associated with a key
     std::vector<U> get(const T &key) {
-        if (data.find(key) == data.end()) {
-            return std::vector<U>();
-        }
-        // convert set at data to vector
-        return std::vector(data.at(key).begin(), data.at(key).end());
+        return MapUtils<T, U>::getValuesForKey(data, key);
     };
 
     // Get the key associated with a value
     std::vector<T> getReverse(const U& value) {
-        // No such key exists for reverse data
-        if (reverseData.find(value) == reverseData.end()) {
-            return std::vector<T>();
-        }
-        return std::vector(reverseData.at(value).begin(), reverseData.at(value).end());
+        return MapUtils<U, T>::getValuesForKey(reverseData, value);
     };
 
     std::vector<T> getKeys() {
-        std::vector<T> keys;
-        for (const auto&[key, value] : data) {
-            keys.push_back(key);
-        }
-        return keys;
+        return MapUtils<T, U>::getAllKeys(data);
     }
 
     std::vector<U> getValues() {
-        std::vector<U> values;
-        for (const auto&[key, value] : reverseData) {
-            values.push_back(key);
-        }
-        return values;
+        return MapUtils<U, T>::getAllKeys(reverseData);
     }
 
     // Check if a key exists in the table
     bool contains(const T& key) {
-        return data.find(key) != data.end();
+        return MapUtils<T, U>::contains(data, key);
     };
 
     // Check if a value exists in the table
     bool containsReverse(const U& value) {
-        return reverseData.find(value) != reverseData.end();
+        return MapUtils<U, T>::contains(reverseData, value);
     };
 
     bool containsPattern(const T& key, const U& value) {

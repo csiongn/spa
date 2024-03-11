@@ -168,3 +168,23 @@ assign a, a1; variable v; stmt s1, s2;
 Select s1 pattern a1 (v, _) such that Parent*(s1, s2)
 5,9
 5000
+35 - Parent* - Assign Pattern
+assign a, a1; variable v; stmt s1, s2;
+Select s2 pattern a1 (v, _) such that Parent*(_, s2)
+6,7,8,10,11
+5000
+36 - Modifies - Assign Pattern
+assign a; variable v;
+Select a pattern a (v, _) such that Modifies(a, v)
+2,3,6,8
+5000
+37 - Uses - Assign Pattern
+assign a; variable v,v1;
+Select a such that Uses (a, v) pattern a (v1, _)
+2,6
+5000
+38 - Parent - Assign Pattern
+print rd; variable v; stmt s; assign a;
+Select s such that Parent (s, rd) pattern a(v,_)
+5,9
+5000

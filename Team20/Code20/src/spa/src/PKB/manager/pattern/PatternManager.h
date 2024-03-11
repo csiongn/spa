@@ -6,6 +6,7 @@
 # include <unordered_set>
 # include <vector>
 #include "SP/AST.h"
+#include "PKB/utils/MapUtils.h"
 
 template <typename T, typename U, typename V>
 class PatternManager {
@@ -40,38 +41,22 @@ public:
 
     // Get the value associated with a key
     std::vector<U> getRHS(const T &key) {
-        if (data.find(key) == data.end()) {
-            return std::vector<U>();
-        }
-        // convert set at data to vector
-        return std::vector(data.at(key).begin(), data.at(key).end());
+        return MapUtils<T, U>::getValuesForKey(data, key);
     };
 
     // Get the key associated with a value
     std::vector<T> getLHS(const U& value) {
-        // No such key exists for reverse data
-        if (reverseData.find(value) == reverseData.end()) {
-            return std::vector<T>();
-        }
-        return std::vector(reverseData.at(value).begin(), reverseData.at(value).end());
+        return MapUtils<U, T>::getValuesForKey(reverseData, value);
     };
 
     // getAllLHS
     std::vector<T> getLHSKeys() {
-        std::vector<T> keys;
-        for (const auto&[key, value] : data) {
-            keys.push_back(key);
-        }
-        return keys;
+        return MapUtils<T, U>::getAllKeys(data);
     }
 
     // getAllRHS, return the hash
     std::vector<U> getRHSKeys() {
-        std::vector<U> values;
-        for (const auto&[key, value] : reverseData) {
-            values.push_back(key);
-        }
-        return values;
+        return MapUtils<U, T>::getAllKeys(reverseData);
     }
 
     std::vector<int> getPatternStmtNum(const T& key, const U& value) {
@@ -87,45 +72,30 @@ public:
     }
 
     std::vector<int> getLHSStmtNum(const T& key) {
-        if (stmtData.find(key) == stmtData.end()) {
-            return std::vector<int>();
-        }
-        return std::vector(stmtData.at(key).begin(), stmtData.at(key).end());
+        return MapUtils<T, int>::getValuesForKey(stmtData, key);
     }
 
     std::vector<int> getRHSStmtNum(const U& value) {
-        if (stmtReverseData.find(value) == stmtReverseData.end()) {
-            return std::vector<int>();
-        }
-        return std::vector(stmtReverseData.at(value).begin(), stmtReverseData.at(value).end());
+        return MapUtils<U, int>::getValuesForKey(stmtReverseData, value);
     }
 
     // get V
     std::vector<V> getRHSNodePtr(const U& value) {
-        if (nodePtrMap.find(value) == nodePtrMap.end()) {
-            return std::vector<V>();
-        }
-        return std::vector(nodePtrMap.at(value).begin(), nodePtrMap.at(value).end());
+        return MapUtils<U, V>::getValuesForKey(nodePtrMap, value);
     }
 
     std::vector<V> getRHSNodePtr() {
-        std::vector<V> nodePtrs;
-        for (const auto&[key, value] : nodePtrMap) {
-            for (const auto& nodePtr : value) {
-                nodePtrs.push_back(nodePtr);
-            }
-        }
-        return nodePtrs;
+        return MapUtils<U, V>::getAllValues(nodePtrMap);
     }
 
     // Check if a key exists in the table
     bool containsLHS(const T& key) {
-        return data.find(key) != data.end();
+        return MapUtils<T, U>::contains(data, key);
     };
 
     // Check if a value exists in the table
     bool containsRHS(const U& value) {
-        return reverseData.find(value) != reverseData.end();
+        return MapUtils<U, T>::contains(reverseData, value);
     };
 
     bool containsPattern(const T& key, const U& value) {

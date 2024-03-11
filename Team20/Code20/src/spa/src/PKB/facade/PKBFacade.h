@@ -150,6 +150,7 @@ public:
     void insertUsesProc(std::string const & procedureName, std::string const & variable) override;
     void insertUsesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getUsesProcVariable(std::string const & procedureName) override;
+    std::vector<std::string> getUsesProcName(std::string const & variable) override;
     std::vector<std::string> getUsesProcVariable() override;
     std::vector<std::string> getUsesProcName() override;
     bool containsUsesProc(std::string const & procedureName) override;
@@ -161,6 +162,7 @@ public:
     void insertModifiesProc(std::string const & procedureName, std::string const & variable) override;
     void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override;
     std::vector<std::string> getModifiesProcVariable(std::string const & procedureName) override;
+    std::vector<std::string> getModifiesProcName(std::string const & variable) override;
     std::vector<std::string> getModifiesProcVariable() override;
     std::vector<std::string> getModifiesProcName() override;
     bool containsModifiesProc(std::string const & procedureName) override;

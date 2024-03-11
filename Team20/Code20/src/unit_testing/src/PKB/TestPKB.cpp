@@ -43,8 +43,8 @@ TEST_CASE("PKB Test") {
         REQUIRE(containsValue == true);
 
         // Check if a value already exists in the unordered_set of data
-        bool containsValueInKeySet = sampleRelationshipManager.containsValueInKeySet(1, "apple");
-        REQUIRE(containsValueInKeySet == true);
+        bool containsRelationship = sampleRelationshipManager.containsRelationship(1, "apple");
+        REQUIRE(containsRelationship == true);
         // Will not be able to insert the same value again and return normally, list should be the same
         sampleRelationshipManager.insert(1, "apple");
         std::vector<std::string> valuesAfterInsert = sampleRelationshipManager.get(1);
