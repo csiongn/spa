@@ -39,16 +39,17 @@ TEST_CASE("Simple program extractDesign") {
     auto stmtLst3 = {assignStmt2 };
     auto blockNode3 = std::make_shared<BlockNode>(stmtLst3);
 
-    // Create condition z < z + 3 || a > 3
+    // Create condition z < z + 3 || !(a > 3)
     auto z = std::make_shared<VariableNode>("z");
     auto zDup = std::make_shared<VariableNode>("z");
     auto threeDup = std::make_shared<LiteralNode>("3");
     auto zPlusThree = std::make_shared<BinaryExprNode>(z, "+", threeDup);
     auto zLessZPlusThree = std::make_shared<RelExprNode>(z, "<", zPlusThree);
+    auto notAGreaterThree = std::make_shared<NegationNode>(aGreater3);
 
-    auto zLessZPlusThreeOrAGreaterThree = std::make_shared<LogicalOpNode>(zLessZPlusThree, "||", aGreater3);
+    auto zLessZPlusThreeOrNotAGreaterThree = std::make_shared<LogicalOpNode>(zLessZPlusThree, "||", notAGreaterThree);
 
-    auto whileStmt = std::make_shared<WhileNode>(6, zLessZPlusThreeOrAGreaterThree, blockNode3);
+    auto whileStmt = std::make_shared<WhileNode>(6, zLessZPlusThreeOrNotAGreaterThree, blockNode3);
 
     // Create procedure "main" with previous three statements
     std::vector<std::shared_ptr<StmtNode>> procStmtLst = {assignStmt, ifStmt, whileStmt};

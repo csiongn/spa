@@ -203,7 +203,7 @@ void DesignExtractor::extractVariables(const ExprNode &node, std::unordered_set<
         extractVariables(*binaryNode->left, variables);
         extractVariables(*binaryNode->right, variables);
     } else if (const auto* negationNode = dynamic_cast<const NegationNode*>(&node)) {
-        extractVariables(*negationNode, variables);
+        extractVariables(*negationNode->expr, variables);
     }
 }
 
