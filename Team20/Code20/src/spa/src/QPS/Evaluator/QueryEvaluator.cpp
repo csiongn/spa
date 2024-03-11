@@ -65,83 +65,28 @@ namespace QueryEvaluator {
         std::vector<int> intRes;
         switch (syn.entityType) {
             case SimpleProgram::DesignEntity::PROCEDURE:
-                strRes = reader->getAllProcedures();
+            case SimpleProgram::DesignEntity::VARIABLE:
+                strRes = getStringResults(syn);
                 if (strRes.empty()) {
                     return;
                 }
-                resultStore->createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
-                break;
+                resultStore->createColumn(syn, strRes);
+                return;
 
             case SimpleProgram::DesignEntity::STMT:
-                intRes = reader->getAllStatementNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::READ:
-                intRes = reader->getAllReadStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::PRINT:
-                intRes = reader->getAllPrintStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::ASSIGN:
-                intRes = reader->getAllAssignStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::CALL:
-                intRes = reader->getAllCallStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::WHILE:
-                intRes = reader->getAllWhileStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::IF:
-                intRes = reader->getAllIfStmtNum();
-                if (intRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
-                break;
-
-            case SimpleProgram::DesignEntity::VARIABLE:
-                strRes = reader->getAllVariables();
-                if (strRes.empty()) {
-                    return;
-                }
-                resultStore->createColumn(syn, std::vector<std::string>(strRes.begin(), strRes.end()));
-                break;
-
             case SimpleProgram::DesignEntity::CONSTANT:
-                intRes = reader->getAllConstants();
+                intRes = getIntResults(syn);
                 if (intRes.empty()) {
                     return;
                 }
-                resultStore->createColumn(syn, std::vector<int>(intRes.begin(), intRes.end()));
+                resultStore->createColumn(syn, intRes);
+                return;
 
             case SimpleProgram::DesignEntity::STMT_NO:
             case SimpleProgram::DesignEntity::WILDCARD:
@@ -150,6 +95,40 @@ namespace QueryEvaluator {
             case SimpleProgram::DesignEntity::PARTIAL_EXPR:
             case SimpleProgram::DesignEntity::INTEGER:
                 return;
+        }
+    }
+
+    std::vector<std::string> QueryEvaluator::getStringResults(const PQL::Synonym &syn) const {
+        switch (syn.entityType) {
+            case SimpleProgram::DesignEntity::PROCEDURE:
+                return reader->getAllProcedures();
+            case SimpleProgram::DesignEntity::VARIABLE:
+                return reader->getAllVariables();
+            default:
+                return {};
+        }
+    }
+
+    std::vector<int> QueryEvaluator::getIntResults(const PQL::Synonym &syn) const {
+        switch (syn.entityType) {
+            case SimpleProgram::DesignEntity::STMT:
+                return reader->getAllStatementNum();
+            case SimpleProgram::DesignEntity::READ:
+                return reader->getAllReadStmtNum();
+            case SimpleProgram::DesignEntity::PRINT:
+                return reader->getAllPrintStmtNum();
+            case SimpleProgram::DesignEntity::ASSIGN:
+                return reader->getAllAssignStmtNum();
+            case SimpleProgram::DesignEntity::CALL:
+                return reader->getAllCallStmtNum();
+            case SimpleProgram::DesignEntity::WHILE:
+                return reader->getAllWhileStmtNum();
+            case SimpleProgram::DesignEntity::IF:
+                return reader->getAllIfStmtNum();
+            case SimpleProgram::DesignEntity::CONSTANT:
+                return reader->getAllConstants();
+            default:
+                return {};
         }
     }
 }

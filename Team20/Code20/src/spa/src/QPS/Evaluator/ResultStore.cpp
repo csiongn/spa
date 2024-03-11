@@ -7,16 +7,6 @@ namespace QueryEvaluator {
         results.push_back(res);
     }
 
-    void ResultStore::createColumn(const PQL::Synonym &syn, const std::vector<std::string> &values) {
-        std::shared_ptr<Result> res = std::make_shared<Result>(syn.identity, values);
-        results.push_back(res);
-    }
-
-    void ResultStore::createColumn(const PQL::Synonym &syn, const std::vector<int> &values) {
-        std::shared_ptr<Result> res = std::make_shared<Result>(syn.identity, values);
-        results.push_back(res);
-    }
-
     std::vector<std::string> ResultStore::retrieveSelect(const PQL::Synonym &selectSyn) {
         if (results.empty()) {
             // no result
@@ -35,13 +25,13 @@ namespace QueryEvaluator {
     }
 
     void ResultStore::joinResults() {
-        Result *t1;
-        Result *t2;
+        std::shared_ptr<Result> t1;
+        std::shared_ptr<Result> t2;
         std::vector<std::string> commonCols;
         std::shared_ptr<Result> newResult;
         while (results.size() > 1) {
-            t1 = results[0].get();
-            t2 = results[1].get();
+            t1 = results[0];
+            t2 = results[1];
             commonCols = t1->getCommonColumns(*t2);
             if (commonCols.empty()) {
                 // cross join
@@ -61,7 +51,7 @@ namespace QueryEvaluator {
         }
     }
 
-    std::vector<std::string> ResultStore::removeDuplicates(std::vector<std::string> column) {
+    std::vector<std::string> ResultStore::removeDuplicates(const std::vector<std::string>& column) {
         std::unordered_set<std::string> added;
         std::vector<std::string> noDuplicates;
         for (auto &value: column) {

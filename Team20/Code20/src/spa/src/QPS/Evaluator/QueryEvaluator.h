@@ -25,5 +25,10 @@ namespace QueryEvaluator {
         void initialiseDeclaration(const PQL::Query &q);
 
         void addSynonymToStore(const PQL::Synonym &syn);
+
+        std::vector<std::string> getStringResults(const PQL::Synonym &syn) const;
+
+        std::vector<int> getIntResults(const PQL::Synonym &syn) const;
+
     };
 }
