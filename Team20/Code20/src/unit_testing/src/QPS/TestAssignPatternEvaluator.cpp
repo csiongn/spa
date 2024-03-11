@@ -6,7 +6,7 @@
 #include "QPS/Evaluator/QueryEvaluator.h"
 #include "../TestUtils.h"
 
-TEST_CASE("Pattern Evaluator") {
+TEST_CASE("Assign Pattern Evaluator") {
     SECTION("Evaluate entity evaluator with IDENT as left argument") {
         SECTION("WILDCARD right argument non-empty and correct statements") {
             auto pkb = std::make_shared<PKB>();
@@ -15,7 +15,7 @@ TEST_CASE("Pattern Evaluator") {
             QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
             std::cout << "============ Start testing ============" << std::endl;
-            std::cout << "Testing PQL query with empty result that has lArg: IDENT, rArg: WILDCARD" << std::endl;
+            std::cout << "Testing PQL query with non-empty result that has lArg: IDENT, rArg: WILDCARD" << std::endl;
             std::cout << "Testing query assign a; Select a such that a(TEST_IDENT, _);" << std::endl;
 
             writer->insertVariable("testVar1");
@@ -528,39 +528,6 @@ TEST_CASE("Pattern Evaluator") {
 
     SECTION("Evaluate entity evaluator with WILDCARD as left argument") {
         SECTION("WILDCARD right argument non-empty and correct statements") {
-            auto pkb = std::make_shared<PKB>();
-            std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
-            std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
-            QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
-
-            std::cout << "============ Start testing ============" << std::endl;
-            std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: WILDCARD" << std::endl;
-            std::cout << "Testing query assign a; Select a such that a(_, _);" << std::endl;
-
-            writer->insertVariable("testVar1");
-            writer->insertVariable("testVar2");
-            writer->insertAssign(2);
-            std::shared_ptr<ExprNode> x = std::make_shared<VariableNode>("x");
-            writer->insertAssignPattern("testVar1", x->getHashValue(), 2, x);
-            writer->insertAssign(3);
-            std::shared_ptr<ExprNode> y = std::make_shared<VariableNode>("y");
-            writer->insertAssignPattern("testVar2", y->getHashValue(), 3, y);
-            writer->insertAssign(4);
-            writer->insertAssign(5);
-            writer->insertAssign(6);
-
-            auto assignDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
-            auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-            auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
-            auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
-            auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
-
-            PQL::Clause assignPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-            PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
-            std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
-            std::vector<std::string> expectedRes = {"2", "3", "4", "5", "6"};
-            REQUIRE(checkVecValuesEqual(res, expectedRes));
-        }SECTION("WILDCARD right argument non-empty and correct statements") {
             auto pkb = std::make_shared<PKB>();
             std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
             std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;

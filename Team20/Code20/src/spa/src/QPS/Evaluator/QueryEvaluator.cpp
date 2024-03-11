@@ -10,6 +10,7 @@
 #include "StatementEvaluator.h"
 #include "EntityEvaluator.h"
 #include "AssignPatternEvaluator.h"
+#include "IfAndWhilePatternEvaluator.h"
 
 namespace QueryEvaluator {
     QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(std::make_shared<ResultStore>()),
@@ -44,6 +45,9 @@ namespace QueryEvaluator {
                 return EntityEvaluator{reader, clause, resultStore}.evaluate();
             case SimpleProgram::DesignAbstraction::PATTERN_ASSIGN:
                 return AssignPatternEvaluator{reader, clause, resultStore}.evaluate();
+            case SimpleProgram::DesignAbstraction::PATTERN_IF:
+            case SimpleProgram::DesignAbstraction::PATTERN_WHILE:
+                return IfAndWhilePatternEvaluator(reader, clause, resultStore).evaluate();
             default:
                 return false;
         }

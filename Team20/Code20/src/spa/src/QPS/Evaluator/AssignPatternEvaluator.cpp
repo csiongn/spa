@@ -37,11 +37,6 @@ namespace QueryEvaluator {
         return false;
     }
 
-    bool AssignPatternEvaluator::isAlwaysFalse() {
-        // No always false case for assign pattern
-        return false;
-    }
-
     bool AssignPatternEvaluator::hasRelationship() {
         // handles (IDENT, EXPR) & (IDENT, PARTIAL_EXPR)
         PQL::Synonym assignSyn = clause.arguments[0];
@@ -95,7 +90,7 @@ namespace QueryEvaluator {
             if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
                 // not adding ASSIGN_SYN to result store, result same as all assign statements
                 // already added during initialise SYN in QueryEvaluator
-                return !reader->getAllAssignStmtNum().empty();
+                return reader->hasAssignPattern();
             } else if (rArg.entityType == SimpleProgram::DesignEntity::EXPR) {
                 // (_, EXPR)
                 std::vector<int> assignStmtNums = reader->getAssignPatternRHSStmtNum(exprNode->getHashValue());
@@ -152,11 +147,6 @@ namespace QueryEvaluator {
             // (VAR, EXPR), (VAR, PARTIAL_EXPR)
             return getLeftResults();
         }
-    }
-
-    bool AssignPatternEvaluator::getReversedRelationship() {
-        // No RIGHT SYN for assign pattern
-        return false;
     }
 
     bool AssignPatternEvaluator::getLeftResults() {
@@ -235,7 +225,6 @@ namespace QueryEvaluator {
         }
         Result newResult{table, colNames, colNameToIndex};
 
-        std::unordered_set<int> assignStmtNumsSet;
         for (auto const &var: lResults) {
             std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
             for (int stmtNum: stmtNums) {
@@ -245,43 +234,6 @@ namespace QueryEvaluator {
 
         resultStore->insertResult(std::make_shared<Result>(newResult));
         return true;
-
-//        PQL::Synonym assignSyn = clause.arguments[0];
-//        PQL::Synonym lArg = clause.arguments[1];
-//
-//        std::vector<std::string> lResults = reader->getAssignPatternLHS();
-//        if (lResults.empty()) {
-//            return false;
-//        }
-//
-//        // add all variable syn to result store
-//        resultStore->createColumn(lArg, lResults);
-//
-//        // add ASSIGN_SYN to result store
-//        std::unordered_set<int> assignStmtNumsSet;
-//        for (auto const &var: lResults) {
-//            std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
-//            assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
-//        }
-//
-//        std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
-//        resultStore->createColumn(assignSyn, assignSynResults);
-//        return true;
-    }
-
-    bool AssignPatternEvaluator::getRightResults() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
-
-    bool AssignPatternEvaluator::getWildcardSynonym() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
-
-    bool AssignPatternEvaluator::getDoubleSynonym() {
-        // No RIGHT SYN for assign pattern
-        return false;
     }
 
     std::vector<std::shared_ptr<ExprNode>> AssignPatternEvaluator::getAllPartialNodes(const std::shared_ptr<ExprNode> &exprNode) {
@@ -338,5 +290,30 @@ namespace QueryEvaluator {
         assignSynResults.insert(assignSynResults.end(), assignSynResultsSet.begin(), assignSynResultsSet.end());
 
         return assignSynResults;
+    }
+
+    bool AssignPatternEvaluator::isAlwaysFalse() {
+        // No always false case for assign pattern
+        return false;
+    }
+
+    bool AssignPatternEvaluator::getReversedRelationship() {
+        // No RIGHT SYN for assign pattern
+        return false;
+    }
+
+    bool AssignPatternEvaluator::getRightResults() {
+        // No RIGHT SYN for assign pattern
+        return false;
+    }
+
+    bool AssignPatternEvaluator::getWildcardSynonym() {
+        // No RIGHT SYN for assign pattern
+        return false;
+    }
+
+    bool AssignPatternEvaluator::getDoubleSynonym() {
+        // No RIGHT SYN for assign pattern
+        return false;
     }
 }
