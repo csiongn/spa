@@ -59,20 +59,20 @@ TEST_CASE("Parse") {
 
     SECTION("Parent relationship") {
         QueryTokenizer queryTokenizer{};
-        std::string query = "while w;\n"
-                            "Select w such that Parent(w, 7)";
+        std::string query = "assign a;\n"
+                            "Select a such that Parent(a, 7)";
         auto tokens = queryTokenizer.tokenize(query);
         QueryParser queryParser(tokens);
 
         auto results = queryParser.parse();
 
         std::vector<PQL::Synonym> expectedDeclarations;
-        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::WHILE, "w");
+        expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
         std::vector<PQL::Clause> expectedClauses;
 
-        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::WHILE, "w");
+        PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
 
-        PQL::Synonym arg1(SimpleProgram::DesignEntity::WHILE, "w");
+        PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a");
         PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "7");
         std::vector<PQL::Synonym> args;
         args.emplace_back(arg1);
@@ -110,9 +110,9 @@ TEST_CASE("Parse") {
         REQUIRE(expectedQuery == results);
     }
 
-    SECTION("Uses relationship with non-variable synonym as second argument") {
+    SECTION("Modifies relationship with non-variable synonym as second argument") {
         QueryTokenizer queryTokenizer{};
-        std::string query = "stmt s; variable v; \nSelect s such that Uses(6, s)";
+        std::string query = "stmt s; variable v; \nSelect s such that Modifies(6, s)";
         auto tokens = queryTokenizer.tokenize(query);
         QueryParser queryParser(tokens);
 
@@ -122,7 +122,7 @@ TEST_CASE("Parse") {
 
         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
 
-        REQUIRE_THROWS_WITH(queryParser.parse(), "Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
+        REQUIRE_THROWS_WITH(queryParser.parse(), "Semantic Error: Second argument to Modifies should be a variable synonym");
     }
 
     SECTION("Uses relationship with variable synonym as second argument") {
@@ -1154,6 +1154,105 @@ TEST_CASE("Parse") {
 
         REQUIRE(expectedQuery == results);
     }
+
+   SECTION("pattern if clause with such that clause") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(if ifs; Select ifs pattern ifs(_,_,_) such that Follows(1, 2))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       auto results = queryParser.parse();
+
+       std::vector<PQL::Synonym> expectedDeclarations;
+       expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::IF, "ifs");
+
+       std::vector<PQL::Clause> expectedClauses;
+
+       PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::IF, "ifs");
+
+       PQL::Synonym patternArg0(SimpleProgram::DesignEntity::IF, "ifs");
+       PQL::Synonym patternArg1(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym patternArg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+       PQL::Synonym patternArg3(SimpleProgram::DesignEntity::WILDCARD, "_");
+
+       std::vector<PQL::Synonym> patternArgs;
+       patternArgs.emplace_back(patternArg0);
+       patternArgs.emplace_back(patternArg1);
+       patternArgs.emplace_back(patternArg2);
+       patternArgs.emplace_back(patternArg3);
+       PQL::Clause patternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, patternArgs);
+       expectedClauses.emplace_back(patternClause);
+
+       std::vector<PQL::Synonym> followsArgs;
+       PQL::Synonym followsArg1(SimpleProgram::DesignEntity::STMT_NO, "1");
+       PQL::Synonym followsArg2(SimpleProgram::DesignEntity::STMT_NO, "2");
+       followsArgs.emplace_back(followsArg1);
+       followsArgs.emplace_back(followsArg2);
+       PQL::Clause followsClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, followsArgs);
+       expectedClauses.emplace_back(followsClause);
+
+       PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+       REQUIRE(expectedQuery == results);
+   }
+
+//    SECTION("Follows relationship with variable as second argument") {
+//        QueryTokenizer queryTokenizer{};
+//        std::string query = R"(variable v; stmt s; Select s such that Follows* (s, v))";
+//        auto tokens = queryTokenizer.tokenize(query);
+//        QueryParser queryParser(tokens);
+//
+//        REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+//    }
+
+//    SECTION("Follows relationship with variable as first argument") {
+//        QueryTokenizer queryTokenizer{};
+//        std::string query = R"(variable v; stmt s; Select s such that Follows* (v, s))";
+//        auto tokens = queryTokenizer.tokenize(query);
+//        QueryParser queryParser(tokens);
+//
+//        REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+//    }
+
+     SECTION("pattern assign clause with such that parent clause") {
+         QueryTokenizer queryTokenizer{};
+         std::string query = R"(assign a, a1; Select a such that Parent* (28, a) pattern a1 ("left", _))";
+         auto tokens = queryTokenizer.tokenize(query);
+         QueryParser queryParser(tokens);
+
+         auto results = queryParser.parse();
+
+         std::vector<PQL::Synonym> expectedDeclarations;
+         expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+         expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
+
+         std::vector<PQL::Clause> expectedClauses;
+
+         PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a");
+
+         PQL::Synonym suchThatArg1(SimpleProgram::DesignEntity::STMT_NO, "28");
+         PQL::Synonym suchThatArg2(SimpleProgram::DesignEntity::ASSIGN, "a");
+         std::vector<PQL::Synonym> suchThatArgs;
+         suchThatArgs.emplace_back(suchThatArg1);
+         suchThatArgs.emplace_back(suchThatArg2);
+         PQL::Clause suchThatClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, suchThatArgs);
+         expectedClauses.emplace_back(suchThatClause);
+
+         PQL::Synonym arg0(SimpleProgram::DesignEntity::ASSIGN, "a1");
+         PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "left");
+         PQL::Synonym arg2(SimpleProgram::DesignEntity::WILDCARD, "_");
+
+         std::vector<PQL::Synonym> args;
+         args.emplace_back(arg0);
+         args.emplace_back(arg1);
+         args.emplace_back(arg2);
+         PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
+         expectedClauses.emplace_back(clause);
+
+         PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+
+         REQUIRE(expectedQuery == results);
+     }
 }
 
 

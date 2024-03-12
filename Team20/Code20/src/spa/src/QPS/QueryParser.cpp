@@ -141,8 +141,13 @@ bool QueryParser::isFactor(const std::shared_ptr<QueryToken>& token) {
 }
 
 bool QueryParser::isStmtSubtype(std::shared_ptr<QueryToken>& token) {
-    auto tokenEntityType = getEntityType(token);
-    if (tokenEntityType == SimpleProgram::DesignEntity::STMT || tokenEntityType == SimpleProgram::DesignEntity::READ || tokenEntityType == SimpleProgram::DesignEntity::PRINT || tokenEntityType == SimpleProgram::DesignEntity::ASSIGN || tokenEntityType == SimpleProgram::DesignEntity::CALL) {
+    auto tokenEntityType = getEntityTypeFromSynonym(token);
+    if (tokenEntityType == SimpleProgram::DesignEntity::STMT || tokenEntityType == SimpleProgram::DesignEntity::READ
+            || tokenEntityType == SimpleProgram::DesignEntity::PRINT
+            || tokenEntityType == SimpleProgram::DesignEntity::ASSIGN
+            || tokenEntityType == SimpleProgram::DesignEntity::CALL
+            || tokenEntityType == SimpleProgram::DesignEntity::WHILE
+            || tokenEntityType == SimpleProgram::DesignEntity::IF) {
         return true;
     }
     return false;
@@ -185,11 +190,8 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
 
     auto firstArgToken = tokens[start-1];
 
-    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() != QPS::TokenType::NAME && firstArgToken->getType() != QPS::TokenType::INTEGER && firstArgToken->getType() != QPS::TokenType::WILDCARD && !isName(firstArgToken->getValue())) {
-
-        if (!isStmtSubtype(tokens[start-1])) {
-            throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
-        }
+    if (isFollowsOrParent && hasValidFirstArgument && firstArgToken->getType() == QPS::TokenType::NAME && !isStmtSubtype(firstArgToken)) {
+        throw QuerySemanticError("Semantic Error: first argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
     }
 
     bool hasValidCommaSeparator = tokens[start++]->getValue() == ",";
@@ -198,13 +200,15 @@ bool QueryParser::isValidRelationship(int start, SimpleProgram::DesignAbstractio
 
     if (isFollowsOrParent) {
         hasValidSecondArgument = isStmtRef(secondArgToken);
+        if (hasValidSecondArgument && secondArgToken->getType() == QPS::TokenType::NAME && !isStmtSubtype(secondArgToken)) {
+            throw QuerySemanticError("Semantic Error: second argument must be a statement synonym, or a subtype of a statement synonym (read, print, assign, if, while, call)");
+        }
     }
 
     if (!isFollowsOrParent) {
         hasValidSecondArgument = isEntRef(secondArgToken);
-        if (hasValidSecondArgument && secondArgToken->getType() != QPS::TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
-
-            throw QuerySemanticError("Semantic Error: Second argument to Modifies and Uses should be a variable synonym");
+        if (isModifies && hasValidSecondArgument && secondArgToken->getType() != QPS::TokenType::CONSTANT_STRING && isName(secondArgToken->getValue()) && getEntityTypeFromSynonym(secondArgToken) != SimpleProgram::DesignEntity::VARIABLE) {
+            throw QuerySemanticError("Semantic Error: Second argument to Modifies should be a variable synonym");
         }
     }
 
@@ -293,7 +297,11 @@ bool QueryParser::isValidPattern(int start, int end) {
     if (hasValidFirstArgument && tokens[start-1]->getType() == QPS::TokenType::NAME) {
         auto isValidSynonym = verifyDeclarationExists(tokens[start-1]);
         if (std::get<1>(isValidSynonym) != SimpleProgram::DesignEntity::VARIABLE) {
-            throw QuerySemanticError("Semantic Error: Synonym for first argument should be a variable synonym");
+            if (patternSynonymEntityType == SimpleProgram::DesignEntity::IF || patternSynonymEntityType == SimpleProgram::DesignEntity::WHILE) {
+                throw QuerySyntaxError("Syntax Error: Synonym for first argument should be a variable synonym");
+            } else {
+                throw QuerySemanticError("Semantic Error: Synonym for first argument should be a variable synonym");
+            }
         }
     }
 

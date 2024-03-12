@@ -21,22 +21,22 @@ none
 4.1 - invalid pattern while with constant
 while w; constant c;
 Select w pattern w(c,_)
-SemanticError
+SyntaxError
 5000
 4.2 - invalid pattern while with non wildcard second argument
 while w; variable v;
 Select w pattern w(_,v)
-SemanticError
+SyntaxError
 5000
 4.3 - invalid pattern while with non wildcard second argument
 while w; constant c;
 Select w pattern w(_,c)
-SemanticError
+SyntaxError
 5000
 4.4 - invalid pattern while with non wildcard second argument
 while w; constant c; variable v;
 Select w pattern w(c, v)
-SemanticError
+SyntaxError
 5000
 5.1.1 - pattern while with wildcard, such that while is parent of statement
 while w; stmt s;

@@ -28,44 +28,44 @@ if ifs; variable x;
 Select ifs pattern ifs("x",_,_)
 4
 5000
-4.1 - pattern if with constant, SemanticError
+4.1 - pattern if with constant, SyntaxError
 if ifs; while w; constant c;
 Select ifs pattern ifs(c,_,_)
-SemanticError
+SyntaxError
 5000
 4.2.1 - pattern if with non-underscore as second and third arguments - second constant
 if ifs; while w; constant c;
 Select ifs pattern ifs(_,c,_)
-SemanticError
+SyntaxError
 5000
 4.2.2 - pattern if with non-underscore as second and third arguments - third constant
 if ifs; while w; constant c;
 Select ifs pattern ifs(_,_,c)
-SemanticError
+SyntaxError
 5000
 4.2.3 - pattern if with non-underscore as second and third arguments - second variable synonym
 if ifs; while w; variable v;
 Select ifs pattern ifs(_,v,_)
-SemanticError
+SyntaxError
 5000
 4.2.4 - pattern if with non-underscore as second and third arguments - third variable synonym
 if ifs; while w; variable v;
 Select ifs pattern ifs(_,_,v)
-SemanticError
+SyntaxError
 5000
 4.2.5 - pattern if with non-underscore as second and third arguments - second variable quoted
 if ifs; while w;
 Select ifs pattern ifs(_,"x",_)
-SemanticError
+SyntaxError
 5000
 4.2.6 - pattern if with non-underscore as second and third arguments - third variable quoted
 if ifs; while w;
 Select ifs pattern ifs(_,_,"x")
-SemanticError
+SyntaxError
 5000
 5.1.1 - pattern if with such that follows is true
 if ifs;
-Select ifs pattern ifs(_,_,_) such that Follows(1, 2)
+Select ifs pattern ifs(_,_,_) such that Parent(1, 2)
 4
 5000
 5.1.2 - pattern if with such that follows is false
