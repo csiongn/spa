@@ -13,6 +13,11 @@ C++ Standard | C++17
 
 No additional instructions required.
 
+### Running Autotester
+
+- Run and execute `./autotester.h` in /Team20 directory in terminal.
+- Output files will be generated in respective directories.
+
 # Team Members
 
 Name | Email              | Development OS/Toolchain
