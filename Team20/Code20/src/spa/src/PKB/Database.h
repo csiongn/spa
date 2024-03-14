@@ -25,6 +25,8 @@
 #include "PKB/manager/relationship/ModifiesProcManager.h"
 #include "PKB/manager/pattern/IfPatternManager.h"
 #include "PKB/manager/pattern/WhilePatternManager.h"
+#include "PKB/manager/relationship/CallsProcManager.h"
+#include "PKB/manager/relationship/CallsTProcManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -63,6 +65,10 @@ private:
 
     std::shared_ptr<ModifiesProcManager> modifiesProcManager = std::make_shared<ModifiesProcManager>();
 
+    std::shared_ptr<CallsProcManager> callsProcManager = std::make_shared<CallsProcManager>();
+
+    std::shared_ptr<CallsTProcManager> callsTProcManager = std::make_shared<CallsTProcManager>();
+
     // Pattern
     std::shared_ptr<AssignPatternManager> assignPatternManager = std::make_shared<AssignPatternManager>();
 
@@ -91,6 +97,8 @@ public:
     std::shared_ptr<ModifiesStmtManager> getModifiesStmtManager();
     std::shared_ptr<UsesProcManager> getUsesProcManager();
     std::shared_ptr<ModifiesProcManager> getModifiesProcManager();
+    std::shared_ptr<CallsProcManager> getCallsProcManager();
+    std::shared_ptr<CallsTProcManager> getCallsTProcManager();
 
     std::shared_ptr<AssignPatternManager> getAssignPatternManager();
     std::shared_ptr<IfPatternManager> getIfPatternManager();

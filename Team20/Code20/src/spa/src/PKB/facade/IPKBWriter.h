@@ -96,6 +96,15 @@ public:
     virtual void insertModifiesProc(std::string const & procedureName, std::string const & variable) = 0;
     virtual void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) = 0;
 
+    // Calls Procedure
+    virtual void insertCallsProc(std::string const & caller, std::string const & callee) = 0;
+    virtual void insertCallsProc(std::string const & caller, std::unordered_set<std::string> const & calleeSet) = 0;
+
+    // CallsT Procedure
+    virtual void insertCallsTProc(std::string const & caller, std::string const & callee) = 0;
+    virtual void insertCallsTProc(std::string const & caller, std::unordered_set<std::string> const & calleeSet) = 0;
+
+
     // Pattern
     // Assign
     // T is string, U is hash, stmt number, V is Ptr to node

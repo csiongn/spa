@@ -20,6 +20,11 @@ public:
         return manager->contains(entity);
     };
 
+    template<typename T>
+    static bool hasEntity(std::shared_ptr<EntityManager<T>> manager) {
+        return manager->hasEntity();
+    };
+
     // Relationship
     template<typename T, typename U>
     static void insertRelationship(std::shared_ptr<RelationshipManager<T, U>> manager, T first, U second) {

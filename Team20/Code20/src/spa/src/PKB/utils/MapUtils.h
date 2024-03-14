@@ -3,6 +3,7 @@
 #include <list>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 template <typename T, typename U>
 class MapUtils {

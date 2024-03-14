@@ -72,6 +72,13 @@ std::shared_ptr<ModifiesProcManager> Database::getModifiesProcManager() {
     return modifiesProcManager;
 }
 
+std::shared_ptr<CallsProcManager> Database::getCallsProcManager() {
+    return callsProcManager;
+}
+
+std::shared_ptr<CallsTProcManager> Database::getCallsTProcManager() {
+    return callsTProcManager;
+}
 
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
     return assignPatternManager;

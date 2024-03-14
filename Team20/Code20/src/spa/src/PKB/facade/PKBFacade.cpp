@@ -26,10 +26,13 @@ bool PKBFacade::containsProcedure(std::string const & procedure) {
     return DatabaseUtils::containsEntity<std::string>(db->getProcedureManager(), procedure);
 }
 
+bool PKBFacade::hasProcedure() {
+    return DatabaseUtils::hasEntity<std::string>(db->getProcedureManager());
+}
+
 // Variable
 void PKBFacade::insertVariable(std::string const & variable) {
     DatabaseUtils::insertEntity<std::string>(db->getVariableManager(), variable);
-//    db->getVariableManager()->insert(variable);
 };
 
 void PKBFacade::insertVariable(const std::unordered_set<std::string>& variableSet) {
@@ -38,12 +41,16 @@ void PKBFacade::insertVariable(const std::unordered_set<std::string>& variableSe
     }
 }
 
+std::vector<std::string> PKBFacade::getAllVariables() {
+    return DatabaseUtils::getAllEntities<std::string>(db->getVariableManager());
+}
+
 bool PKBFacade::containsVariable(std::string const & variable) {
     return DatabaseUtils::containsEntity<std::string>(db->getVariableManager(), variable);
 }
 
-std::vector<std::string> PKBFacade::getAllVariables() {
-    return DatabaseUtils::getAllEntities<std::string>(db->getVariableManager());
+bool PKBFacade::hasVariable() {
+    return DatabaseUtils::hasEntity<std::string>(db->getVariableManager());
 }
 
 // Constant
@@ -65,6 +72,10 @@ bool PKBFacade::containsConstant(int constant) {
     return DatabaseUtils::containsEntity<int>(db->getConstantManager(), constant);
 }
 
+bool PKBFacade::hasConstant() {
+    return DatabaseUtils::hasEntity<int>(db->getConstantManager());
+}
+
 // Statement
 void PKBFacade::insertStatement(int stmtNum) {
     DatabaseUtils::insertEntity<int>(db->getStatementManager(), stmtNum);
@@ -82,6 +93,10 @@ std::vector<int> PKBFacade::getAllStatementNum() {
 
 bool PKBFacade::containsStatement(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getStatementManager(), stmtNum);
+}
+
+bool PKBFacade::hasStatement() {
+    return DatabaseUtils::hasEntity<int>(db->getStatementManager());
 }
 
 // Assign
@@ -103,6 +118,10 @@ bool PKBFacade::containsAssign(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getAssignManager(), stmtNum);
 }
 
+bool PKBFacade::hasAssign() {
+    return DatabaseUtils::hasEntity<int>(db->getAssignManager());
+}
+
 // Read
 void PKBFacade::insertRead(int stmtNum) {
     DatabaseUtils::insertEntity<int>(db->getReadManager(), stmtNum);
@@ -120,6 +139,10 @@ std::vector<int> PKBFacade::getAllReadStmtNum() {
 
 bool PKBFacade::containsRead(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getReadManager(), stmtNum);
+}
+
+bool PKBFacade::hasRead() {
+    return DatabaseUtils::hasEntity<int>(db->getReadManager());
 }
 
 // Print
@@ -141,6 +164,10 @@ bool PKBFacade::containsPrint(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getPrintManager(), stmtNum);
 }
 
+bool PKBFacade::hasPrint() {
+    return DatabaseUtils::hasEntity<int>(db->getPrintManager());
+}
+
 // Call
 void PKBFacade::insertCall(int stmtNum) {
     DatabaseUtils::insertEntity<int>(db->getCallManager(), stmtNum);
@@ -158,6 +185,10 @@ std::vector<int> PKBFacade::getAllCallStmtNum() {
 
 bool PKBFacade::containsCall(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getCallManager(), stmtNum);
+}
+
+bool PKBFacade::hasCall() {
+    return DatabaseUtils::hasEntity<int>(db->getCallManager());
 }
 
 // While
@@ -179,6 +210,10 @@ bool PKBFacade::containsWhile(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getWhileManager(), stmtNum);
 }
 
+bool PKBFacade::hasWhile() {
+    return DatabaseUtils::hasEntity<int>(db->getWhileManager());
+}
+
 // If
 void PKBFacade::insertIf(int stmtNum) {
     DatabaseUtils::insertEntity<int>(db->getIfManager(), stmtNum);
@@ -196,6 +231,10 @@ std::vector<int> PKBFacade::getAllIfStmtNum() {
 
 bool PKBFacade::containsIf(int stmtNum) {
     return DatabaseUtils::containsEntity<int>(db->getIfManager(), stmtNum);
+}
+
+bool PKBFacade::hasIf() {
+    return DatabaseUtils::hasEntity<int>(db->getIfManager());
 }
 
 // Follows
@@ -548,6 +587,93 @@ bool PKBFacade::containsModifiesProcRelationship(std::string const & procedureNa
 
 bool PKBFacade::hasModifiesProcRelationship() {
     return DatabaseUtils::hasRelationship<std::string, std::string>(db->getModifiesProcManager());
+}
+
+// Calls Proc
+void PKBFacade::insertCallsProc(std::string const & caller, std::string const & callee) {
+    DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+}
+
+void PKBFacade::insertCallsProc(std::string const & caller, const std::unordered_set<std::string>& calleeSet) {
+    for (const auto &callee: calleeSet) {
+        DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+    }
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCallee(std::string const & caller) {
+    return DatabaseUtils::getRelationship<std::string, std::string>(db->getCallsProcManager(), caller);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCaller(std::string const & callee) {
+    return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getCallsProcManager(), callee);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCaller() {
+    return DatabaseUtils::getKeys<std::string, std::string>(db->getCallsProcManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCallee() {
+    return DatabaseUtils::getValues<std::string, std::string>(db->getCallsProcManager());
+}
+
+bool PKBFacade::containsCallsProcCaller(std::string const & caller) {
+    return DatabaseUtils::containsKey<std::string, std::string>(db->getCallsProcManager(), caller);
+}
+
+bool PKBFacade::containsCallsProcCallee(std::string const & callee) {
+    return DatabaseUtils::containsValue<std::string, std::string>(db->getCallsProcManager(), callee);
+}
+
+bool PKBFacade::containsCallsProcRelationship(std::string const & caller, std::string const & callee) {
+    return DatabaseUtils::containsRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+}
+
+bool PKBFacade::hasCallsProcRelationship() {
+    return DatabaseUtils::hasRelationship<std::string, std::string>(db->getCallsProcManager());
+}
+
+
+// CallsT Proc
+void PKBFacade::insertCallsTProc(std::string const & caller, std::string const & callee) {
+    DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+}
+
+void PKBFacade::insertCallsTProc(std::string const & caller, const std::unordered_set<std::string>& calleeSet) {
+    for (const auto &callee: calleeSet) {
+        DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+    }
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCallee(std::string const & caller) {
+    return DatabaseUtils::getRelationship<std::string, std::string>(db->getCallsTProcManager(), caller);
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCaller(std::string const & callee) {
+    return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getCallsTProcManager(), callee);
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCaller() {
+    return DatabaseUtils::getKeys<std::string, std::string>(db->getCallsTProcManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCallee() {
+    return DatabaseUtils::getValues<std::string, std::string>(db->getCallsTProcManager());
+}
+
+bool PKBFacade::containsCallsTProcCaller(std::string const & caller) {
+    return DatabaseUtils::containsKey<std::string, std::string>(db->getCallsTProcManager(), caller);
+}
+
+bool PKBFacade::containsCallsTProcCallee(std::string const & callee) {
+    return DatabaseUtils::containsValue<std::string, std::string>(db->getCallsTProcManager(), callee);
+}
+
+bool PKBFacade::containsCallsTProcRelationship(std::string const & caller, std::string const & callee) {
+    return DatabaseUtils::containsRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+}
+
+bool PKBFacade::hasCallsTProcRelationship() {
+    return DatabaseUtils::hasRelationship<std::string, std::string>(db->getCallsTProcManager());
 }
 
 // Assign Pattern

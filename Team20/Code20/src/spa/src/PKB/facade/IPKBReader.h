@@ -13,42 +13,52 @@ public:
     // Procedure
     virtual std::vector<std::string> getAllProcedures() = 0;
     virtual bool containsProcedure(std::string const & procedureName) = 0;
+    virtual bool hasProcedure() = 0;
 
     // Variables
     virtual std::vector<std::string> getAllVariables() = 0;
     virtual bool containsVariable(std::string const & variableName) = 0;
+    virtual bool hasVariable() = 0;
 
     // Constant
     virtual std::vector<int> getAllConstants() = 0;
     virtual bool containsConstant(int constant) = 0;
+    virtual bool hasConstant() = 0;
 
     // Statement
     virtual std::vector<int> getAllStatementNum() = 0;
     virtual bool containsStatement(int stmtNum) = 0;
+    virtual bool hasStatement() = 0;
 
     // Assign
     virtual std::vector<int> getAllAssignStmtNum() = 0;
     virtual bool containsAssign(int stmtNum) = 0;
+    virtual bool hasAssign() = 0;
 
     // Read
     virtual std::vector<int> getAllReadStmtNum() = 0;
     virtual bool containsRead(int stmtNum) = 0;
+    virtual bool hasRead() = 0;
 
     // Print
     virtual std::vector<int> getAllPrintStmtNum() = 0;
     virtual bool containsPrint(int stmtNum) = 0;
+    virtual bool hasPrint() = 0;
 
     // Call
     virtual std::vector<int> getAllCallStmtNum() = 0;
     virtual bool containsCall(int stmtNum) = 0;
+    virtual bool hasCall() = 0;
 
     // While
     virtual std::vector<int> getAllWhileStmtNum() = 0;
     virtual bool containsWhile(int stmtNum) = 0;
+    virtual bool hasWhile() = 0;
 
     // If
     virtual std::vector<int> getAllIfStmtNum() = 0;
     virtual bool containsIf(int stmtNum) = 0;
+    virtual bool hasIf() = 0;
 
     // Relationship
 
@@ -133,6 +143,25 @@ public:
     virtual bool containsModifiesProcRelationship(std::string const & procedureName, std::string const & variable) = 0;
     virtual bool hasModifiesProcRelationship() = 0;
 
+    // Calls Proc
+    virtual std::vector<std::string> getCallsProcCaller(std::string const & callee) = 0;
+    virtual std::vector<std::string> getCallsProcCallee(std::string const & caller) = 0;
+    virtual std::vector<std::string> getCallsProcCaller() = 0;
+    virtual std::vector<std::string> getCallsProcCallee() = 0;
+    virtual bool containsCallsProcCallee(std::string const & callee) = 0;
+    virtual bool containsCallsProcCaller(std::string const & caller) = 0;
+    virtual bool containsCallsProcRelationship(std::string const & caller, std::string const & callee) = 0;
+    virtual bool hasCallsProcRelationship() = 0;
+
+    // CallsT Proc
+    virtual std::vector<std::string> getCallsTProcCaller(std::string const & callee) = 0;
+    virtual std::vector<std::string> getCallsTProcCallee(std::string const & caller) = 0;
+    virtual std::vector<std::string> getCallsTProcCaller() = 0;
+    virtual std::vector<std::string> getCallsTProcCallee() = 0;
+    virtual bool containsCallsTProcCallee(std::string const & callee) = 0;
+    virtual bool containsCallsTProcCaller(std::string const & caller) = 0;
+    virtual bool containsCallsTProcRelationship(std::string const & caller, std::string const & callee) = 0;
+    virtual bool hasCallsTProcRelationship() = 0;
 
     // Pattern
 

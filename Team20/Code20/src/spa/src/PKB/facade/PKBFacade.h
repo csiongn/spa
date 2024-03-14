@@ -17,61 +17,70 @@ public:
     void insertProcedure(const std::unordered_set<std::string>& procedureSet) override;
     std::vector<std::string> getAllProcedures() override;
     bool containsProcedure(std::string const & procedure) override;
+    bool hasProcedure() override;
 
     // Variable
     void insertVariable(std::string const & variable) override;
     void insertVariable(const std::unordered_set<std::string>& variableSet) override;
     std::vector<std::string> getAllVariables() override;
     bool containsVariable(std::string const & variable) override;
+    bool hasVariable() override;
 
     // Constant
     void insertConstant(int constant) override;
     void insertConstant(const std::unordered_set<int>& constantSet) override;
     std::vector<int> getAllConstants() override;
     bool containsConstant(int constant) override;
+    bool hasConstant() override;
 
     // Statement
     void insertStatement(int stmtNum) override;
     void insertStatement(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllStatementNum() override;
     bool containsStatement(int stmtNum) override;
-
+    bool hasStatement() override;
 
     // Assign
     void insertAssign(int stmtNum) override;
     void insertAssign(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllAssignStmtNum() override;
     bool containsAssign(int stmtNum) override;
+    bool hasAssign() override;
 
     // Read
     void insertRead(int stmtNum) override;
     void insertRead(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllReadStmtNum() override;
     bool containsRead(int stmtNum) override;
+    bool hasRead() override;
 
     // Print
     void insertPrint(int stmtNum) override;
     void insertPrint(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllPrintStmtNum() override;
     bool containsPrint(int stmtNum) override;
+    bool hasPrint() override;
 
     // Call
     void insertCall(int stmtNum) override;
     void insertCall(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllCallStmtNum() override;
     bool containsCall(int stmtNum) override;
+    bool hasCall() override;
 
     // While
     void insertWhile(int stmtNum) override;
     void insertWhile(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllWhileStmtNum() override;
     bool containsWhile(int stmtNum) override;
+    bool hasWhile() override;
 
     // If
     void insertIf(int stmtNum) override;
     void insertIf(const std::unordered_set<int>& stmtSet) override;
     std::vector<int> getAllIfStmtNum() override;
     bool containsIf(int stmtNum) override;
+    bool hasIf() override;
 
     // Follows Writer - Reader
     void insertFollows(int followeeStmtNum, int followerStmtNum) override;
@@ -170,6 +179,29 @@ public:
     bool containsModifiesProcRelationship(std::string const & procedureName, std::string const & variable) override;
     bool hasModifiesProcRelationship() override;
 
+    // Calls Proc
+    void insertCallsProc(std::string const & caller, std::string const & callee) override;
+    void insertCallsProc(std::string const & caller, std::unordered_set<std::string> const & calleeSet) override;
+    std::vector<std::string> getCallsProcCaller(std::string const & callee) override;
+    std::vector<std::string> getCallsProcCallee(std::string const & caller) override;
+    std::vector<std::string> getCallsProcCaller() override;
+    std::vector<std::string> getCallsProcCallee() override;
+    bool containsCallsProcCallee(std::string const & callee) override;
+    bool containsCallsProcCaller(std::string const & caller) override;
+    bool containsCallsProcRelationship(std::string const & caller, std::string const & callee) override;
+    bool hasCallsProcRelationship() override;
+
+    // CallsT Proc
+    void insertCallsTProc(std::string const & caller, std::string const & callee) override;
+    void insertCallsTProc(std::string const & caller, std::unordered_set<std::string> const & calleeSet) override;
+    std::vector<std::string> getCallsTProcCaller(std::string const & callee) override;
+    std::vector<std::string> getCallsTProcCallee(std::string const & caller) override;
+    std::vector<std::string> getCallsTProcCaller() override;
+    std::vector<std::string> getCallsTProcCallee() override;
+    bool containsCallsTProcCallee(std::string const & callee) override;
+    bool containsCallsTProcCaller(std::string const & caller) override;
+    bool containsCallsTProcRelationship(std::string const & caller, std::string const & callee) override;
+    bool hasCallsTProcRelationship() override;
 
     // Assign Pattern
     void insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,

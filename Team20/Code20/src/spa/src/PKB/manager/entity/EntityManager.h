@@ -24,4 +24,9 @@ class EntityManager {
             // Check if the entity is in the set
             return entityStmtNumSet.find(entity) != entityStmtNumSet.end();
         };
+
+        bool hasEntity() {
+            // Check if the set is empty
+            return !entityStmtNumSet.empty();
+        }
 };
