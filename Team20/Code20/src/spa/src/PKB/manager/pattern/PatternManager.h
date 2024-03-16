@@ -20,8 +20,9 @@ private:
     // RHS Hash
     std::unordered_map<U, std::unordered_set<T> > reverseData;
 
-    // stmtNum of RHS and LHS
+    // stmtNum of LHS
     std::unordered_map<T, std::unordered_set<int>> stmtData;
+    // stmtNum of RHS
     std::unordered_map<U, std::unordered_set<int>> stmtReverseData;
     // hash to pointer to node
     std::unordered_map<U, std::unordered_set<V> > nodePtrMap;
@@ -61,8 +62,10 @@ public:
 
     std::vector<int> getPatternStmtNum(const T& key, const U& value) {
         std::vector<int> stmtNums;
+        // find stmtNum of LHS value / key
         if (stmtData.find(key) != stmtData.end()) {
             for (const auto& stmtNum : stmtData[key]) {
+                // check if stmtNum exist in RHS expr stmtNum as well, means they are on the same line
                 if (stmtReverseData[value].find(stmtNum) != stmtReverseData[value].end()) {
                     stmtNums.push_back(stmtNum);
                 }

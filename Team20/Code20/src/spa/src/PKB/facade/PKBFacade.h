@@ -226,6 +226,30 @@ public:
     bool containsAssignPatternRHS(size_t const & rhsExprNodeHash) override;
     bool hasAssignPattern() override;
 
+    // AssignPartial Pattern
+    void insertAssignPartialPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
+                             const std::shared_ptr<ExprNode>& nodePtr) override;
+
+    std::vector<std::string> getAssignPartialPatternLHS(size_t const & rhsExprNodeHash) override;
+    std::vector<size_t> getAssignPartialPatternRHS(std::string const & variable) override;
+    std::vector<std::string> getAssignPartialPatternLHS() override;
+    std::vector<size_t> getAssignPartialPatternRHS() override;
+
+    // get stmt number
+    std::vector<int> getAssignPartialPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) override;
+    std::vector<int> getAssignPartialPatternLHSStmtNum(std::string const & variable) override;
+    std::vector<int> getAssignPartialPatternRHSStmtNum(size_t const & rhsExprNodeHash) override;
+
+    std::vector<std::shared_ptr<ExprNode>> getAssignPartialPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) override;
+    // get all AssignPartial pattern RHS node ptrs
+    std::vector<std::shared_ptr<ExprNode>> getAssignPartialPatternRHSExprNodePtr() override;
+
+    bool containsAssignPartialPattern(std::string const & variable, size_t const & rhsExprNodeHash) override;
+    bool containsAssignPartialPatternLHS(std::string const & variable) override;
+    bool containsAssignPartialPatternRHS(size_t const & rhsExprNodeHash) override;
+    bool hasAssignPartialPattern() override;
+
+
     // If Pattern
     void insertIfPattern(std::string const & variable, const int& stmtNum) override;
     void insertIfPattern(std::string const & variable, const std::unordered_set<int>& stmtSet) override;

@@ -191,6 +191,32 @@ public:
 
     virtual bool hasAssignPattern() = 0;
 
+    // Assign Partial
+    // return variables that has RHS expression
+    virtual std::vector<std::string> getAssignPartialPatternLHS(size_t const & rhsExprNodeHash) = 0;
+    // return expression's hash that has LHS variable
+    virtual std::vector<size_t> getAssignPartialPatternRHS(std::string const & variable) = 0;
+    virtual std::vector<std::string> getAssignPartialPatternLHS() = 0;
+    // RHS hash
+    virtual std::vector<size_t> getAssignPartialPatternRHS() = 0;
+
+    // get stmt number
+    virtual std::vector<int> getAssignPartialPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) = 0;
+    virtual std::vector<int> getAssignPartialPatternLHSStmtNum(std::string const & variable) = 0;
+    virtual std::vector<int> getAssignPartialPatternRHSStmtNum(size_t const & rhsExprNodeHash) = 0;
+
+    // get expr node ptr
+    virtual std::vector<std::shared_ptr<ExprNode>> getAssignPartialPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) = 0;
+    virtual std::vector<std::shared_ptr<ExprNode>> getAssignPartialPatternRHSExprNodePtr() = 0;
+
+    // will convert expression into node hash to do comparison
+    virtual bool containsAssignPartialPattern(std::string const & variable, size_t const & rhsExprNodeHash) = 0;
+    virtual bool containsAssignPartialPatternLHS(std::string const & variable) = 0;
+    virtual bool containsAssignPartialPatternRHS(size_t const & rhsExprNodeHash) = 0;
+
+    virtual bool hasAssignPartialPattern() = 0;
+
+
     // If
     virtual std::vector<std::string> getIfPatternVariable(int stmtNum) = 0;
     virtual std::vector<int> getIfPatternStmtNum(std::string const & variable) = 0;

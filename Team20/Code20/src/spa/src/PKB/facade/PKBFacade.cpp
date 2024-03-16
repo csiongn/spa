@@ -747,6 +747,77 @@ bool PKBFacade::hasAssignPattern() {
     return DatabaseUtils::hasPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPatternManager());
 };
 
+// AssignPartial Pattern
+void PKBFacade::insertAssignPartialPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
+                                    const std::shared_ptr<ExprNode>& nodePtr) {
+    DatabaseUtils::insertPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPartialPatternManager(),
+                                                                                 lhsVar, rhsExprNodeHash, stmtNum, nodePtr);
+}
+
+std::vector<std::string> PKBFacade::getAssignPartialPatternLHS(size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::getPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<size_t> PKBFacade::getAssignPartialPatternRHS(std::string const & variable) {
+    return DatabaseUtils::getPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), variable);
+};
+
+std::vector<std::string> PKBFacade::getAssignPartialPatternLHS() {
+    return DatabaseUtils::getAllPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager());
+};
+
+std::vector<size_t> PKBFacade::getAssignPartialPatternRHS() {
+    return DatabaseUtils::getAllPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager());
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::getPatternStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), variable, rhsExprNodeHash);
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternLHSStmtNum(std::string const & variable) {
+    return DatabaseUtils::getPatternLHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), variable);
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternRHSStmtNum(size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::getPatternRHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPartialPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPartialPatternRHSExprNodePtr() {
+    return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager());
+};
+
+bool PKBFacade::containsAssignPartialPattern(std::string const & variable, size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::containsPattern<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), variable, rhsExprNodeHash);
+};
+
+bool PKBFacade::containsAssignPartialPatternLHS(std::string const & variable) {
+    return DatabaseUtils::containsPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), variable);
+};
+
+bool PKBFacade::containsAssignPartialPatternRHS(size_t const & rhsExprNodeHash) {
+    return DatabaseUtils::containsPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+            db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+bool PKBFacade::hasAssignPartialPattern() {
+    return DatabaseUtils::hasPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPartialPatternManager());
+};
+
 // If Pattern
 void PKBFacade::insertIfPattern(std::string const & variable, const int& stmtNum) {
     DatabaseUtils::insertConditionalPattern<std::string, int>(db->getIfPatternManager(), variable, stmtNum);

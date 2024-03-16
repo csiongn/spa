@@ -84,6 +84,10 @@ std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
     return assignPatternManager;
 }
 
+std::shared_ptr<AssignPartialPatternManager> Database::getAssignPartialPatternManager() {
+    return assignPartialPatternManager;
+}
+
 std::shared_ptr<IfPatternManager> Database::getIfPatternManager() {
     return ifPatternManager;
 }
