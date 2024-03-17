@@ -6,6 +6,13 @@
 #include <unordered_set>
 
 class DesignExtractor {
+    // Stores code context during traversal of Source program
+    class SourceContext {
+    public:
+        int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
+        std::string procName; // Keep track of current procedure as we traverse
+    };
+
 public:
     explicit DesignExtractor(std::shared_ptr<IPKBWriter> pkbWriter) : pkbWriter(std::move(pkbWriter)) {}
 
@@ -32,8 +39,16 @@ public:
         return uses;
     }
 
+    const std::unordered_map<std::string, std::unordered_set<std::string>>& getProcUses() const {
+        return procsUses;
+    }
+
     const std::unordered_map<int, std::unordered_set<std::string>>& getModifies() const {
         return modifies;
+    }
+
+    const std::unordered_map<std::string, std::unordered_set<std::string>>& getProcModifies() const {
+        return procsModifies;
     }
 
     const std::unordered_map<int, std::unordered_set<std::string>>& getIfStmts() const {
@@ -51,6 +66,7 @@ public:
 private:
 
     std::shared_ptr<IPKBWriter> pkbWriter;
+    std::unique_ptr<SourceContext> ctxt = std::make_unique<SourceContext>();
 
     // Design abstractions
     std::unordered_map<int, int> follows;
@@ -59,6 +75,8 @@ private:
     std::unordered_map<int, std::unordered_set<int>> parentT;
     std::unordered_map<int, std::unordered_set<std::string>> uses;
     std::unordered_map<int, std::unordered_set<std::string>> modifies;
+    std::unordered_map<std::string, std::unordered_set<std::string>> procsUses;
+    std::unordered_map<std::string, std::unordered_set<std::string>> procsModifies;
 
     // Entities
     std::unordered_set<std::string> procedures;
@@ -107,5 +125,4 @@ private:
 
     void pushToPKB();
 
-    int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
 };

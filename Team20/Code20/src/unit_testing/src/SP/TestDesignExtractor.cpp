@@ -35,9 +35,9 @@ public:
     std::vector<std::pair<int, int>> parentRelations;
     std::vector<std::pair<int, int>> parentTRelations;
     std::vector<std::pair<int, const std::string>> usesRelations;
-    std::vector<std::pair<std::string, std::string>> procUsesRelations;
+    std::unordered_map<std::string, std::unordered_set<std::string>> procUsesRelations;
     std::vector<std::pair<int, const std::string>> modifiesRelations;
-    std::vector<std::pair<std::string, std::string>> procModifiesRelations;
+    std::unordered_map<std::string, std::unordered_set<std::string>> procModifiesRelations;
     std::vector<std::pair<std::string, std::string>> callRelations;
     std::vector<std::pair<std::string, std::string>> callTRelations;
     std::vector<std::tuple<std::string, size_t, int, std::shared_ptr<ExprNode>>> assignPatterns;
@@ -169,12 +169,12 @@ public:
     }
 
     void insertUsesProc(std::string const & procedureName, std::string const & variable) override {
-        procUsesRelations.emplace_back(procedureName, variable);
+        procUsesRelations[procedureName].insert(variable);
     }
 
     void insertUsesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override {
         for (auto variable: variableSet) {
-            procUsesRelations.emplace_back(procedureName, variable);
+            procUsesRelations[procedureName].insert(variable);
         }
     }
 
@@ -189,12 +189,12 @@ public:
     }
 
     void insertModifiesProc(std::string const & procedureName, std::string const & variable) override {
-        procModifiesRelations.emplace_back(procedureName, variable);
+        procModifiesRelations[procedureName].insert(variable);
     }
 
     void insertModifiesProc(std::string const & procedureName, std::unordered_set<std::string> const & variableSet) override {
         for (auto variable: variableSet) {
-            procModifiesRelations.emplace_back(procedureName, variable);
+            procModifiesRelations[procedureName].insert(variable);
         }
     }
 
@@ -326,6 +326,8 @@ TEST_CASE("Simple program extractDesign") {
     }
 
     SECTION("Check corrent uses relationships") {
+
+        // Uses relationships for statements
         auto& uses = extractor.getUses();
         std::unordered_set<std::string> stmt1_uses_expected = {"a"};
         std::unordered_set<std::string> stmt2_uses_expected = {"a", "x", "y"};
@@ -342,6 +344,18 @@ TEST_CASE("Simple program extractDesign") {
         REQUIRE(stmt7_uses_expected == uses.at(7));
 
         REQUIRE_THROWS(uses.at(3));
+
+        // Uses relationships for procedures
+
+        auto& procUses = extractor.getProcUses(); // Retrieve relationships from SP Extractor
+        auto& pkbProcUses = pkbWriter->procUsesRelations;
+        std::unordered_set<std::string> main_uses_expected = {"a", "x", "y", "z"};
+
+        REQUIRE(main_uses_expected == procUses.at("main"));
+        REQUIRE(main_uses_expected == pkbProcUses.at("main"));
+
+        REQUIRE_THROWS(procUses.at("procedure"));
+        REQUIRE_THROWS(pkbProcUses.at("procedure"));
 
     }
 
@@ -367,6 +381,8 @@ TEST_CASE("Simple program extractDesign") {
     }
 
     SECTION("Check corrent modifies relationships") {
+
+        // Modifies relationship for statements
         auto& modifies = extractor.getModifies();
         std::unordered_set<std::string> stmt1_modifies_expected = {"a"};
         std::unordered_set<std::string> stmt2_modifies_expected = {"x"};
@@ -382,6 +398,17 @@ TEST_CASE("Simple program extractDesign") {
 
         REQUIRE_THROWS(modifies.at(4));
         REQUIRE_THROWS(modifies.at(5));
+
+        // Modifies relationships for procedures
+        auto& procModifies = extractor.getProcModifies();
+        auto& pkbProcModifies = pkbWriter->procModifiesRelations;
+        std::unordered_set<std::string> main_modifies_expected = {"a", "x", "b"};
+
+        REQUIRE(main_modifies_expected == procModifies.at("main"));
+        REQUIRE(main_modifies_expected == pkbProcModifies.at("main"));
+
+        REQUIRE_THROWS(procModifies.at("procedure"));
+        REQUIRE_THROWS(pkbProcModifies.at("procedure"));
 
     }
 
@@ -401,6 +428,95 @@ TEST_CASE("Simple program extractDesign") {
 
         REQUIRE(whileStmts.size() == 1);
         REQUIRE(stmt6_while_control_variables_expected == whileStmts.at(6));
+    }
+
+    //
+    //   procedure foo {
+    // 8.   i = 3;
+    //   }
+    std::shared_ptr<StmtNode> assignStmt3 = std::make_shared<AssignNode>(8, "i", three);
+    auto stmtLst4 = {assignStmt3 };
+    auto blockNode4 = std::make_shared<BlockNode>(stmtLst4);
+    auto procedureFoo = std::make_shared<ProcedureNode>("foo", blockNode4);
+
+    auto newProgam = std::make_shared<ProgramNode>(std::vector{procedure, procedureFoo});
+
+    // Initialize new design extractor
+    auto newPKBWriter = std::make_shared<MockPKBWriter>();
+    auto newExtractor = DesignExtractor(newPKBWriter);
+    newExtractor.extractDesign(*newProgam);
+
+    SECTION("Check corrent uses relationships") {
+
+        // Uses relationships for statements
+        auto& newUses = newExtractor.getUses();
+        std::unordered_set<std::string> stmt1_uses_expected = {"a"};
+        std::unordered_set<std::string> stmt2_uses_expected = {"a", "x", "y"};
+        std::unordered_set<std::string> stmt4_uses_expected = {"x"};
+        std::unordered_set<std::string> stmt5_uses_expected = {"y"};
+        std::unordered_set<std::string> stmt6_uses_expected = {"a", "z"};
+        std::unordered_set<std::string> stmt7_uses_expected = {"a"};
+
+        REQUIRE(stmt1_uses_expected == newUses.at(1));
+        REQUIRE(stmt2_uses_expected == newUses.at(2));
+        REQUIRE(stmt4_uses_expected == newUses.at(4));
+        REQUIRE(stmt5_uses_expected == newUses.at(5));
+        REQUIRE(stmt6_uses_expected == newUses.at(6));
+        REQUIRE(stmt7_uses_expected == newUses.at(7));
+
+        REQUIRE_THROWS(newUses.at(3));
+
+        // Uses relationships for procedures
+
+        auto& newProcUses = newExtractor.getProcUses(); // Retrieve relationships from SP Extractor
+        auto& newPKBProcUses = newPKBWriter->procUsesRelations;
+        std::unordered_set<std::string> main_uses_expected = {"a", "x", "y", "z"};
+        std::unordered_set<std::string> foo_uses_expected = {};
+
+        REQUIRE(main_uses_expected == newProcUses.at("main"));
+        REQUIRE(main_uses_expected == newPKBProcUses.at("main"));
+        REQUIRE(foo_uses_expected == newProcUses.at("foo"));
+        // Mock PKB does not contain uses relationships inside 'foo' procedure because it only tracks
+        // such procedures when the insertUsesProc method is called.
+
+        REQUIRE_THROWS(newProcUses.at("procedure"));
+        REQUIRE_THROWS(newPKBProcUses.at("procedure"));
+
+    }
+
+    SECTION("Check corrent modifies relationships") {
+
+        // Modifies relationship for statements
+        auto& newModifies = extractor.getModifies();
+        std::unordered_set<std::string> stmt1_modifies_expected = {"a"};
+        std::unordered_set<std::string> stmt2_modifies_expected = {"x"};
+        std::unordered_set<std::string> stmt3_modifies_expected = {"x"};
+        std::unordered_set<std::string> stmt6_modifies_expected = {"b"};
+        std::unordered_set<std::string> stmt7_modifies_expected = {"b"};
+
+        REQUIRE(stmt1_modifies_expected == newModifies.at(1));
+        REQUIRE(stmt2_modifies_expected == newModifies.at(2));
+        REQUIRE(stmt3_modifies_expected == newModifies.at(3));
+        REQUIRE(stmt6_modifies_expected == newModifies.at(6));
+        REQUIRE(stmt7_modifies_expected == newModifies.at(7));
+
+        REQUIRE_THROWS(newModifies.at(4));
+        REQUIRE_THROWS(newModifies.at(5));
+
+        // Modifies relationships for procedures
+        auto& newProcModifies = newExtractor.getProcModifies();
+        auto& newPKBProcModifies = newPKBWriter->procModifiesRelations;
+        std::unordered_set<std::string> main_modifies_expected = {"a", "x", "b"};
+        std::unordered_set<std::string> foo_modifies_expected = {"i"};
+
+        REQUIRE(main_modifies_expected == newProcModifies.at("main"));
+        REQUIRE(main_modifies_expected == newPKBProcModifies.at("main"));
+        REQUIRE(foo_modifies_expected == newProcModifies.at("foo"));
+        REQUIRE(foo_modifies_expected == newPKBProcModifies.at("foo"));
+
+        REQUIRE_THROWS(newProcModifies.at("procedure"));
+        REQUIRE_THROWS(newPKBProcModifies.at("procedure"));
+
     }
 
 }

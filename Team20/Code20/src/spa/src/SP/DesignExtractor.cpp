@@ -41,6 +41,14 @@ void DesignExtractor::pushToPKB() {
         pkbWriter->insertProcedure(proc);
     }
 
+    for (const auto& pair: procsUses) {
+        pkbWriter->insertUsesProc(pair.first, pair.second);
+    }
+
+    for (const auto& pair: procsModifies) {
+        pkbWriter->insertModifiesProc(pair.first, pair.second);
+    }
+
     for (const auto& var: variables) {
         pkbWriter->insertVariable(var);
     }
@@ -94,6 +102,9 @@ void DesignExtractor::pushToPKB() {
 void DesignExtractor::visitProgramNode(const ProgramNode& node) {
     for (const auto& procNode : node.procedures) {
         insertProcedure(procNode->name);
+        procsUses[procNode->name]; // Initialise uses entry for procedure
+        procsModifies[procNode->name]; // Initialise modifies entry for procedure
+        (*ctxt).procName = procNode->name; // Store current procedure name into code context
         visitProcedureNode(*procNode);
     }
 }
@@ -139,7 +150,7 @@ void DesignExtractor::visitExprNode(const ExprNode& node, int stmtNumber) {
 }
 
 void DesignExtractor::visitStmtNode(const StmtNode& node, int parentStmt, std::vector<int>& stmtList) {
-    int stmtNumber = ++currentStmtNumber; // Assign and increment the global statement number
+    int stmtNumber = ++(ctxt->currentStmtNumber); // Assign and increment the global statement number
     updateParent(stmtNumber, parentStmt); // Update the 'Parent' relationship
     updateFollows(stmtNumber, stmtList); // Update the 'Follows' relationship
     stmtList.push_back(stmtNumber); // Add current statement to the list for potential 'Follows' relationships
@@ -239,6 +250,7 @@ void DesignExtractor::updateParent(int childStmtNumber, int parentStmtNumber) {
 
 void DesignExtractor::updateUses(int stmtNumber, const std::string& variableName) {
     uses[stmtNumber].insert(variableName);
+    procsUses[ctxt->procName].insert(variableName);
 
     int parentStmt = stmtNumber;
     while (parent.count(parentStmt)) {
@@ -249,6 +261,7 @@ void DesignExtractor::updateUses(int stmtNumber, const std::string& variableName
 
 void DesignExtractor::updateModifies(int stmtNumber, const std::string& variableName) {
     modifies[stmtNumber].insert(variableName);
+    procsModifies[ctxt->procName].insert(variableName);
 
     int parentStmt = stmtNumber;
     while (parent.count(parentStmt)) {
