@@ -20,61 +20,43 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
         if (!currentStr.empty() && !isValidIDENT(currentStr)) {
             // check if invalid string, throw error
             throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
-
         }
         // Process string within apostrophe
-        if (nextChar == '"') {
+        if (nextChar == SpecialCharacters::QUOTE) {
             processApostrophe(); // until apostrophe is closed
-            nextChar = peekChar();
+        } else if (nextChar == SpecialCharacters::FULL_STOP) {
+            processAttribute(currentStr);
+            currentStr.clear();
+        } else if (nextChar == SpecialCharacters::LEFT_ANGLE_BRACKET) {
+            processTuple();
         } else if (isCharWhitespace(nextChar)) {
-            // if current string is non empty, follows NAME rule, add to tokens, and apostrophe must not be open
-            // Add currentStr as NAME token and clear
             if (!currentStr.empty()) {
-                addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
+                processString(currentStr);
                 currentStr.clear();
             }
-            removeChar(); // remove from stream
-            nextChar = peekChar();
-            continue;
         } else if (isCharStar(nextChar)) {
             processStar(currentStr);
             currentStr.clear();
-            removeChar();
-            nextChar = peekChar();
-            continue;
-        } else if (nextChar == '_') {
-            // shouldnt need to care about string before and after, will be handled
+        } else if (nextChar == SpecialCharacters::UNDERSCORE) {
             processWildcard();
-            nextChar = peekChar();
-            continue;
         } else if (isCharSeparator(nextChar)) {
             // Process Separator character
             processSeparator(currentStr, nextChar);
             currentStr.clear();
-            nextChar = peekChar();
-            continue;
         } else if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
             currentStr += nextChar;
-            removeChar();
-            nextChar = peekChar();
         } else {
             throw QuerySyntaxError("Syntax Error for the Invalid token: " + std::string(1, nextChar));
         }
+        removeChar();
+        nextChar = peekChar();
     }
-
     // Reach EOF
     // if current char is EOF, add remaining string if any
     if (!currentStr.empty()) {
-        if (!isValidIDENT(currentStr)) {
-            std::cout << "Invalid IDENT: " << currentStr << std::endl;
-            // check if invalid string, throw error
-            throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
-
-        }
-        addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
+        processString(currentStr);
+        currentStr.clear();
     }
-
-    // clean up iss
     return queryTokens;
 }
 
@@ -217,8 +199,6 @@ void QueryTokenizer::processApostrophe() {
             }
         }
     }
-    // Remove closing apostrophe
-    removeChar();
 }
 
 
@@ -235,20 +215,85 @@ void QueryTokenizer::processStar(std::string currentStr) {
 
 void QueryTokenizer::processWildcard() {
     addToken(std::make_shared<QueryToken>(QPS::TokenType::WILDCARD, "_"));
-    removeChar();
 }
 
 void QueryTokenizer::processSeparator(std::string currentStr, char separatorChar) {
 
     if (!currentStr.empty() && isNum(currentStr)) {
         addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr)); // string or name
-        currentStr.clear();
         // isValidIDENT
     } else if (!currentStr.empty() && isValidIDENT(currentStr)) {
         // Cannot start with number, must adhere to IDENT
         addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr)); // string or name
-        currentStr.clear();
     }
     addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+}
+
+void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std::string attributeType) {
+    std::unordered_map<std::string, QPS::TokenType> attributeValueMap = {
+        {"stmt#", QPS::TokenType::ATTRIBUTE_VALUE},
+        {"procName", QPS::TokenType::ATTRIBUTE_NAME},
+        {"varName", QPS::TokenType::ATTRIBUTE_NAME},
+        {"value", QPS::TokenType::ATTRIBUTE_CONSTANT}
+    };
+    std::string attributeTokenValue = currentAttributeStr + attributeType;
+    if (attributeValueMap.find(attributeType) == attributeValueMap.end()) {
+        throw QuerySyntaxError("Syntax Error: Invalid attribute type: " + attributeType);
+    }
+    addToken(std::make_shared<QueryToken>(attributeValueMap[attributeType], attributeTokenValue));
+}
+
+void QueryTokenizer::processAttribute(std::string currentStr) {
+    std::string currAttributeString = currentStr;
+    std::string currAttributeValue = "";
+    // Process until whitespace
+    auto nextChar = peekChar();
+    if (nextChar == SpecialCharacters::FULL_STOP) {
+        currAttributeString += nextChar;
+        removeChar();
+    }
+
+    nextChar = peekChar();
+    // Getting attribute field value, unable to validate syntax
+    while (nextChar != SpecialCharacters::SPACE && nextChar != EOF) {
+        currAttributeValue += nextChar;
+        removeChar();
+        nextChar = peekChar();
+    }
+    processAttributeToken(currAttributeString, currAttributeValue);
+    return;
+
+}
+
+void QueryTokenizer::processTuple() {
+    // Process from < to >
+    std::string currentStr;
+    // start from <
+    auto nextChar = peekChar();
+    currentStr += nextChar;
     removeChar();
+    nextChar = peekChar();
+    while (nextChar != SpecialCharacters::RIGHT_ANGLE_BRACKET) {
+        // Not whitespace
+        if (SpecialCharacters::WHITESPACE_CHARACTERS.find(nextChar) == SpecialCharacters::WHITESPACE_CHARACTERS.end()) {
+            currentStr += nextChar;
+        }
+        removeChar();
+        nextChar = peekChar();
+    }
+    // Add right angle bracket
+    currentStr += nextChar;
+    addToken(std::make_shared<QueryToken>(QPS::TokenType::TUPLE, currentStr));
+    return;
+}
+
+void QueryTokenizer::processString(std::string currentStr) {
+    if (isNum(currentStr) && !currentStr.empty()) {
+        addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr));
+    } else if (isValidIDENT(currentStr)) {
+        addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
+    } else {
+        throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
+    }
+    return;
 }

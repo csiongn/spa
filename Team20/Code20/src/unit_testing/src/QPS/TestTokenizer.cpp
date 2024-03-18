@@ -91,8 +91,33 @@ TEST_CASE("Tokenizer") {
     SECTION("Invalid Tokens in MS1 and Synonym used more than once") {
         QueryTokenizer queryTokenizer;
         std::string query = "procedure p, q;\nSelect BOOLEAN such that Calls(p, q) with q.procName = \"p\" and p.procName = \"Example\"";
-
-        REQUIRE_THROWS(queryTokenizer.tokenize(query));
+        // Tokens invalid in MS1, Tokens now valid in MS2
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::NAME, "procedure"),
+                QueryToken(QPS::TokenType::NAME, "p"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+                QueryToken(QPS::TokenType::NAME, "q"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+                QueryToken(QPS::TokenType::NAME, "Select"),
+                QueryToken(QPS::TokenType::NAME, "BOOLEAN"),
+                QueryToken(QPS::TokenType::NAME, "such"),
+                QueryToken(QPS::TokenType::NAME, "that"),
+                QueryToken(QPS::TokenType::NAME, "Calls"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "("),
+                QueryToken(QPS::TokenType::NAME, "p"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+                QueryToken(QPS::TokenType::NAME, "q"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ")"),
+                QueryToken(QPS::TokenType::NAME, "with"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "q.procName"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+                QueryToken(QPS::TokenType::CONSTANT_STRING, "p"),
+                QueryToken(QPS::TokenType::NAME, "and"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "p.procName"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+                QueryToken(QPS::TokenType::CONSTANT_STRING, "Example")
+        };
     }
 
 
@@ -168,7 +193,6 @@ TEST_CASE("Tokenizer") {
     }
 
     SECTION("Valid Tokens with whitespace after Follows*") {
-        std::cout << "Valid Tokens with whitespace after Follows*" << std::endl;
         QueryTokenizer queryTokenizer;
         std::string query = "stmt s12d;\n Select s12d such that Follows* (s, \"x*y\")";
         REQUIRE_NOTHROW(queryTokenizer.tokenize(query));
@@ -176,30 +200,14 @@ TEST_CASE("Tokenizer") {
 
     SECTION("Invalid Tokens with whitespace between Follows and *") {
         QueryTokenizer queryTokenizer;
-        std::string query = "assign a; variable v; constant c; Select a such that Uses (a, c) pattern a (\"8\", _)";
-        try {
-            auto tokens = queryTokenizer.tokenize(query);
-        } catch (const QuerySyntaxError &e) {
-            cout << "Invalid Tokens with whitespace between Follows and *" << endl;
-            cout << e.what() << endl;
-        } catch (const std::exception &e) {
-            cout << "Invalid Tokens" << endl;
-            cout << e.what() << endl;
-        }
-
+        std::string query = "assign a; variable v; constant c; Select a such that Follows * (a, c) pattern a (\"8\", _)";
+        REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
     }
 
     SECTION("Invalid NAME Tokens - Should throw QuerySyntaxError") {
         QueryTokenizer queryTokenizer;
         std::string query = "assign a&&; constant c; Select a such that Uses (a, c)";
         REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
-        try {
-            auto tokens = queryTokenizer.tokenize(query);
-        } catch (const QuerySyntaxError &e) {
-            cout << e.what() << endl;
-        } catch (const std::exception &e) {
-            cout << e.what() << endl;
-        }
     }
 
     SECTION("Helper function - Process Apostrophe") {
@@ -241,9 +249,129 @@ TEST_CASE("Tokenizer") {
     }
 
     SECTION("Invalid NAME token - SyntaxError" ) {
-        std::cout << "Invalid NAME token" << std::endl;
         QueryTokenizer queryTokenizer;
         std::string query = "Select 1v";
         REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
     }
+
+    SECTION("Tokenize Attribute value") {
+        QueryTokenizer queryTokenizer;
+        std::string query="stmt.stmt# read.stmt# print.stmt# call.stmt# while.stmt# if.stmt# assign.stmt#";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "stmt.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "read.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "print.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "call.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "while.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "if.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "assign.stmt#")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+
+    }
+
+
+    // Cannot catch invalid attribute fields
+    SECTION("Tokenize INVALID Attributes value") {
+        QueryTokenizer queryTokenizer;
+        std::string query="stmt.varName read.procName";
+//        printTokens(queryTokenizer.tokenize(query));
+//        REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+    }
+
+    SECTION("Tokenize Attribute name") {
+        QueryTokenizer queryTokenizer;
+        std::string query="procedure.procName call.procName variable.varName read.varName print.varName";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "procedure.procName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "call.procName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "variable.varName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "read.varName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "print.varName")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
+    SECTION("Tokenize mixed attribute name and value for call and read") {
+        QueryTokenizer queryTokenizer;
+        std::string query="call.procName read.stmt#";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "call.procName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "read.stmt#")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
+    SECTION("Tokenize mixed attribute name, value, constant") {
+        QueryTokenizer queryTokenizer;
+        std::string query="stmt.stmt# read.stmt# print.stmt# call.procName print.varName read.varName assign.stmt# constant.value";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "stmt.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "read.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "print.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "call.procName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "print.varName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "read.varName"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "assign.stmt#"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_CONSTANT, "constant.value")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
+    SECTION("Tokenize query with attribute") {
+        QueryTokenizer queryTokenizer;
+        std::string query = "stmt s; constant c;\n Select s with s.stmt# = c.value";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::NAME, "stmt"),
+                QueryToken(QPS::TokenType::NAME, "s"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+                QueryToken(QPS::TokenType::NAME, "constant"),
+                QueryToken(QPS::TokenType::NAME, "c"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+                QueryToken(QPS::TokenType::NAME, "Select"),
+                QueryToken(QPS::TokenType::NAME, "s"),
+                QueryToken(QPS::TokenType::NAME, "with"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "s.stmt#"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+                QueryToken(QPS::TokenType::ATTRIBUTE_CONSTANT, "c.value")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
+    SECTION("Invalid Attribute field") {
+        QueryTokenizer queryTokenizer;
+        std::string query = "stmt s; constant c;\n Select s with s.line# = c.constant";
+        REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+    }
+
+    SECTION("Tuple string") {
+        QueryTokenizer queryTokenizer;
+        std::string query = "< x , s.stmt# >";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::TUPLE, "<x,s.stmt#>"),
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
+    SECTION("Tuple + Attribute Query") {
+        QueryTokenizer queryTokenizer;
+        std::string query = "Select < x , s.stmt# > with s.stmt# = 1";
+        auto tokens = queryTokenizer.tokenize(query);
+        std::vector<QueryToken> expectedTokensVector = {
+                QueryToken(QPS::TokenType::NAME, "Select"),
+                QueryToken(QPS::TokenType::TUPLE, "<x,s.stmt#>"),
+                QueryToken(QPS::TokenType::NAME, "with"),
+                QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "s.stmt#"),
+                QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+                QueryToken(QPS::TokenType::INTEGER, "1")
+        };
+        REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+    }
+
 }

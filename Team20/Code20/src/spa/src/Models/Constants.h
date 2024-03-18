@@ -34,6 +34,8 @@ namespace Constants {
         static const std::unordered_set<char> FACTOR_CHARACTERS;
         static const std::unordered_set<char> NON_FACTOR_CHARACTERS;
         static const std::unordered_set<char> WHITESPACE_CHARACTERS;
+        static const std::unordered_set<char> TUPLE_CHARACTERS;
+        static const std::unordered_set<char> ATTRIBUTE_CHARACTERS;
 
     };
 }

@@ -32,7 +32,7 @@ namespace Constants {
     };
 
     const std::unordered_set<char> SpecialCharacters::SEPARATOR_CHARACTERS= {
-        COMMA, OPEN_BRACKET, CLOSE_BRACKET, SEMICOLON
+        COMMA, OPEN_BRACKET, CLOSE_BRACKET, SEMICOLON, EQUAL
     };
     // Expression can have these characters
     const std::unordered_set<char> SpecialCharacters::FACTOR_CHARACTERS = {
@@ -46,6 +46,14 @@ namespace Constants {
 
     const std::unordered_set<char> SpecialCharacters::WHITESPACE_CHARACTERS = {
         SPACE, TAB, NEWLINE
+    };
+
+    const std::unordered_set<char> SpecialCharacters::TUPLE_CHARACTERS = {
+        LEFT_ANGLE_BRACKET, RIGHT_ANGLE_BRACKET
+    };
+
+    const std::unordered_set<char> SpecialCharacters::ATTRIBUTE_CHARACTERS = {
+        FULL_STOP, HASH_SYMBOL
     };
 
 }

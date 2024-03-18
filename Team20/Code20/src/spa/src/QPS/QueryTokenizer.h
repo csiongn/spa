@@ -14,6 +14,14 @@ private:
 
     void processSeparator(std::string currentStr, char separatorChar);
 
+    void processAttribute(std::string currentStr);
+
+    void processAttributeToken(std::string currentAttributeStr, std::string attributeType);
+
+    void processTuple();
+
+    void processString(std::string currentStr);
+
 protected:
     // Move stream to an attribute in enclosing class so that helper functions can access
     std::shared_ptr<std::istream> iss;

@@ -16,6 +16,10 @@ namespace QPS {
         NAME, // NAME, has to start with LETTER variable name, procedure name, constant name, CAN BE ALPHANUMERIC
         CONSTANT_STRING, // single NAME without whitespace within " " will refer to as constant string as they are immutable
         EXPRESSION, // expression in the form of EXPR, TERM, FACTOR
+        ATTRIBUTE_NAME, // attribute name, procedure.procName, call.procName, variable.varName, read.varName, print.varName: NAME
+        ATTRIBUTE_CONSTANT, // constant.value: INTEGER
+        ATTRIBUTE_VALUE, // stmt.stmt#, read.stmt#, print.stmt#, call.stmt#, while.stmt#, if.stmt#, assign.stmt#: INTEGER
+        TUPLE, // within <, >
     };
 }
 
@@ -30,7 +34,11 @@ class QueryToken {
                 {QPS::TokenType::INTEGER, "INTEGER"},
                 {QPS::TokenType::NAME, "NAME"},
                 {QPS::TokenType::CONSTANT_STRING, "CONSTANT_STRING"},
-                {QPS::TokenType::EXPRESSION, "EXPRESSION"}
+                {QPS::TokenType::EXPRESSION, "EXPRESSION"},
+                {QPS::TokenType::ATTRIBUTE_NAME, "ATTRIBUTE_NAME"},
+                {QPS::TokenType::ATTRIBUTE_CONSTANT, "ATTRIBUTE_CONSTANT"},
+                {QPS::TokenType::ATTRIBUTE_VALUE, "ATTRIBUTE_VALUE"},
+                {QPS::TokenType::TUPLE, "TUPLE"}
         };
     public:
         QueryToken(QPS::TokenType type, std::string value): type(type), value(std::move(value)) {}
