@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "PKB.h"
-#include "SP/TNode.h"
 
 
 PKB::PKB() {

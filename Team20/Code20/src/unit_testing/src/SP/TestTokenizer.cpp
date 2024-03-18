@@ -1,4 +1,3 @@
-#include "SP/TNode.h"
 #include "SP/Tokenizer.h"
 #include "catch.hpp"
 #include <iterator>
