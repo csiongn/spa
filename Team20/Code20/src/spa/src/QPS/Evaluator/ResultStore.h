@@ -1,27 +1,30 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <vector>
+
 #include "Result.h"
 
 namespace QueryEvaluator {
-    class ResultStore {
-    public:
-        std::vector<std::shared_ptr<Result>> results;
+class ResultStore {
+ public:
+  std::vector<std::shared_ptr<Result>> results;
 
-        ResultStore() = default;
+  ResultStore() = default;
 
-        void insertResult(std::shared_ptr<Result> r);
+  void insertResult(std::shared_ptr<Result> r);
 
-        template <typename T>
-        void createColumn(const PQL::Synonym &syn, const std::vector<T> &values) {
-            std::shared_ptr<Result> res = std::make_shared<Result>(syn.identity, values);
-            results.push_back(res);
-        }
+  template<typename T>
+  void createColumn(const PQL::Synonym &syn, const std::vector<T> &values) {
+	std::shared_ptr<Result> res = std::make_shared<Result>(syn.identity, values);
+	results.push_back(res);
+  }
 
-        std::vector<std::string> retrieveSelect(const PQL::Synonym &selectSyn);
+  std::vector<std::string> retrieveSelect(const PQL::Synonym &selectSyn);
 
-    private:
-        void joinResults();
-        std::vector<std::string> removeDuplicates(const std::vector<std::string>& v);
-    };
+ private:
+  void joinResults();
+  std::vector<std::string> removeDuplicates(const std::vector<std::string> &v);
+};
 }

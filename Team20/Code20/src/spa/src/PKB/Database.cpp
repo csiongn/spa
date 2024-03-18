@@ -1,97 +1,97 @@
 #include "Database.h"
 
 std::shared_ptr<ProcedureManager> Database::getProcedureManager() {
-    return procedureManager;
+  return procedureManager;
 }
 
 std::shared_ptr<VariableManager> Database::getVariableManager() {
-    return variableManager;
+  return variableManager;
 }
 
 std::shared_ptr<ConstantManager> Database::getConstantManager() {
-    return constantManager;
+  return constantManager;
 }
 
 std::shared_ptr<StatementManager> Database::getStatementManager() {
-    return statementManager;
+  return statementManager;
 }
 
 std::shared_ptr<AssignManager> Database::getAssignManager() {
-    return assignManager;
+  return assignManager;
 }
 
 std::shared_ptr<ReadManager> Database::getReadManager() {
-    return readManager;
+  return readManager;
 }
 
 std::shared_ptr<PrintManager> Database::getPrintManager() {
-    return printManager;
+  return printManager;
 }
 
 std::shared_ptr<CallManager> Database::getCallManager() {
-    return callManager;
+  return callManager;
 }
 
 std::shared_ptr<WhileManager> Database::getWhileManager() {
-    return whileManager;
+  return whileManager;
 }
 
 std::shared_ptr<IfManager> Database::getIfManager() {
-    return ifManager;
+  return ifManager;
 }
 
 std::shared_ptr<FollowsManager> Database::getFollowsManager() {
-    return followsManager;
+  return followsManager;
 }
 
 std::shared_ptr<FollowsTManager> Database::getFollowsTManager() {
-    return followsTManager;
+  return followsTManager;
 }
 
 std::shared_ptr<ParentManager> Database::getParentManager() {
-    return parentManager;
+  return parentManager;
 }
 
 std::shared_ptr<ParentTManager> Database::getParentTManager() {
-    return parentTManager;
+  return parentTManager;
 }
 
 std::shared_ptr<UsesStmtManager> Database::getUsesStmtManager() {
-    return usesStmtManager;
+  return usesStmtManager;
 }
 
 std::shared_ptr<ModifiesStmtManager> Database::getModifiesStmtManager() {
-    return modifiesStmtManager;
+  return modifiesStmtManager;
 }
 
 std::shared_ptr<UsesProcManager> Database::getUsesProcManager() {
-    return usesProcManager;
+  return usesProcManager;
 }
 
 std::shared_ptr<ModifiesProcManager> Database::getModifiesProcManager() {
-    return modifiesProcManager;
+  return modifiesProcManager;
 }
 
 std::shared_ptr<CallsProcManager> Database::getCallsProcManager() {
-    return callsProcManager;
+  return callsProcManager;
 }
 
 std::shared_ptr<CallsTProcManager> Database::getCallsTProcManager() {
-    return callsTProcManager;
+  return callsTProcManager;
 }
 
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
-    return assignPatternManager;
+  return assignPatternManager;
 }
 
 std::shared_ptr<AssignPartialPatternManager> Database::getAssignPartialPatternManager() {
-    return assignPartialPatternManager;
+  return assignPartialPatternManager;
 }
 
 std::shared_ptr<IfPatternManager> Database::getIfPatternManager() {
-    return ifPatternManager;
+  return ifPatternManager;
 }
 
 std::shared_ptr<WhilePatternManager> Database::getWhilePatternManager() {
-    return whilePatternManager;
+  return whilePatternManager;
 }

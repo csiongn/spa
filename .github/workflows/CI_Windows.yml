@@ -22,17 +22,81 @@ jobs:
       fail-fast: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install cpplint
+        run: pip install cpplint
+
+      - name: Run cpplint
+        run: >
+          cpplint 
+          --verbose=3
+          --exclude=./external/
+          --exclude=./lib/
+          --exclude=./src/autotester
+          --exclude=./src/autotester_gui
+          --recursive
+          --filter=-legal/copyright,-whitespace/tab,-readability/braces,-whitespace/ending_newline,-readability/namespace,-build/header_guard
+          --extensions=c,h,cpp ./
+        working-directory: ${{ github.workspace }}/Team20/Code20/
+        continue-on-error: true # Set to false to fail the step if cpplint finds issues
 
       - name: Create Build Environment
-        run: cmake -E make_directory ${{runner.workspace}}/build
+        run: cmake -E make_directory ${{ github.workspace }}/Team20/Code20/build
 
       - name: Configure CMake
         shell: bash
-        working-directory: ${{runner.workspace}}/build
+        working-directory: ${{ github.workspace }}/Team20/Code20/build
         run: cmake $GITHUB_WORKSPACE/Team20/Code20/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build Project
-        working-directory: ${{runner.workspace}}/build
+        working-directory: ${{ github.workspace }}/Team20/Code20/build
         shell: bash
         run: cmake --build . --config $BUILD_TYPE
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ${{ github.workspace }}/Team20/Code20/build
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ${{ github.workspace }}/Team20/Code20/build
+
+      - name: Make autotester.sh executable
+        working-directory: ${{ github.workspace }}/Team20
+        run: chmod +x autotester.sh
+
+      - name: Run autotester.sh
+        working-directory: ${{ github.workspace }}/Team20
+        run: ./autotester.sh -W -R
+        shell: bash
+        id: autotester
+        continue-on-error: true
+ 
+      - name: Run Unit Testing
+        working-directory: ${{ github.workspace }}/Team20/Code20/build/src/unit_testing/Release
+        run: ./unit_testing.exe
+
+      - name: Run Integration Testing
+        working-directory: ${{ github.workspace }}/Team20/Code20/build/src/integration_testing/Release
+        run: ./integration_testing.exe
+
+      - name: Check Test Results
+        run: |
+          if [ ${{ steps.unit_test.outcome }} != 'success' ] || [ ${{ steps.integration_test.outcome }} != 'success' ]; then
+            echo "Unit testing or integration testing failed. Exiting with failure status."
+            exit 1
+          fi
+
+      - name: Finalize Workflow
+        if: ${{ failure() }}
+        run: exit 1

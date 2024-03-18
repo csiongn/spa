@@ -6,13 +6,12 @@
 #include "SP/SPController.h"
 
 class SPFacade {
-public:
-    SPFacade(std::shared_ptr<IPKBWriter> pkbWriter, const std::string& input)
-          : spController(pkbWriter, input)
-    {}
+ public:
+  SPFacade(std::shared_ptr<IPKBWriter> pkbWriter, const std::string &input)
+	  : spController(pkbWriter, input) {}
 
-    void populatePKB();
+  void populatePKB();
 
-private:
-    SPController spController;
+ private:
+  SPController spController;
 };

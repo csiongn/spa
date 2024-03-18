@@ -4,9 +4,9 @@
 #include <tuple>
 
 namespace QueryEvaluator {
-    class ParseUtils {
+class ParseUtils {
 
-    public:
-        static std::tuple<std::string, bool, bool> parsePattern(const std::string& pattern);
-    };
+ public:
+  static std::tuple<std::string, bool, bool> parsePattern(const std::string &pattern);
+};
 };

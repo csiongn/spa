@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "ConditionalPatternManager.h"
 
 // T need to be stmt_no and U is ExprNode's Hash size_t, V is ptr

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "PatternManager.h"
 
 // Used for Exact Pattern Matching

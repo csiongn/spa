@@ -2,5 +2,5 @@
 
 #include "EntityManager.h"
 
-class StatementManager: public EntityManager<int> {
+class StatementManager : public EntityManager<int> {
 };

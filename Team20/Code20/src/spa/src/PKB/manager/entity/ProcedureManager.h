@@ -2,5 +2,7 @@
 
 #include "EntityManager.h"
 
-class ProcedureManager: public EntityManager<std::string> {
+#include <string>
+
+class ProcedureManager : public EntityManager<std::string> {
 };

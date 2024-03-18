@@ -4,5 +4,5 @@
 
 // stmtRef
 // Will store list of stmt numbers that are While statements
-class WhileManager: public EntityManager<int> {
+class WhileManager : public EntityManager<int> {
 };

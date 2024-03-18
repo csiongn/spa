@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "RelationshipManager.h"
 
 // proc String, proc string

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "PatternManager.h"
 
 // Used for partial pattern matching, will contain possible subsets of expr/nodes from a full exprNode
