@@ -1,5 +1,5 @@
 #include "PKB/manager/pattern/PatternManager.h"
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 #include "PKB/Database.h"
 #include "../TestUtils.h"
 #include "PKB/PKB.h"

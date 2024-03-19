@@ -1,9 +1,9 @@
 #include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include "SP/AST.h"
+#include <memory>
 
-#include "catch.hpp"
+#include "../lib/catch.hpp"
+
+#include "SP/AST.h"
 
 TEST_CASE("ASTNode") {
   // test if Nodes can do sub tree and tree matching

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <string>
+#include <memory>
 
 #include "Models/SimpleProgram.h"
 #include "SP/SPController.h"

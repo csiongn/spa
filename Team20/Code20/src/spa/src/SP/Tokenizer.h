@@ -3,12 +3,12 @@
 #include <string>
 #include <vector>
 
-#include <SP/Token.h>
+#include "SP/Token.h"
 
 class Tokenizer {
  public:
   // Constructor
-  Tokenizer(const std::string &input);
+  explicit Tokenizer(const std::string &input);
 
   void tokenizeProgram();
 

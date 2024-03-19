@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 
 #include "../TestUtils.h"
 #include "PKB/Database.h"

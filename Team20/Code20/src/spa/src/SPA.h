@@ -2,6 +2,7 @@
 
 #include <list>
 #include <memory>
+#include <string>
 
 #include "PKB/facade/PKBFacade.h"
 #include "PKB/Database.h"

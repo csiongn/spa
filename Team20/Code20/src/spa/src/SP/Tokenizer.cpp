@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <SP/Tokenizer.h>
+
+#include "SP/Tokenizer.h"
 
 Tokenizer::Tokenizer(const std::string &input) : input_(input) {}
 

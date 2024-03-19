@@ -1,6 +1,6 @@
 #include "QPS/QueryTokenizer.h"
 #include "../TestUtils.h"
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 #include "QPS/QuerySyntaxError.h"
 
 bool checkTokenVectorEqual(std::vector<std::shared_ptr<QueryToken>> vec1, std::vector<QueryToken> vec2) {

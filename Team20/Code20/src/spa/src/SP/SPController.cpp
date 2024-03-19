@@ -1,3 +1,9 @@
+#include <vector>
+#include <memory>
+#include <unordered_map>
+#include <string>
+#include <unordered_set>
+
 #include "SPController.h"
 
 void SPController::populatePKB() {

@@ -1,6 +1,10 @@
-#include <catch.hpp>
+#include <vector>
+#include <string>
+#include <memory>
 
-#include <../../unit_testing/src/TestUtils.h>
+#include "../lib/catch.hpp"
+
+#include "../../unit_testing/src/TestUtils.h"
 #include "SPA.h"
 
 TEST_CASE("Integration test SP to PKB") {

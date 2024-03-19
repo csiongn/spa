@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <utility>
+#include <memory>
+#include <vector>
+#include <string>
 
 void DesignExtractor::extractDesign(const ProgramNode &astRoot) {
   visitProgramNode(astRoot);
@@ -132,10 +135,8 @@ void DesignExtractor::visitExprNode(const ExprNode &node, int stmtNumber) {
   } else if (const auto *relExprNode = dynamic_cast<const RelExprNode *>(&node)) {
 	visitExprNode(*relExprNode->left, stmtNumber);
 	visitExprNode(*relExprNode->right, stmtNumber);
-  }
-
+  } else if (const auto *varNode = dynamic_cast<const VariableNode *>(&node)) {
 	// Unary nodes (variable nodes)
-  else if (const auto *varNode = dynamic_cast<const VariableNode *>(&node)) {
 	updateUses(stmtNumber, varNode->value);
 	insertVariable(varNode->value);
   } else if (const auto *literalNode = dynamic_cast<const LiteralNode *>(&node)) {

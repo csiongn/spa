@@ -1,7 +1,9 @@
 #include <map>
 #include <iostream>
+#include <vector>
+#include <memory>
 
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 #include "PKB/PKB.h"
 #include "SP/Parser.h"
 #include "SP/DesignExtractor.h"

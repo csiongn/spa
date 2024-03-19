@@ -1,9 +1,14 @@
 #pragma once
 
-#include "AST.h"
-#include "PKB/facade/IPKBWriter.h"
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <memory>
+#include <vector>
+#include <string>
+
+#include "AST.h"
+#include "PKB/facade/IPKBWriter.h"
 
 class DesignExtractor {
   // Stores code context during traversal of Source program

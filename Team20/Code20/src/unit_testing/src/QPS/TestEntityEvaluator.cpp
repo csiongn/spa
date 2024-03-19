@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 
 #include "Models/PQL.h"
 #include "Models/SimpleProgram.h"

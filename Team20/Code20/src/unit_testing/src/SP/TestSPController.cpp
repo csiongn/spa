@@ -1,10 +1,12 @@
 #include <unordered_set>
 #include <unordered_map>
+#include <memory>
+#include <vector>
+#include <string>
 
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 
 #include "Models/SimpleProgram.h"
-#include "PKB/Database.h"
 #include "PKB/PKB.h"
 #include "SP/SPController.h"
 #include "../TestUtils.h"

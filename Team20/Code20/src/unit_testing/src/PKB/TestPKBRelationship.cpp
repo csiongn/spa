@@ -1,6 +1,6 @@
 #include "PKB/manager/relationship/RelationshipManager.h"
 #include "PKB/manager/relationship/FollowsManager.h"
-#include "catch.hpp"
+#include "../lib/catch.hpp"
 #include "PKB/Database.h"
 #include "PKB/PKB.h"
 #include "../TestUtils.h"

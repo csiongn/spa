@@ -1,7 +1,14 @@
 #include <set>
+#include <unordered_map>
+#include <tuple>
+#include <vector>
+#include <utility>
+#include <string>
+#include <memory>
+#include <unordered_set>
 
-#include "catch.hpp"
-#include "PKB/PKB.h"
+#include "../lib/catch.hpp"
+
 #include "SP/AST.h"
 #include "SP/DesignExtractor.h"
 

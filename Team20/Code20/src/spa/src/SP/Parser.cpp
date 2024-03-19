@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <utility>
 
 #include "Parser.h"
 #include "AST.h"

@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <utility>
 
 // Fixed TokenTypes, to change this enum, do change tokenMapping
 namespace SP {

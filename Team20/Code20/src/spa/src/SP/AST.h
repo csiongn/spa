@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
+#include <limits>
 
 // 0. Abstract Base Node
 class ASTNode {
@@ -239,7 +241,7 @@ class BlockNode : public ASTNode {
  public:
   std::vector<std::shared_ptr<StmtNode> > statements;
 
-  BlockNode(std::vector<std::shared_ptr<StmtNode> > statements)
+  explicit BlockNode(std::vector<std::shared_ptr<StmtNode> > statements)
 	  : statements(std::move(statements)) {}
 
   std::string serialize() const override {

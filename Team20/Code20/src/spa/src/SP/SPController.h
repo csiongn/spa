@@ -1,5 +1,10 @@
 #pragma once
 
+#include <unordered_map>
+#include <string>
+#include <unordered_set>
+#include <memory>
+
 #include "PKB/facade/IPKBWriter.h"
 #include "SP/Tokenizer.h"
 #include "SP/Parser.h"

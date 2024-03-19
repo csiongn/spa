@@ -1,10 +1,11 @@
-#include "SP/Tokenizer.h"
-#include "catch.hpp"
-#include <iterator>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
+
+#include "../lib/catch.hpp"
+
+#include "SP/Tokenizer.h"
 
 struct TokenizerTestCase {
   std::string input;
@@ -109,16 +110,15 @@ TEST_CASE("Test TokenizeProgram") {
 }
 
 TEST_CASE("Test exception throwing in tokenizeWord") {
-  std::vector<std::string> error_programs =
-	  {
-		  "x /= 3;", // invalid symbol - length 2
-		  "x /== 3;", // invalid symbol - length 3
-		  "x ??? 3;", // invalid symbol - unsupported symbols
-		  "123nums = 3;", // invalid variable name
-		  // "x = 3;;", // invalid symbol at EOL - Tentatively removed as not able to support
-		  "x <== 3", // invalid symbol - substrings of symbols are valid but whole string is not
-		  "x<==3;", // invalid symbol - no spaces
-	  };
+  std::vector<std::string> error_programs = {
+	  "x /= 3;", // invalid symbol - length 2
+	  "x /== 3;", // invalid symbol - length 3
+	  "x ??? 3;", // invalid symbol - unsupported symbols
+	  "123nums = 3;", // invalid variable name
+	  // "x = 3;;", // invalid symbol at EOL - Tentatively removed as not able to support
+	  "x <== 3", // invalid symbol - substrings of symbols are valid but whole string is not
+	  "x<==3;", // invalid symbol - no spaces
+  };
   for (const auto &error_program : error_programs) {
 	Tokenizer tokenizer(error_program);
 	REQUIRE_THROWS(tokenizer.tokenizeProgram());

@@ -1,6 +1,8 @@
+#include <string>
+#include <iostream>
+
 #include "QPS/QPSManager.h"
 #include "SPA.h"
-#include <iostream>
 
 SPA::SPA() {};
 
