@@ -53,7 +53,7 @@ jobs:
       - name: Configure CMake
         shell: bash
         working-directory: ${{ github.workspace }}/Team20/Code20/build
-        run: cmake $GITHUB_WORKSPACE/Team20/Code20/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        run: cmake $GITHUB_WORKSPACE/Team20/Code20/ -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_STANDARD=17
 
       - name: Build Project
         working-directory: ${{ github.workspace }}/Team20/Code20/build
