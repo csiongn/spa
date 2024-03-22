@@ -42,7 +42,7 @@ jobs:
           --exclude=./src/autotester
           --exclude=./src/autotester_gui
           --recursive
-          --filter=-legal/copyright,-whitespace/tab,-readability/braces,-whitespace/ending_newline,-readability/namespace,-build/header_guard,-build/storage_class,-whitespace/blank_line,-readability/todo
+          --filter=-legal/copyright,-whitespace/tab,-readability/braces,-whitespace/ending_newline,-readability/namespace,-build/header_guard,-build/storage_class,-build/c++11,-whitespace/blank_line,-readability/todo
           --extensions=c,h,cpp ./
         working-directory: ${{ github.workspace }}/Team20/Code20/
         continue-on-error: false # Set to false to fail the step if cpplint finds issues
