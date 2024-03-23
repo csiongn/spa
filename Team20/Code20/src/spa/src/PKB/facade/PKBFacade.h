@@ -209,6 +209,18 @@ class PKBFacade : public IPKBWriter, public IPKBReader {
   bool containsCallsTProcRelationship(std::string const &caller, std::string const &callee) override;
   bool hasCallsTProcRelationship() override;
 
+  // Next
+  void insertNext(int stmtNum, int nextStmtNum) override;
+  void insertNext(int stmtNum, const std::unordered_set<int> &nextStmtSet) override;
+  std::vector<int> getNext(int stmtNum) override;
+  std::vector<int> getNextReverse(int stmtNum) override;
+  std::vector<int> getNext() override;
+  std::vector<int> getNextReverse() override;
+  bool containsNext(int stmtNum) override;
+  bool containsNextReverse(int stmtNum) override;
+  bool containsNextRelationship(int stmtNum, int nextStmtNum) override;
+  bool hasNextRelationship() override;
+
   // Assign Pattern
   void insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
 						   const std::shared_ptr<ExprNode> &nodePtr) override;

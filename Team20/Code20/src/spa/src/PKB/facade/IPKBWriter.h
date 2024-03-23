@@ -105,6 +105,10 @@ class IPKBWriter {
   virtual void insertCallsTProc(std::string const &caller, std::string const &callee) = 0;
   virtual void insertCallsTProc(std::string const &caller, std::unordered_set<std::string> const &calleeSet) = 0;
 
+  // Next
+  virtual void insertNext(int stmtNum, int nextStmtNum) = 0;
+  virtual void insertNext(int stmtNum, std::unordered_set<int> const &nextStmtSet) = 0;
+
   // Pattern
   // Assign
   // T is string, U is hash, stmt number, V is Ptr to node

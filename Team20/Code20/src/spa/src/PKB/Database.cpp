@@ -80,6 +80,10 @@ std::shared_ptr<CallsTProcManager> Database::getCallsTProcManager() {
   return callsTProcManager;
 }
 
+std::shared_ptr<NextManager> Database::getNextManager() {
+  return nextManager;
+}
+
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
   return assignPatternManager;
 }

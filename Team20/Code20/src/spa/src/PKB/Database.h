@@ -28,6 +28,7 @@
 #include "PKB/manager/relationship/CallsProcManager.h"
 #include "PKB/manager/relationship/CallsTProcManager.h"
 #include "PKB/manager/pattern/AssignPartialPatternManager.h"
+#include "PKB/manager/relationship/NextManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -69,6 +70,8 @@ class Database {
 
   std::shared_ptr<CallsTProcManager> callsTProcManager = std::make_shared<CallsTProcManager>();
 
+  std::shared_ptr<NextManager> nextManager = std::make_shared<NextManager>();
+
   // Pattern
   std::shared_ptr<AssignPatternManager> assignPatternManager = std::make_shared<AssignPatternManager>();
   std::shared_ptr<AssignPartialPatternManager>
@@ -101,6 +104,7 @@ class Database {
   std::shared_ptr<ModifiesProcManager> getModifiesProcManager();
   std::shared_ptr<CallsProcManager> getCallsProcManager();
   std::shared_ptr<CallsTProcManager> getCallsTProcManager();
+  std::shared_ptr<NextManager> getNextManager();
 
   std::shared_ptr<AssignPatternManager> getAssignPatternManager();
   std::shared_ptr<AssignPartialPatternManager> getAssignPartialPatternManager();

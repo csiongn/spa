@@ -678,6 +678,52 @@ bool PKBFacade::hasCallsTProcRelationship() {
   return DatabaseUtils::hasRelationship<std::string, std::string>(db->getCallsTProcManager());
 }
 
+// Next
+void PKBFacade::insertNext(int stmtNum, int nextStmtNum) {
+  DatabaseUtils::insertRelationship<int, int>(db->getNextManager(), stmtNum, nextStmtNum);
+}
+
+void PKBFacade::insertNext(int stmtNum, const std::unordered_set<int> &nextStmtSet) {
+  for (const auto &nextStmt : nextStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getNextManager(), stmtNum, nextStmt);
+  }
+}
+
+bool PKBFacade::containsNext(int nextStmtNum) {
+  return DatabaseUtils::containsKey<int, int>(db->getNextManager(), nextStmtNum);
+}
+
+bool PKBFacade::containsNextReverse(int stmtNum) {
+  return DatabaseUtils::containsValue<int, int>(db->getNextManager(), stmtNum);
+}
+
+bool PKBFacade::containsNextRelationship(int stmtNum, int nextStmtNum) {
+  return DatabaseUtils::containsRelationship<int, int>(db->getNextManager(),
+													   stmtNum, nextStmtNum);
+}
+
+bool PKBFacade::hasNextRelationship() {
+  return DatabaseUtils::hasRelationship<int, int>(db->getNextManager());
+}
+
+std::vector<int> PKBFacade::getNext(int stmtNum) {
+  return DatabaseUtils::getRelationship<int, int>(db->getNextManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextReverse(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getNextManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextReverse() {
+  return DatabaseUtils::getKeys<int, int>(db->getNextManager());
+}
+
+std::vector<int> PKBFacade::getNext() {
+  return DatabaseUtils::getValues<int, int>(db->getNextManager());
+}
+
+
+
 // Assign Pattern
 void PKBFacade::insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
 									const std::shared_ptr<ExprNode> &nodePtr) {

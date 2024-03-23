@@ -465,5 +465,35 @@ TEST_CASE("PKB Relationship Test") {
 	bool containsCallsTProcCaller = pkbFacade->containsCallsTProcCaller("function3t");
 	REQUIRE(containsCallsTProcCaller == false);
   }
+
+  SECTION("PKBFacade - NextManager") {
+	// Create an instance of PKB
+	auto pkb = std::make_shared<PKB>();
+	auto pkbFacade = pkb->pkbFacade;
+
+	// Insert some key-value pairs
+	// insertNext
+	pkbFacade->insertNext(1, 2);
+	pkbFacade->insertNext(2, 3);
+
+	// Get values associated with a key
+	// Query: Select s such that Next(1, s)
+	// getNext
+	std::vector<int> values = pkbFacade->getNext(1);
+	std::vector<int> expectedValues = {2};
+	REQUIRE(checkVecValuesEqual(values, expectedValues));
+
+	// containsNext
+	bool containsNext = pkbFacade->containsNext(10);
+	REQUIRE(containsNext == false);
+
+	// containsNextReverse
+	bool containsNextReverse = pkbFacade->containsNextReverse(2);
+	REQUIRE(containsNextReverse == true);
+
+	// containsNextRelationship
+	bool containsNextRelationship = pkbFacade->containsNextRelationship(1, 2);
+	REQUIRE(containsNextRelationship == true);
+  }
 }
 

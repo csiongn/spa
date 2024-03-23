@@ -165,6 +165,16 @@ class IPKBReader {
   virtual bool containsCallsTProcRelationship(std::string const &caller, std::string const &callee) = 0;
   virtual bool hasCallsTProcRelationship() = 0;
 
+  // Next
+  virtual std::vector<int> getNext(int stmtNum) = 0;
+  virtual std::vector<int> getNextReverse(int stmtNum) = 0;
+  virtual std::vector<int> getNext() = 0;
+  virtual std::vector<int> getNextReverse() = 0;
+  virtual bool containsNext(int stmtNum) = 0;
+  virtual bool containsNextReverse(int stmtNum) = 0;
+  virtual bool containsNextRelationship(int stmtNum, int nextStmtNum) = 0;
+  virtual bool hasNextRelationship() = 0;
+
   // Pattern
 
   // Assign
