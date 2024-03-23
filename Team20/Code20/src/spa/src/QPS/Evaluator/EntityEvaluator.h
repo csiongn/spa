@@ -22,6 +22,10 @@ class EntityEvaluator : private ClauseEvaluator {
   bool
   hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int stmtNum, const std::string &ident);
 
+  bool
+  hasRelationship(const SimpleProgram::DesignAbstraction &relationship, const std::string &lIdent,
+				  const std::string &rIdent);
+
   bool hasAtLeastOneRelationship() override;
 
   bool getForwardRelationship() override;
@@ -38,7 +42,11 @@ class EntityEvaluator : private ClauseEvaluator {
 
   bool getDoubleSynonym() override;
 
-  std::vector<int> getUniqueKeys(const PQL::Synonym &syn);
+  std::vector<int> getUniqueStmtNums(const PQL::Synonym &syn);
+
+  std::vector<std::string> getUniqueProcNames();
+
+  std::vector<std::string> getUniqueProcNames(const std::string &ident);
 
   std::vector<std::string> getUniqueValues();
 };

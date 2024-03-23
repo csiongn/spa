@@ -13,12 +13,14 @@ bool EntityEvaluator::evaluate() {
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
 
-  if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO) {
+  if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO ||
+	  lArg.entityType == SimpleProgram::DesignEntity::IDENT) {
+	// USE & MODIFIES STATEMENT
 	if (rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
-	  // 1 case = (STMT_NO, IDENT)
+	  // 2 cases = (STMT_NO, IDENT), (IDENT, IDENT)
 	  return hasRelationship();
 	} else {
-	  // 2 cases = (STMT_NO, SYN/_)
+	  // 4 cases = (STMT_NO, SYN/_), (IDENT, SYN/_)
 	  return getForwardRelationship();
 	}
   }
@@ -43,18 +45,43 @@ bool EntityEvaluator::isAlwaysFalse() {
 }
 
 bool EntityEvaluator::hasRelationship() {
-  // handles XXX(STMT_NO, IDENT)
-  int stmtNum = stoi(clause.arguments[0].identity);
-  std::string ident = clause.arguments[1].identity;
+  PQL::Synonym lArg = clause.arguments[0];
+  std::string rIdent = clause.arguments[1].identity;
 
-  return hasRelationship(clause.clauseType, stmtNum, ident);
+  if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO) {
+	// handles XXX(STMT_NO, IDENT)
+	int stmtNum = stoi(clause.arguments[0].identity);
+
+	return hasRelationship(clause.clauseType, stmtNum, rIdent);
+  } else {
+	// handles XXX(IDENT, IDENT)
+	std::string lIdent = clause.arguments[0].identity;
+
+	return hasRelationship(clause.clauseType, lIdent, rIdent);
+  }
 }
 
 bool EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int stmtNum,
 									  const std::string &ident) {
   switch (relationship) {
-	case SimpleProgram::DesignAbstraction::USESS:return reader->containsUsesRelationship(stmtNum, ident);
-	case SimpleProgram::DesignAbstraction::MODIFIESS:return reader->containsModifiesRelationship(stmtNum, ident);
+	case SimpleProgram::DesignAbstraction::USESS:
+	  return reader->containsUsesRelationship(stmtNum, ident);
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  return reader->containsModifiesRelationship(stmtNum, ident);
+	default:
+	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
+	  return false;
+  }
+}
+
+bool
+EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, const std::string &lIdent,
+								 const std::string &rIdent) {
+  switch (relationship) {
+	case SimpleProgram::DesignAbstraction::USESP:
+	  return reader->containsUsesProcRelationship(lIdent, rIdent);
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
+	  return reader->containsModifiesProcRelationship(lIdent, rIdent);
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return false;
@@ -67,20 +94,27 @@ bool EntityEvaluator::hasAtLeastOneRelationship() {
 }
 
 bool EntityEvaluator::getForwardRelationship() {
-  // handles XXX(STMT_NO, VAR) and XXX(STMT_NO, _)
+  // handles XXX(STMT_NO, VAR), XXX(STMT_NO, _), XXX(IDENT, VAR), XXX(IDENT, _)
   return getRightResults();
 }
 
 bool EntityEvaluator::getRightResults() {
   // get all right var that satisfy the relationship with the fixed left stmtNum
-  int stmtNum = stoi(clause.arguments[0].identity);
   PQL::Synonym rArg = clause.arguments[1];
 
   std::vector<std::string> vars;
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:vars = reader->getUsesVariable(stmtNum);
+	case SimpleProgram::DesignAbstraction::USESS:
+	  vars = reader->getUsesVariable(stoi(clause.arguments[0].identity));
 	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:vars = reader->getModifiesVariable(stmtNum);
+	case SimpleProgram::DesignAbstraction::USESP:
+	  vars = reader->getUsesProcVariable(clause.arguments[0].identity);
+	  break;
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  vars = reader->getModifiesVariable(stoi(clause.arguments[0].identity));
+	  break;
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
+	  vars = reader->getModifiesProcVariable(clause.arguments[0].identity);
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -109,47 +143,71 @@ bool EntityEvaluator::getLeftResults() {
   PQL::Synonym lArg = clause.arguments[0];
   std::string ident = clause.arguments[1].identity;
 
-  std::vector<int> stmtNums;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:stmtNums = reader->getUsesStmt(ident);
-	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:stmtNums = reader->getModifiesStmt(ident);
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  stmtNums = {};
+  if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	std::vector<std::string> procNames = getUniqueProcNames(ident);
+	if (procNames.empty()) {
+	  return false;
+	}
+
+	if (lArg.entityType != SimpleProgram::DesignEntity::WILDCARD) {
+	  resultStore->createColumn(lArg, procNames);
+	}
+	return true;
+  } else {
+	std::vector<int> stmtNums;
+	switch (clause.clauseType) {
+	  case SimpleProgram::DesignAbstraction::USESS:
+		stmtNums = reader->getUsesStmt(ident);
+		break;
+	  case SimpleProgram::DesignAbstraction::MODIFIESS:
+		stmtNums = reader->getModifiesStmt(ident);
+		break;
+	  default:
+		// TODO: throw illegal argument, not allowed relationship type for statement only queries
+		stmtNums = {};
+	}
+
+	if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  return !stmtNums.empty();
+	}
+
+	if (stmtNums.empty()) {
+	  return false;
+	}
+
+	std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(lArg);
+	std::vector<int> lResults = ClauseEvaluator::getIntersection(synStmtNums, stmtNums);
+
+	if (lResults.empty()) {
+	  return false;
+	}
+
+	resultStore->createColumn(lArg, lResults);
+	return true;
   }
-
-  if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-	return !stmtNums.empty();
-  }
-
-  if (stmtNums.empty()) {
-	return false;
-  }
-
-  std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(lArg);
-  std::vector<int> lResults = ClauseEvaluator::getIntersection(synStmtNums, stmtNums);
-
-  if (lResults.empty()) {
-	return false;
-  }
-
-  resultStore->createColumn(lArg, lResults);
-  return true;
 }
 
 bool EntityEvaluator::getSynonymWildcard() {
   // handles (SYN, _)
   PQL::Synonym lArg = clause.arguments[0];
-  std::vector<int> lResults = getUniqueKeys(lArg);
+  if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	std::vector<std::string> lResults = getUniqueProcNames();
+	if (lResults.empty()) {
+	  return false;
+	}
 
-  if (lResults.empty()) {
-	return false;
+	resultStore->createColumn(lArg, lResults);
+	return true;
+  } else {
+	std::vector<int> lResults = getUniqueStmtNums(lArg);
+
+	if (lResults.empty()) {
+	  return false;
+	}
+
+	resultStore->createColumn(lArg, lResults);
+	return true;
   }
-
-  resultStore->createColumn(lArg, lResults);
-  return true;
 }
 
 bool EntityEvaluator::getWildcardSynonym() {
@@ -161,22 +219,29 @@ bool EntityEvaluator::getDoubleSynonym() {
   // Handles (SYN, VAR)
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
-  std::vector<int> lValues = getUniqueKeys(lArg);
   std::vector<std::string> var = getUniqueValues();
   std::vector<std::string> lResults = {};
   std::vector<std::string> rResults = {};
-
-  for (auto v1 : lValues) {
-	for (const auto &v2 : var) {
-	  if (hasRelationship(clause.clauseType, v1, v2)) {
-		lResults.push_back(std::to_string(v1));
-		rResults.push_back(v2);
+  if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	std::vector<std::string> lValues = getUniqueProcNames();
+	for (const auto &v1 : lValues) {
+	  for (const auto &v2 : var) {
+		if (hasRelationship(clause.clauseType, v1, v2)) {
+		  lResults.push_back(v1);
+		  rResults.push_back(v2);
+		}
 	  }
 	}
-  }
-
-  if (lResults.empty()) {
-	return false;
+  } else {
+	std::vector<int> lValues = getUniqueStmtNums(lArg);
+	for (auto v1 : lValues) {
+	  for (const auto &v2 : var) {
+		if (hasRelationship(clause.clauseType, v1, v2)) {
+		  lResults.push_back(std::to_string(v1));
+		  rResults.push_back(v2);
+		}
+	  }
+	}
   }
 
   std::vector<std::vector<std::string>> table = {lResults, rResults};
@@ -189,13 +254,15 @@ bool EntityEvaluator::getDoubleSynonym() {
   return true;
 }
 
-std::vector<int> EntityEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
+std::vector<int> EntityEvaluator::getUniqueStmtNums(const PQL::Synonym &syn) {
   // get all possible stmtNum that satisfies the relationship
   std::vector<int> keyStmtNums;
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:keyStmtNums = reader->getUsesStmt();
+	case SimpleProgram::DesignAbstraction::USESS:
+	  keyStmtNums = reader->getUsesStmt();
 	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:keyStmtNums = reader->getModifiesStmt();
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  keyStmtNums = reader->getModifiesStmt();
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
@@ -206,11 +273,45 @@ std::vector<int> EntityEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
   return ClauseEvaluator::getIntersection(keyStmtNums, synStmtNums);
 }
 
+std::vector<std::string> EntityEvaluator::getUniqueProcNames() {
+  // get all possible procedure names
+  switch (clause.clauseType) {
+	case SimpleProgram::DesignAbstraction::USESS:
+	  return reader->getUsesProcName();
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  return reader->getModifiesProcName();
+	  break;
+	default:
+	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
+	  return {};
+  }
+}
+
+std::vector<std::string> EntityEvaluator::getUniqueProcNames(const std::string &ident) {
+  // get all possible procedure names that satisfies the relationship
+  switch (clause.clauseType) {
+	case SimpleProgram::DesignAbstraction::USESS:
+	  return reader->getUsesProcName(ident);
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  return reader->getModifiesProcName(ident);
+	  break;
+	default:
+	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
+	  return {};
+  }
+}
+
 std::vector<std::string> EntityEvaluator::getUniqueValues() {
   // get all possible variables that satisfies the relationship
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:return reader->getUsesVariable();
-	case SimpleProgram::DesignAbstraction::MODIFIESS:return reader->getModifiesVariable();
+	case SimpleProgram::DesignAbstraction::USESS:
+	  return reader->getUsesVariable();
+	case SimpleProgram::DesignAbstraction::USESP:
+	  return reader->getUsesProcVariable();
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  return reader->getModifiesVariable();
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
+	  return reader->getModifiesProcVariable();
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return {};

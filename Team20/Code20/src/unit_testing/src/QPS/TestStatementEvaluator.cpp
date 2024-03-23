@@ -350,15 +350,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -398,15 +403,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -465,15 +475,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -541,15 +556,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -606,15 +626,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -669,15 +694,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -717,15 +747,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -784,15 +819,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -860,15 +900,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -925,15 +970,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -988,15 +1038,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -1036,15 +1091,20 @@ TEST_CASE("Statement Evaluator") {
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "FOLLOWS passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWS:
+			std::cout << "FOLLOWS passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "FOLLOWST passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::FOLLOWST:
+			std::cout << "FOLLOWST passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "PARENT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENT:
+			std::cout << "PARENT passed" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "PARENTT passed" << std::endl;
+		  case SimpleProgram::DesignAbstraction::PARENTT:
+			std::cout << "PARENTT passed" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 	  }
 	}
@@ -1103,15 +1163,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1178,15 +1243,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1242,15 +1312,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1319,15 +1394,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1394,15 +1474,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1458,15 +1543,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1544,15 +1634,20 @@ TEST_CASE("Statement Evaluator") {
 
 		  for (auto const &cl : clauses) {
 			switch (cl.clauseType) {
-			  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWS:
+				std::cout << "TESTING FOLLOWS" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWST:
+				std::cout << "TESTING FOLLOWST" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENT:
+				std::cout << "TESTING PARENT" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENTT:
+				std::cout << "TESTING PARENTT" << std::endl;
 				break;
-			  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			  default:
+				std::cout << "UNKNOWN CLAUSE" << std::endl;
 			}
 
 			// need to reset evaluator after testing each query
@@ -1629,15 +1724,20 @@ TEST_CASE("Statement Evaluator") {
 
 		  for (auto const &cl : clauses) {
 			switch (cl.clauseType) {
-			  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWS:
+				std::cout << "TESTING FOLLOWS" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWST:
+				std::cout << "TESTING FOLLOWST" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENT:
+				std::cout << "TESTING PARENT" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENTT:
+				std::cout << "TESTING PARENTT" << std::endl;
 				break;
-			  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			  default:
+				std::cout << "UNKNOWN CLAUSE" << std::endl;
 			}
 
 			// need to reset evaluator after testing each query
@@ -1703,15 +1803,20 @@ TEST_CASE("Statement Evaluator") {
 
 		  for (auto const &cl : clauses) {
 			switch (cl.clauseType) {
-			  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWS:
+				std::cout << "TESTING FOLLOWS" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWST:
+				std::cout << "TESTING FOLLOWST" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENT:
+				std::cout << "TESTING PARENT" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENTT:
+				std::cout << "TESTING PARENTT" << std::endl;
 				break;
-			  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			  default:
+				std::cout << "UNKNOWN CLAUSE" << std::endl;
 			}
 
 			// need to reset evaluator after testing each query
@@ -1767,15 +1872,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -1840,15 +1950,20 @@ TEST_CASE("Statement Evaluator") {
 
 		  for (auto const &cl : clauses) {
 			switch (cl.clauseType) {
-			  case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWS:
+				std::cout << "TESTING FOLLOWS" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			  case SimpleProgram::DesignAbstraction::FOLLOWST:
+				std::cout << "TESTING FOLLOWST" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENT:
+				std::cout << "TESTING PARENT" << std::endl;
 				break;
-			  case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			  case SimpleProgram::DesignAbstraction::PARENTT:
+				std::cout << "TESTING PARENTT" << std::endl;
 				break;
-			  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			  default:
+				std::cout << "UNKNOWN CLAUSE" << std::endl;
 			}
 
 			// need to reset evaluator after testing each query
@@ -1903,15 +2018,20 @@ TEST_CASE("Statement Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::FOLLOWS:std::cout << "TESTING FOLLOWS" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWS:
+			  std::cout << "TESTING FOLLOWS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::FOLLOWST:std::cout << "TESTING FOLLOWST" << std::endl;
+			case SimpleProgram::DesignAbstraction::FOLLOWST:
+			  std::cout << "TESTING FOLLOWST" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENT:std::cout << "TESTING PARENT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENT:
+			  std::cout << "TESTING PARENT" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::PARENTT:std::cout << "TESTING PARENTT" << std::endl;
+			case SimpleProgram::DesignAbstraction::PARENTT:
+			  std::cout << "TESTING PARENTT" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query

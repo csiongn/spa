@@ -24,21 +24,29 @@ void SPController::populatePKB() {
 
 void SPController::insertEntity(SimpleProgram::DesignEntity entity, const std::unordered_set<int> &value) {
   switch (entity) {
-	case SimpleProgram::DesignEntity::ASSIGN:pkbWriter->insertAssign(value);
+	case SimpleProgram::DesignEntity::ASSIGN:
+	  pkbWriter->insertAssign(value);
 	  break;
-	case SimpleProgram::DesignEntity::CALL:pkbWriter->insertCall(value);
+	case SimpleProgram::DesignEntity::CALL:
+	  pkbWriter->insertCall(value);
 	  break;
-	case SimpleProgram::DesignEntity::STMT:pkbWriter->insertStatement(value);
+	case SimpleProgram::DesignEntity::STMT:
+	  pkbWriter->insertStatement(value);
 	  break;
-	case SimpleProgram::DesignEntity::READ:pkbWriter->insertRead(value);
+	case SimpleProgram::DesignEntity::READ:
+	  pkbWriter->insertRead(value);
 	  break;
-	case SimpleProgram::DesignEntity::PRINT:pkbWriter->insertPrint(value);
+	case SimpleProgram::DesignEntity::PRINT:
+	  pkbWriter->insertPrint(value);
 	  break;
-	case SimpleProgram::DesignEntity::WHILE:pkbWriter->insertWhile(value);
+	case SimpleProgram::DesignEntity::WHILE:
+	  pkbWriter->insertWhile(value);
 	  break;
-	case SimpleProgram::DesignEntity::IF:pkbWriter->insertIf(value);
+	case SimpleProgram::DesignEntity::IF:
+	  pkbWriter->insertIf(value);
 	  break;
-	case SimpleProgram::DesignEntity::CONSTANT:pkbWriter->insertConstant(value);
+	case SimpleProgram::DesignEntity::CONSTANT:
+	  pkbWriter->insertConstant(value);
 	  break;
 	default:
 	  // TODO: Whether to throw error/exception
@@ -53,9 +61,11 @@ void SPController::insertEntity(SimpleProgram::DesignEntity entity, const std::u
 	  // insert string of set
 	  pkbWriter->insertVariable(value);
 	  break;
-	case SimpleProgram::DesignEntity::PROCEDURE:std::cout << "Procedure entity type not supported yet." << std::endl;
+	case SimpleProgram::DesignEntity::PROCEDURE:
+	  std::cout << "Procedure entity type not supported yet." << std::endl;
 	  break;
-	default:std::cout << "Invalid entity type provided." << std::endl;
+	default:
+	  std::cout << "Invalid entity type provided." << std::endl;
 	  break;
   }
 }
@@ -78,15 +88,20 @@ void SPController::insertRelationship(SimpleProgram::DesignAbstraction relations
 									  int key,
 									  const std::unordered_set<int> &value) {
   switch (relationship) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:pkbWriter->insertFollows(key, value);
+	case SimpleProgram::DesignAbstraction::FOLLOWS:
+	  pkbWriter->insertFollows(key, value);
 	  break;
-	case SimpleProgram::DesignAbstraction::FOLLOWST:pkbWriter->insertFollowsT(key, value);
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  pkbWriter->insertFollowsT(key, value);
 	  break;
-	case SimpleProgram::DesignAbstraction::PARENT:pkbWriter->insertParent(key, value);
+	case SimpleProgram::DesignAbstraction::PARENT:
+	  pkbWriter->insertParent(key, value);
 	  break;
-	case SimpleProgram::DesignAbstraction::PARENTT:pkbWriter->insertParentT(key, value);
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  pkbWriter->insertParentT(key, value);
 	  break;
-	default:std::cout << "Invalid relationship type provided." << std::endl;
+	default:
+	  std::cout << "Invalid relationship type provided." << std::endl;
 	  break;
   }
 }
@@ -95,11 +110,14 @@ void SPController::insertRelationship(SimpleProgram::DesignAbstraction relations
 									  int key,
 									  const std::unordered_set<std::string> &value) {
   switch (relationship) {
-	case SimpleProgram::DesignAbstraction::USESS:pkbWriter->insertUsesStmt(key, value);
+	case SimpleProgram::DesignAbstraction::USESS:
+	  pkbWriter->insertUsesStmt(key, value);
 	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:pkbWriter->insertModifiesStmt(key, value);
+	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	  pkbWriter->insertModifiesStmt(key, value);
 	  break;
-	default:std::cout << "Invalid relationship type provided." << std::endl;
+	default:
+	  std::cout << "Invalid relationship type provided." << std::endl;
 	  break;
   }
 }

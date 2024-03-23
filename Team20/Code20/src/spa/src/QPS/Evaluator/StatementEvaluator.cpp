@@ -78,7 +78,8 @@ bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction 
 	case SimpleProgram::DesignAbstraction::FOLLOWST:
 	  return reader->containsFollowsTRelationship(leftStmtNum,
 												  rightStmtNum);
-	case SimpleProgram::DesignAbstraction::PARENT:return reader->containsParentRelationship(leftStmtNum, rightStmtNum);
+	case SimpleProgram::DesignAbstraction::PARENT:
+	  return reader->containsParentRelationship(leftStmtNum, rightStmtNum);
 	case SimpleProgram::DesignAbstraction::PARENTT:
 	  return reader->containsParentTRelationship(leftStmtNum,
 												 rightStmtNum);
@@ -91,10 +92,14 @@ bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction 
 bool StatementEvaluator::hasAtLeastOneRelationship() {
   // handles XXX(_, _)
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:return reader->hasFollowsRelationship();
-	case SimpleProgram::DesignAbstraction::FOLLOWST:return reader->hasFollowsTRelationship();
-	case SimpleProgram::DesignAbstraction::PARENT:return reader->hasParentRelationship();
-	case SimpleProgram::DesignAbstraction::PARENTT:return reader->hasParentTRelationship();
+	case SimpleProgram::DesignAbstraction::FOLLOWS:
+	  return reader->hasFollowsRelationship();
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  return reader->hasFollowsTRelationship();
+	case SimpleProgram::DesignAbstraction::PARENT:
+	  return reader->hasParentRelationship();
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  return reader->hasParentTRelationship();
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
 	  return false;
@@ -111,13 +116,17 @@ bool StatementEvaluator::getForwardRelationship() {
 
 	std::vector<int> rResults;
 	switch (clause.clauseType) {
-	  case SimpleProgram::DesignAbstraction::FOLLOWS:rResults = reader->getFollows(leftStmtNum);
+	  case SimpleProgram::DesignAbstraction::FOLLOWS:
+		rResults = reader->getFollows(leftStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::FOLLOWST:rResults = reader->getFollowsT(leftStmtNum);
+	  case SimpleProgram::DesignAbstraction::FOLLOWST:
+		rResults = reader->getFollowsT(leftStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::PARENT:rResults = reader->getChild(leftStmtNum);
+	  case SimpleProgram::DesignAbstraction::PARENT:
+		rResults = reader->getChild(leftStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::PARENTT:rResults = reader->getChildT(leftStmtNum);
+	  case SimpleProgram::DesignAbstraction::PARENTT:
+		rResults = reader->getChildT(leftStmtNum);
 		break;
 	  default:
 		// TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -178,13 +187,17 @@ bool StatementEvaluator::getReversedRelationship() {
 
 	std::vector<int> lResults;
 	switch (clause.clauseType) {
-	  case SimpleProgram::DesignAbstraction::FOLLOWS:lResults = reader->getFollowing(rightStmtNum);
+	  case SimpleProgram::DesignAbstraction::FOLLOWS:
+		lResults = reader->getFollowing(rightStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::FOLLOWST:lResults = reader->getFollowingT(rightStmtNum);
+	  case SimpleProgram::DesignAbstraction::FOLLOWST:
+		lResults = reader->getFollowingT(rightStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::PARENT:lResults = reader->getParent(rightStmtNum);
+	  case SimpleProgram::DesignAbstraction::PARENT:
+		lResults = reader->getParent(rightStmtNum);
 		break;
-	  case SimpleProgram::DesignAbstraction::PARENTT:lResults = reader->getParentT(rightStmtNum);
+	  case SimpleProgram::DesignAbstraction::PARENTT:
+		lResults = reader->getParentT(rightStmtNum);
 		break;
 	  default:
 		// TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -240,10 +253,12 @@ std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
   std::vector<int> keyStmtNums;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	case SimpleProgram::DesignAbstraction::FOLLOWST:keyStmtNums = reader->getFolloweeStmts();
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  keyStmtNums = reader->getFolloweeStmts();
 	  break;
 	case SimpleProgram::DesignAbstraction::PARENT:
-	case SimpleProgram::DesignAbstraction::PARENTT:keyStmtNums = reader->getParentStmts();
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  keyStmtNums = reader->getParentStmts();
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -263,10 +278,12 @@ std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
   std::vector<int> valueStmtNums;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	case SimpleProgram::DesignAbstraction::FOLLOWST:valueStmtNums = reader->getFollowerStmts();
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  valueStmtNums = reader->getFollowerStmts();
 	  break;
 	case SimpleProgram::DesignAbstraction::PARENT:
-	case SimpleProgram::DesignAbstraction::PARENTT:valueStmtNums = reader->getChildStmts();
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  valueStmtNums = reader->getChildStmts();
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries

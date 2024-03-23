@@ -174,8 +174,10 @@ struct Token {
 		case SP::TokenType::LEFT_PAREN:
 		case SP::TokenType::RIGHT_BRACE:
 		case SP::TokenType::RIGHT_PAREN:
-		case SP::TokenType::SEMICOLON:return true;
-		default:return false;
+		case SP::TokenType::SEMICOLON:
+		  return true;
+		default:
+		  return false;
 	  }
 	}
   }

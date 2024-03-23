@@ -38,11 +38,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -81,11 +84,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -126,11 +132,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -169,11 +178,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -214,11 +226,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -259,11 +274,14 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		switch (cl.clauseType) {
-		  case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::USESS:
+			std::cout << "TESTING USESS" << std::endl;
 			break;
-		  case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+		  case SimpleProgram::DesignAbstraction::MODIFIESS:
+			std::cout << "TESTING MODIFIESS" << std::endl;
 			break;
-		  default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+		  default:
+			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
 
 		// need to reset evaluator after testing each query
@@ -327,11 +345,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -394,11 +415,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -460,11 +484,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -527,11 +554,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -585,11 +615,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -652,11 +685,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
@@ -710,11 +746,14 @@ TEST_CASE("Entity Evaluator") {
 
 		for (auto const &cl : clauses) {
 		  switch (cl.clauseType) {
-			case SimpleProgram::DesignAbstraction::USESS:std::cout << "TESTING USESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::USESS:
+			  std::cout << "TESTING USESS" << std::endl;
 			  break;
-			case SimpleProgram::DesignAbstraction::MODIFIESS:std::cout << "TESTING MODIFIESS" << std::endl;
+			case SimpleProgram::DesignAbstraction::MODIFIESS:
+			  std::cout << "TESTING MODIFIESS" << std::endl;
 			  break;
-			default:std::cout << "UNKNOWN CLAUSE" << std::endl;
+			default:
+			  std::cout << "UNKNOWN CLAUSE" << std::endl;
 		  }
 
 		  // need to reset evaluator after testing each query
