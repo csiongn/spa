@@ -58,7 +58,9 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
   // Add all declarations to the
   for (const auto &syn : q.declarations) {
-	addSynonymToStore(syn);
+	if (syn == q.selectSynonym) {
+	  addSynonymToStore(syn);
+	}
   }
 }
 

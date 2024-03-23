@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <iterator>
 #include <unordered_map>
-#include <unordered_set>
 #include <utility>
 
 #include "Result.h"
@@ -55,7 +54,6 @@ Result::Result(const std::vector<std::vector<std::string>> &t,
 	: table(t), colNames(cNames), colNameToIndex(std::move(colNameIndex)), empty(true) {}
 
 std::vector<std::string> Result::getCommonColumns(const QueryEvaluator::Result &r) {
-  // TODO FIX
   std::vector<std::string> commonCols;
   std::vector sortedColName1 = colNames;
   std::vector sortedColName2 = r.colNames;
