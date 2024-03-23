@@ -31,6 +31,12 @@ enum class DesignAbstraction {
   MODIFIESP,
   PATTERN_ASSIGN,
   PATTERN_IF,
-  PATTERN_WHILE
+  PATTERN_WHILE,
+  CALLS,
+  CALLST,
+  NEXT,
+  NEXTT,
+  AFFECTS,
+  WITH
 };
 }
