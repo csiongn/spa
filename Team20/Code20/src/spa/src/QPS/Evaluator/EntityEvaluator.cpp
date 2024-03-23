@@ -8,14 +8,13 @@
 namespace QueryEvaluator {
 
 bool EntityEvaluator::evaluate() {
-  // Handles clauses with entity reference: USESS/USESP/MODIFIESS/MODIFIESP
+  // Handles clauses with entity reference: USESS/USESP/MODIFIESS/MODIFIESP/CALLS/CALLST
 
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
 
   if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO ||
 	  lArg.entityType == SimpleProgram::DesignEntity::IDENT) {
-	// USE & MODIFIES STATEMENT
 	if (rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
 	  // 2 cases = (STMT_NO, IDENT), (IDENT, IDENT)
 	  return hasRelationship();
@@ -49,12 +48,12 @@ bool EntityEvaluator::hasRelationship() {
   std::string rIdent = clause.arguments[1].identity;
 
   if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO) {
-	// handles XXX(STMT_NO, IDENT)
+	// handles XXX(STMT_NO, IDENT) = USES & MODIFIES STATEMENT
 	int stmtNum = stoi(clause.arguments[0].identity);
 
 	return hasRelationship(clause.clauseType, stmtNum, rIdent);
   } else {
-	// handles XXX(IDENT, IDENT)
+	// handles XXX(IDENT, IDENT) = USESP & MODIFIESP & CALLS & CALLST
 	std::string lIdent = clause.arguments[0].identity;
 
 	return hasRelationship(clause.clauseType, lIdent, rIdent);
@@ -82,6 +81,10 @@ EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relatio
 	  return reader->containsUsesProcRelationship(lIdent, rIdent);
 	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	  return reader->containsModifiesProcRelationship(lIdent, rIdent);
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  return reader->containsCallsProcRelationship(lIdent, rIdent);
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  return reader->containsCallsTProcRelationship(lIdent, rIdent);
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return false;
@@ -99,22 +102,29 @@ bool EntityEvaluator::getForwardRelationship() {
 }
 
 bool EntityEvaluator::getRightResults() {
-  // get all right var that satisfy the relationship with the fixed left stmtNum
+  // get all right var that satisfy the relationship with the fixed left STMT_NO/IDENT
+  PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
 
   std::vector<std::string> vars;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::USESS:
-	  vars = reader->getUsesVariable(stoi(clause.arguments[0].identity));
+	  vars = reader->getUsesVariable(stoi(lArg.identity));
 	  break;
 	case SimpleProgram::DesignAbstraction::USESP:
-	  vars = reader->getUsesProcVariable(clause.arguments[0].identity);
+	  vars = reader->getUsesProcVariable(lArg.identity);
 	  break;
 	case SimpleProgram::DesignAbstraction::MODIFIESS:
-	  vars = reader->getModifiesVariable(stoi(clause.arguments[0].identity));
+	  vars = reader->getModifiesVariable(stoi(lArg.identity));
 	  break;
 	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  vars = reader->getModifiesProcVariable(clause.arguments[0].identity);
+	  vars = reader->getModifiesProcVariable(lArg.identity);
+	  break;
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  vars = reader->getCallsProcCallee(lArg.identity);
+	  break;
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  vars = reader->getCallsTProcCallee(lArg.identity);
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -139,12 +149,13 @@ bool EntityEvaluator::getReversedRelationship() {
 }
 
 bool EntityEvaluator::getLeftResults() {
-  // get all left stmtNums that satisfy the relationship with the fixed right ident
+  // get all left STMT_NUM/IDENT that satisfy the relationship with the fixed right IDENT
   PQL::Synonym lArg = clause.arguments[0];
   std::string ident = clause.arguments[1].identity;
 
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
-	std::vector<std::string> procNames = getUniqueProcNames(ident);
+	// USESP/MODIFIESP/CALLS/CALLST
+	std::vector<std::string> procNames = getUniqueLeftProcNames(ident);
 	if (procNames.empty()) {
 	  return false;
 	}
@@ -191,7 +202,7 @@ bool EntityEvaluator::getSynonymWildcard() {
   // handles (SYN, _)
   PQL::Synonym lArg = clause.arguments[0];
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
-	std::vector<std::string> lResults = getUniqueProcNames();
+	std::vector<std::string> lResults = getUniqueLeftProcNames();
 	if (lResults.empty()) {
 	  return false;
 	}
@@ -219,13 +230,13 @@ bool EntityEvaluator::getDoubleSynonym() {
   // Handles (SYN, VAR)
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
-  std::vector<std::string> var = getUniqueValues();
+  std::vector<std::string> values = getUniqueValues();
   std::vector<std::string> lResults = {};
   std::vector<std::string> rResults = {};
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
-	std::vector<std::string> lValues = getUniqueProcNames();
+	std::vector<std::string> lValues = getUniqueLeftProcNames();
 	for (const auto &v1 : lValues) {
-	  for (const auto &v2 : var) {
+	  for (const auto &v2 : values) {
 		if (hasRelationship(clause.clauseType, v1, v2)) {
 		  lResults.push_back(v1);
 		  rResults.push_back(v2);
@@ -235,7 +246,7 @@ bool EntityEvaluator::getDoubleSynonym() {
   } else {
 	std::vector<int> lValues = getUniqueStmtNums(lArg);
 	for (auto v1 : lValues) {
-	  for (const auto &v2 : var) {
+	  for (const auto &v2 : values) {
 		if (hasRelationship(clause.clauseType, v1, v2)) {
 		  lResults.push_back(std::to_string(v1));
 		  rResults.push_back(v2);
@@ -273,28 +284,34 @@ std::vector<int> EntityEvaluator::getUniqueStmtNums(const PQL::Synonym &syn) {
   return ClauseEvaluator::getIntersection(keyStmtNums, synStmtNums);
 }
 
-std::vector<std::string> EntityEvaluator::getUniqueProcNames() {
-  // get all possible procedure names
+std::vector<std::string> EntityEvaluator::getUniqueLeftProcNames() {
+  // get all possible procedure names for left arg
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:
+	case SimpleProgram::DesignAbstraction::USESP:
 	  return reader->getUsesProcName();
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	  return reader->getModifiesProcName();
-	  break;
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  return reader->getCallsProcCaller();
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  return reader->getCallsTProcCaller();
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return {};
   }
 }
 
-std::vector<std::string> EntityEvaluator::getUniqueProcNames(const std::string &ident) {
-  // get all possible procedure names that satisfies the relationship
+std::vector<std::string> EntityEvaluator::getUniqueLeftProcNames(const std::string &ident) {
+  // get all possible procedure names that satisfies the relationship for left arg
   switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:
+	case SimpleProgram::DesignAbstraction::USESP:
 	  return reader->getUsesProcName(ident);
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	  return reader->getModifiesProcName(ident);
-	  break;
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  return reader->getCallsProcCaller(ident);
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  return reader->getCallsTProcCaller(ident);
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return {};
@@ -302,7 +319,7 @@ std::vector<std::string> EntityEvaluator::getUniqueProcNames(const std::string &
 }
 
 std::vector<std::string> EntityEvaluator::getUniqueValues() {
-  // get all possible variables that satisfies the relationship
+  // get all possible values that satisfies the relationship for right arg
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::USESS:
 	  return reader->getUsesVariable();
@@ -312,6 +329,10 @@ std::vector<std::string> EntityEvaluator::getUniqueValues() {
 	  return reader->getModifiesVariable();
 	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	  return reader->getModifiesProcVariable();
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  return reader->getCallsProcCallee();
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  return reader->getCallsTProcCallee();
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
 	  return {};

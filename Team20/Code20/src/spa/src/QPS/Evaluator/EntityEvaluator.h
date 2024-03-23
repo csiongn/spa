@@ -44,9 +44,9 @@ class EntityEvaluator : private ClauseEvaluator {
 
   std::vector<int> getUniqueStmtNums(const PQL::Synonym &syn);
 
-  std::vector<std::string> getUniqueProcNames();
+  std::vector<std::string> getUniqueLeftProcNames();
 
-  std::vector<std::string> getUniqueProcNames(const std::string &ident);
+  std::vector<std::string> getUniqueLeftProcNames(const std::string &ident);
 
   std::vector<std::string> getUniqueValues();
 };
