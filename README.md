@@ -13,10 +13,10 @@ C++ Standard | C++17
 
 No additional instructions required.
 
-### Running Autotester
+### Running Cpplint Locally
 
-- Run and execute `./autotester.h` in /Team20 directory in terminal.
-- Output files will be generated in respective directories.
+- Run and execute `./cpplint_local.h` in /Team20 directory in terminal.
+- Cpplint errors will be displayed in the terminal.
 
 # Team Members
 
