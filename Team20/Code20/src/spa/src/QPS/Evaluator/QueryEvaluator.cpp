@@ -39,6 +39,7 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 	case SimpleProgram::DesignAbstraction::FOLLOWST:
 	case SimpleProgram::DesignAbstraction::PARENT:
 	case SimpleProgram::DesignAbstraction::PARENTT:
+	case SimpleProgram::DesignAbstraction::NEXT:
 	  return StatementEvaluator{reader, clause, resultStore}.evaluate();
 	case SimpleProgram::DesignAbstraction::USESS:
 	case SimpleProgram::DesignAbstraction::MODIFIESS:
