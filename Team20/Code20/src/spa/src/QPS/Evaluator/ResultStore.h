@@ -21,7 +21,7 @@ class ResultStore {
 	results.push_back(res);
   }
 
-  std::vector<std::string> retrieveSelect(const PQL::Synonym &selectSyn);
+  std::vector<std::string> retrieveSelect(const std::vector<PQL::Synonym> &selectSyns);
 
  private:
   void joinResults();

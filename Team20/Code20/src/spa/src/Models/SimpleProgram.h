@@ -17,7 +17,8 @@ enum class DesignEntity {
   IDENT,
   EXPR,
   PARTIAL_EXPR,
-  INTEGER
+  INTEGER,
+  BOOLEAN
 };
 
 enum class DesignAbstraction {

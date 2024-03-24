@@ -33,7 +33,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &cl : clauses) {
@@ -50,7 +50,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 	  }
@@ -79,7 +79,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
@@ -96,7 +96,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 	  }
@@ -127,7 +127,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  for (auto const &cl : clauses) {
@@ -144,7 +144,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(checkVecValuesEqual(res, expectedRes));
 	  }
@@ -173,7 +173,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
@@ -190,7 +190,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(checkVecValuesEqual(res, expectedRes));
 	  }
@@ -221,7 +221,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  for (auto const &cl : clauses) {
@@ -238,7 +238,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		bool equal = checkVecValuesEqual(res, expectedRes);
 //                REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -269,7 +269,7 @@ TEST_CASE("Entity Evaluator") {
 	  std::vector<PQL::Clause> clauses = {usesClause, modifiesClause};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {usesClause}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
@@ -286,7 +286,7 @@ TEST_CASE("Entity Evaluator") {
 
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 	  }
@@ -335,7 +335,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &syn : declarations) {
@@ -357,7 +357,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -405,7 +405,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"3"};
 	  for (auto const &syn : declarations) {
@@ -427,7 +427,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, syn);
+		  q = PQL::Query({varDeclaration}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -474,7 +474,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -496,7 +496,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -544,7 +544,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"3"};
 	  for (auto const &syn : declarations) {
@@ -566,7 +566,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, syn);
+		  q = PQL::Query({varDeclaration}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -605,7 +605,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -627,7 +627,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, syn);
+		  q = PQL::Query({varDeclaration}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -675,7 +675,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"3"};
 	  for (auto const &syn : declarations) {
@@ -697,7 +697,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, syn);
+		  q = PQL::Query({varDeclaration}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -736,7 +736,7 @@ TEST_CASE("Entity Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::USESS, {rArgSyn, rArgSyn})};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -758,7 +758,7 @@ TEST_CASE("Entity Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration}, {cl}, syn);
+		  q = PQL::Query({varDeclaration}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;

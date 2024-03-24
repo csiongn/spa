@@ -23,13 +23,19 @@ std::vector<std::string> QueryEvaluator::evaluateQuery(const PQL::Query &q) {
 	auto isTrue = evaluateClause(clause);
 	if (!isTrue) {
 	  // empty result, final result will also be empty, can just return
+	  if (q.selectSynonyms[0].entityType == SimpleProgram::DesignEntity::BOOLEAN) {
+		return {"FALSE"};
+	  }
 	  return {};
 	}
   }
 
+  if (q.selectSynonyms[0].entityType == SimpleProgram::DesignEntity::BOOLEAN) {
+	return {"TRUE"};
+  }
+
   // need to select from the results
-  std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonym);
-//        return resultStore.retrieveSelect(q.selectSynonym);
+  std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonyms);
   return selectResult;
 }
 
@@ -61,7 +67,7 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
   // Add all declarations to the
   for (const auto &syn : q.declarations) {
-	if (syn == q.selectSynonym) {
+	if (std::find(q.selectSynonyms.begin(), q.selectSynonyms.end(), syn) != q.selectSynonyms.end()) {
 	  addSynonymToStore(syn);
 	}
   }
@@ -95,12 +101,7 @@ void QueryEvaluator::addSynonymToStore(const PQL::Synonym &syn) {
 	  resultStore->createColumn(syn, intRes);
 	  return;
 
-	case SimpleProgram::DesignEntity::STMT_NO:
-	case SimpleProgram::DesignEntity::WILDCARD:
-	case SimpleProgram::DesignEntity::IDENT:
-	case SimpleProgram::DesignEntity::EXPR:
-	case SimpleProgram::DesignEntity::PARTIAL_EXPR:
-	case SimpleProgram::DesignEntity::INTEGER:
+	default:
 	  return;
   }
 }

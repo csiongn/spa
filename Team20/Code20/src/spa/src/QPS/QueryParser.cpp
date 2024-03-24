@@ -16,7 +16,7 @@ PQL::Query QueryParser::parse() {
   PQL::Synonym selectSynonym = parseSelectClause();
   clauses = parseClauses();
 
-  PQL::Query query = PQL::Query(usedDeclarations, clauses, selectSynonym);
+  PQL::Query query = PQL::Query(usedDeclarations, clauses, {selectSynonym});
   return query;
 }
 

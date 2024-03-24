@@ -10,7 +10,7 @@ void ResultStore::insertResult(std::shared_ptr<Result> res) {
   results.push_back(res);
 }
 
-std::vector<std::string> ResultStore::retrieveSelect(const PQL::Synonym &selectSyn) {
+std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Synonym> &selectSyns) {
   if (results.empty()) {
 	// no result
 	return {};
@@ -21,10 +21,35 @@ std::vector<std::string> ResultStore::retrieveSelect(const PQL::Synonym &selectS
 	return {};
   }
 
-  Result res = *(results[0].get());
-  size_t selectSynIndex = res.colNameToIndex.at(selectSyn.identity);
-  std::vector<std::string> selectResult = res.table[selectSynIndex];
-  return removeDuplicates(selectResult);
+  std::shared_ptr<Result> res = results[0];
+  if (selectSyns.size() == 1) {
+	size_t selectSynIndex = res->colNameToIndex.at(selectSyns[0].identity);
+	std::vector<std::string> selectResult = res->table[selectSynIndex];
+	return removeDuplicates(selectResult);
+  } else {
+	// tuple
+	std::vector<size_t> selectSynIndexes;
+	selectSynIndexes.reserve(selectSyns.size());
+	for (const PQL::Synonym &syn : selectSyns) {
+	  selectSynIndexes.push_back(res->colNameToIndex.at(syn.identity));
+	}
+
+	std::vector<std::string> selectResult;
+	size_t numRows = res->table[0].size();
+	selectResult.reserve(numRows);
+	for (size_t rowIndex = 0; rowIndex < numRows; rowIndex++) {
+	  std::string curr;
+	  for (size_t ind = 0; ind < selectSynIndexes.size(); ind++) {
+		size_t colIndex = selectSynIndexes[ind];
+		curr += res->table[colIndex][rowIndex];
+		if (ind != selectSynIndexes.size() - 1) {
+		  curr += " ";
+		}
+	  }
+	  selectResult.push_back(curr);
+	}
+	return selectResult;
+  }
 }
 
 void ResultStore::joinResults() {

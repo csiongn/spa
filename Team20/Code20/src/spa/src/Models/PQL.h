@@ -39,16 +39,16 @@ struct Clause {
 struct Query {
   std::vector<Synonym> declarations;
   std::vector<Clause> clauses;
-  Synonym selectSynonym;
+  std::vector<Synonym> selectSynonyms;
 
-  Query(const std::vector<Synonym> &dec, const std::vector<Clause> &cls, const Synonym &select);
+  Query(const std::vector<Synonym> &dec, const std::vector<Clause> &cls, const std::vector<Synonym> &selects);
 
   bool operator==(const Query &other) const {
-	return declarations == other.declarations && clauses == other.clauses && selectSynonym == other.selectSynonym;
+	return declarations == other.declarations && clauses == other.clauses && selectSynonyms == other.selectSynonyms;
   };
 
   bool operator!=(const Query &other) const {
-	return declarations != other.declarations || clauses != other.clauses || selectSynonym != other.selectSynonym;;
+	return declarations != other.declarations || clauses != other.clauses || selectSynonyms != other.selectSynonyms;;
   };
 };
 }

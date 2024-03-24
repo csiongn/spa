@@ -22,7 +22,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	  auto q = PQL::Query({varDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
@@ -47,7 +47,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	  auto q = PQL::Query({varDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2", "testVar3", "testVar4", "testVar5"};
@@ -66,7 +66,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	  auto q = PQL::Query({varDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -87,7 +87,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto procDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
-	  auto q = PQL::Query({procDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({procDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testProc1"};
@@ -112,7 +112,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto procDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
-	  auto q = PQL::Query({procDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({procDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"};
@@ -133,7 +133,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto stmtDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
-	  auto q = PQL::Query({stmtDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({stmtDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -158,7 +158,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto stmtDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
-	  auto q = PQL::Query({stmtDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({stmtDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -179,7 +179,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto readDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
-	  auto q = PQL::Query({readDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({readDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -204,7 +204,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto readDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
-	  auto q = PQL::Query({readDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({readDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -223,7 +223,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto readDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
-	  auto q = PQL::Query({readDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({readDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -244,7 +244,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto printDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
-	  auto q = PQL::Query({printDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({printDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -269,7 +269,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto printDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
-	  auto q = PQL::Query({printDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({printDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -288,7 +288,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto printDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
-	  auto q = PQL::Query({printDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({printDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -309,7 +309,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto assignDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
-	  auto q = PQL::Query({assignDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({assignDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -334,7 +334,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto assignDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
-	  auto q = PQL::Query({assignDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({assignDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -353,7 +353,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto assignDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a");
-	  auto q = PQL::Query({assignDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({assignDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -374,7 +374,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto callDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
-	  auto q = PQL::Query({callDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({callDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -399,7 +399,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto callDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
-	  auto q = PQL::Query({callDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({callDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -418,7 +418,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto callDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
-	  auto q = PQL::Query({callDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({callDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -439,7 +439,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto whileDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
-	  auto q = PQL::Query({whileDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({whileDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -464,7 +464,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto whileDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
-	  auto q = PQL::Query({whileDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({whileDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -483,7 +483,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto whileDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
-	  auto q = PQL::Query({whileDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({whileDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -504,7 +504,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto ifDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
-	  auto q = PQL::Query({ifDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({ifDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -529,7 +529,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto ifDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
-	  auto q = PQL::Query({ifDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({ifDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -548,7 +548,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto ifDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
-	  auto q = PQL::Query({ifDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({ifDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -569,7 +569,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto constDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
-	  auto q = PQL::Query({constDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({constDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1"};
@@ -594,7 +594,7 @@ TEST_CASE("Query Evaluator") {
 
 	  auto constDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
-	  auto q = PQL::Query({constDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({constDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
@@ -613,11 +613,142 @@ TEST_CASE("Query Evaluator") {
 
 	  auto constDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c");
-	  auto q = PQL::Query({constDeclaration}, {}, selectSyn);
+	  auto q = PQL::Query({constDeclaration}, {}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(res == expectedRes);
+	}
+  }
+
+  SECTION("Evaluate select BOOLEAN queries") {
+	SECTION("Return TRUE") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program for select BOOLEAN with TRUE result." << std::endl;
+	  std::cout << "Testing query: Select BOOLEAN; such that Follows(1,2)" << std::endl;
+
+	  writer->insertStatement({1, 2});
+	  writer->insertFollows(1, 2);
+
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::BOOLEAN, "BOOLEAN");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "1");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({}, {followClause}, {selectSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"TRUE"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("Return FALSE") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program for select BOOLEAN with FALSE result." << std::endl;
+	  std::cout << "Testing query: Select BOOLEAN; such that Follows(2,1)" << std::endl;
+
+	  writer->insertStatement({1, 2});
+	  writer->insertFollows(1, 2);
+
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::BOOLEAN, "BOOLEAN");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "1");
+	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({}, {followClause}, {selectSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"FALSE"};
+	  REQUIRE(res == expectedRes);
+	}
+  }
+
+  SECTION("Evaluate select TUPLE queries") {
+	SECTION("Non-empty results") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program for select TUPLE with empty result." << std::endl;
+	  std::cout << "Testing query: stmt s1, s2; Select <s1, s2> such that Follows(s1, s2)" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+	  writer->insertFollows(1, 2);
+	  writer->insertFollows(1, 3);
+	  writer->insertFollows(2, 3);
+	  writer->insertFollows(3, 5);
+	  writer->insertFollows(4, 5);
+
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s1");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s2");
+	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({}, {followClause}, {lArgSyn, rArgSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1 2", "1 3", "2 3", "3 5", "4 5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("Empty results") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program for select TUPLE with empty result." << std::endl;
+	  std::cout << "Testing query: stmt s1, s2; Select <s1, s2> such that Follows(s1, s2)" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s1");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s2");
+	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({}, {followClause}, {lArgSyn, rArgSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("Non-empty results with more than 2 elements") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program for select TUPLE with empty result." << std::endl;
+	  std::cout << "Testing query: variable v; stmt s1, s2; Select <s1, s2, v> such that Follows(s1, s2);" << std::endl;
+
+	  writer->insertVariable("testVar1");
+	  writer->insertVariable("testVar2");
+	  writer->insertStatement({1, 2, 3, 4, 5});
+	  writer->insertFollows(1, 2);
+	  writer->insertFollows(1, 3);
+	  writer->insertFollows(2, 3);
+	  writer->insertFollows(3, 5);
+	  writer->insertFollows(4, 5);
+
+	  auto varSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s1");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s2");
+	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({varSyn}, {followClause}, {lArgSyn, rArgSyn, varSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1 2 testVar1", "1 3 testVar1", "2 3 testVar1", "3 5 testVar1", "4 5 testVar1", "1 2 testVar2", "1 3 testVar2", "2 3 testVar2", "3 5 testVar2", "4 5 testVar2"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
   }
 }

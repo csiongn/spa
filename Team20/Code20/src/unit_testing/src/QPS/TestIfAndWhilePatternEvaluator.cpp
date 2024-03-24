@@ -36,7 +36,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 
 	  PQL::Clause ifPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, {ifSyn, lArgIfSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({ifSyn}, {ifPatternClause}, ifSyn);
+	  PQL::Query q = PQL::Query({ifSyn}, {ifPatternClause}, {ifSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedIfRes = {"2"};
 	  REQUIRE(res == expectedIfRes);
@@ -45,7 +45,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto lArgWhileSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar2");
 	  PQL::Clause whilePatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE, {whileSyn, lArgWhileSyn, wildcardSyn});
-	  q = PQL::Query({whileSyn}, {whilePatternClause}, whileSyn);
+	  q = PQL::Query({whileSyn}, {whilePatternClause}, {whileSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedWhileRes = {"5"};
 	  REQUIRE(res == expectedWhileRes);
@@ -79,7 +79,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 
 	  PQL::Clause ifPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, {ifSyn, lArgIfSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({ifSyn}, {ifPatternClause}, ifSyn);
+	  PQL::Query q = PQL::Query({ifSyn}, {ifPatternClause}, {ifSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(res == expectedRes);
@@ -88,7 +88,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto lArgWhileSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
 	  PQL::Clause whilePatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE, {whileSyn, lArgWhileSyn, wildcardSyn});
-	  q = PQL::Query({whileSyn}, {whilePatternClause}, whileSyn);
+	  q = PQL::Query({whileSyn}, {whilePatternClause}, {whileSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(res == expectedRes);
 	}
@@ -122,7 +122,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, varSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, ifSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {ifSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedIfRes = {"2"};
 	  REQUIRE(res == expectedIfRes);
@@ -130,7 +130,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto whileSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileSyn, varSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, whileSyn);
+	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, {whileSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedWhileRes = {"5"};
 	  REQUIRE(res == expectedWhileRes);
@@ -163,7 +163,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto ifSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, varSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, varSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {varSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedIfRes = {"testVar1"};
 	  REQUIRE(res == expectedIfRes);
@@ -171,7 +171,7 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto whileSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileSyn, varSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, varSyn);
+	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, {varSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedWhileRes = {"testVar2"};
 	  REQUIRE(res == expectedWhileRes);
@@ -203,14 +203,14 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto ifSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, varSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, varSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {varSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(res == expectedRes);
 
 	  auto whileDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileDeclaration, varSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileDeclaration}, {whilePatternClause}, varSyn);
+	  q = PQL::Query({varSyn, whileDeclaration}, {whilePatternClause}, {varSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedWhileRes = {};
 	  REQUIRE(res == expectedRes);
@@ -242,14 +242,14 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto ifSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, varSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, ifSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {ifSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(res == expectedRes);
 
 	  auto whileSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileSyn, varSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, whileSyn);
+	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, {whileSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedWhileRes = {};
 	  REQUIRE(res == expectedRes);
@@ -287,14 +287,14 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto ifSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, wildcardSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 
 	  auto whileSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileSyn, wildcardSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, selectSyn);
+	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, {selectSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -327,14 +327,14 @@ TEST_CASE("If & While Pattern Evaluator") {
 	  auto ifSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "ifs");
 	  PQL::Clause ifPatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF,
 												{ifSyn, wildcardSyn, wildcardSyn, wildcardSyn});
-	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({varSyn, ifSyn}, {ifPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 
 	  auto whileSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w");
 	  PQL::Clause whilePatternClause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE,
 												   {whileSyn, wildcardSyn, wildcardSyn});
-	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, selectSyn);
+	  q = PQL::Query({varSyn, whileSyn}, {whilePatternClause}, {selectSyn});
 	  res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}

@@ -18,7 +18,7 @@ TEST_CASE("Parse") {
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -35,7 +35,7 @@ TEST_CASE("Parse") {
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -52,7 +52,7 @@ TEST_CASE("Parse") {
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -79,7 +79,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -105,7 +105,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -148,7 +148,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -176,7 +176,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -204,7 +204,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -231,7 +231,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -258,7 +258,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -286,7 +286,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -313,7 +313,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::USESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -342,7 +342,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -370,7 +370,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -398,7 +398,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -427,7 +427,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -464,7 +464,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -491,7 +491,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -517,7 +517,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -543,7 +543,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -569,7 +569,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -595,7 +595,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -621,7 +621,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -647,7 +647,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -673,7 +673,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -719,7 +719,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -746,7 +746,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -773,7 +773,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -813,7 +813,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
 	expectedClauses.emplace_back(clause2);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -854,7 +854,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, parentArgs);
 	expectedClauses.emplace_back(clause2);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -895,7 +895,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, parentArgs);
 	expectedClauses.emplace_back(clause2);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
   }
 
@@ -932,7 +932,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause2 = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, patternArgs);
 	expectedClauses.emplace_back(clause2);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -962,7 +962,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -992,7 +992,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1011,7 +1011,7 @@ TEST_CASE("Parse") {
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "Select");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1080,7 +1080,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1111,7 +1111,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_WHILE, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1144,7 +1144,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_IF, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1185,7 +1185,7 @@ TEST_CASE("Parse") {
 	PQL::Clause followsClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, followsArgs);
 	expectedClauses.emplace_back(followsClause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }
@@ -1243,7 +1243,7 @@ TEST_CASE("Parse") {
 	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, args);
 	expectedClauses.emplace_back(clause);
 
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, expectedSelectSynonym);
+	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
   }

@@ -26,7 +26,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
@@ -52,7 +52,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -76,7 +76,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto followClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -101,7 +101,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
 	  auto followTClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
@@ -127,7 +127,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto followTClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -151,7 +151,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto followTClause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {followTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {followTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -176,7 +176,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto parentClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
@@ -202,7 +202,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto parentClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -226,7 +226,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto parentClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -251,7 +251,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
 	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
@@ -277,7 +277,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -301,7 +301,7 @@ TEST_CASE("Statement Evaluator") {
 	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
 	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
 	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn});
-	  auto q = PQL::Query({varDeclaration}, {parentTClause}, selectSyn);
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
@@ -340,13 +340,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -393,13 +393,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -462,7 +462,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, lArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {lArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"3"};
 	  for (auto const &syn : declarations) {
@@ -493,7 +493,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, syn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -543,7 +543,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &syn : declarations) {
@@ -574,7 +574,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -613,7 +613,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -644,7 +644,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -684,13 +684,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -737,13 +737,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -806,7 +806,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, rArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {rArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"1"};
 	  for (auto const &syn : declarations) {
@@ -837,7 +837,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, syn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -887,7 +887,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &syn : declarations) {
@@ -918,7 +918,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -957,7 +957,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -988,7 +988,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1028,13 +1028,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -1081,13 +1081,13 @@ TEST_CASE("Statement Evaluator") {
 	  };
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, selectSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {selectSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &cl : clauses) {
 		// need to reset evaluator after testing each query
 		evaluator = QueryEvaluator::QueryEvaluator(reader);
-		q = PQL::Query({varDeclaration}, {cl}, selectSyn);
+		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		REQUIRE(res == expectedRes);
 		switch (cl.clauseType) {
@@ -1150,7 +1150,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, lArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {lArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"2"};
 	  for (auto const &syn : declarations) {
@@ -1181,7 +1181,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, syn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1230,7 +1230,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, lArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {lArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &syn : declarations) {
@@ -1261,7 +1261,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1299,7 +1299,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, lArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, lArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {lArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -1330,7 +1330,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1381,7 +1381,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, rArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {rArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"1"};
 	  for (auto const &syn : declarations) {
@@ -1412,7 +1412,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, syn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1461,7 +1461,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, rArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {rArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  for (auto const &syn : declarations) {
@@ -1492,7 +1492,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, selectSyn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {selectSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1530,7 +1530,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {rArgSyn, rArgSyn}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, rArgSyn);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {rArgSyn});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &syn : declarations) {
@@ -1561,7 +1561,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, syn}, {cl}, syn);
+		  q = PQL::Query({varDeclaration, syn}, {cl}, {syn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << syn.identity << " passed" << std::endl;
@@ -1618,7 +1618,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"1"};
 	  for (auto i = 0; i < 7; ++i) {
@@ -1652,7 +1652,7 @@ TEST_CASE("Statement Evaluator") {
 
 			// need to reset evaluator after testing each query
 			evaluator = QueryEvaluator::QueryEvaluator(reader);
-			q = PQL::Query({varDeclaration, lSyn}, {cl}, lSyn);
+			q = PQL::Query({varDeclaration, lSyn}, {cl}, {lSyn});
 			res = evaluator.evaluateQuery(q);
 			REQUIRE(res == expectedRes);
 			std::cout << lSyn.identity << " and " << rSyn.identity << " passed" << std::endl;
@@ -1708,7 +1708,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {"2"};
 	  for (auto i = 0; i < 7; ++i) {
@@ -1742,7 +1742,7 @@ TEST_CASE("Statement Evaluator") {
 
 			// need to reset evaluator after testing each query
 			evaluator = QueryEvaluator::QueryEvaluator(reader);
-			q = PQL::Query({varDeclaration, lSyn}, {cl}, rSyn);
+			q = PQL::Query({varDeclaration, lSyn}, {cl}, {rSyn});
 			res = evaluator.evaluateQuery(q);
 			REQUIRE(res == expectedRes);
 			std::cout << lSyn.identity << " and " << rSyn.identity << " passed" << std::endl;
@@ -1787,7 +1787,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto i = 0; i < 7; ++i) {
@@ -1821,7 +1821,7 @@ TEST_CASE("Statement Evaluator") {
 
 			// need to reset evaluator after testing each query
 			evaluator = QueryEvaluator::QueryEvaluator(reader);
-			q = PQL::Query({varDeclaration, lSyn}, {cl}, lSyn);
+			q = PQL::Query({varDeclaration, lSyn}, {cl}, {lSyn});
 			res = evaluator.evaluateQuery(q);
 			REQUIRE(res == expectedRes);
 			std::cout << lSyn.identity << " and " << rSyn.identity << " passed" << std::endl;
@@ -1858,7 +1858,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 
@@ -1890,7 +1890,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, lSyn}, {cl}, lSyn);
+		  q = PQL::Query({varDeclaration, lSyn}, {cl}, {lSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << lSyn.identity << " and " << lSyn.identity << " passed" << std::endl;
@@ -1934,7 +1934,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto i = 0; i < 7; ++i) {
@@ -1968,7 +1968,7 @@ TEST_CASE("Statement Evaluator") {
 
 			// need to reset evaluator after testing each query
 			evaluator = QueryEvaluator::QueryEvaluator(reader);
-			q = PQL::Query({varDeclaration, lSyn}, {cl}, rSyn);
+			q = PQL::Query({varDeclaration, lSyn}, {cl}, {rSyn});
 			res = evaluator.evaluateQuery(q);
 			REQUIRE(res == expectedRes);
 			std::cout << lSyn.identity << " and " << rSyn.identity << " passed" << std::endl;
@@ -2005,7 +2005,7 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause{SimpleProgram::DesignAbstraction::FOLLOWS, {varDeclaration, varDeclaration}}};
 
 	  // no default constructor
-	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, varDeclaration);
+	  PQL::Query q = PQL::Query({varDeclaration}, {clauses[0]}, {varDeclaration});
 	  std::vector<std::string> res;
 	  std::vector<std::string> expectedRes = {};
 	  for (auto const &rSyn : declarations) {
@@ -2036,7 +2036,7 @@ TEST_CASE("Statement Evaluator") {
 
 		  // need to reset evaluator after testing each query
 		  evaluator = QueryEvaluator::QueryEvaluator(reader);
-		  q = PQL::Query({varDeclaration, rSyn}, {cl}, rSyn);
+		  q = PQL::Query({varDeclaration, rSyn}, {cl}, {rSyn});
 		  res = evaluator.evaluateQuery(q);
 		  REQUIRE(res == expectedRes);
 		  std::cout << rSyn.identity << " and " << rSyn.identity << " passed" << std::endl;

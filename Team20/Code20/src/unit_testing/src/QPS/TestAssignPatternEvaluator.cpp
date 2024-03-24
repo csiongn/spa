@@ -34,7 +34,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2"};
 	  REQUIRE(res == expectedRes);
@@ -62,7 +62,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(res == expectedRes);
@@ -94,7 +94,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2"};
 	  REQUIRE(res == expectedRes);
@@ -122,7 +122,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(res == expectedRes);
@@ -170,7 +170,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "3", "4"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -211,7 +211,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -246,7 +246,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "3"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -279,7 +279,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -303,7 +303,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -336,7 +336,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -371,7 +371,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "5"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -395,7 +395,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -444,7 +444,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "3", "4", "5", "6"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -493,7 +493,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -534,7 +534,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -572,7 +572,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "3", "4", "5", "6"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -599,7 +599,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -635,7 +635,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -668,7 +668,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -716,7 +716,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"2", "3", "4", "5", "6"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
@@ -764,7 +764,7 @@ TEST_CASE("Assign Pattern Evaluator") {
 
 	  PQL::Clause assignPatternClause =
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PATTERN_ASSIGN, {assignDeclaration, lArgSyn, rArgSyn});
-	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, selectSyn);
+	  PQL::Query q = PQL::Query({assignDeclaration, varDeclaration}, {assignPatternClause}, {selectSyn});
 	  std::vector<std::string> res = QueryEvaluator::QueryEvaluator(reader).evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
