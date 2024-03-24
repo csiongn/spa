@@ -54,7 +54,7 @@ bool AssignPatternEvaluator::hasRelationship() {
   } else {
 	// (IDENT, PARTIAL_EXPR)
 	std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-	std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+	std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
 
 	// get all partial expr nodes
 	std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
@@ -71,7 +71,7 @@ bool AssignPatternEvaluator::hasRelationship() {
 
 bool AssignPatternEvaluator::hasRelationship(const std::string &ident, const std::string &expr) {
   std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(expr);
-  std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
   std::vector<int> assignStmtNums = reader->getAssignPatternStmtNum(ident, exprNode->getHashValue());
 
   if (assignStmtNums.empty()) {
@@ -91,7 +91,7 @@ bool AssignPatternEvaluator::hasAtLeastOneRelationship() {
 
   if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-	std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+	std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
 	if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	  // not adding ASSIGN_SYN to result store, result same as all assign statements
 	  // already added during initialise SYN in QueryEvaluator
@@ -144,7 +144,7 @@ bool AssignPatternEvaluator::getForwardRelationship() {
   PQL::Synonym rArg = clause.arguments[2];
 
   std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-  std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));;
   if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	// (VAR, _)
 	return getSynonymWildcard();
@@ -161,7 +161,7 @@ bool AssignPatternEvaluator::getLeftResults() {
   PQL::Synonym rArg = clause.arguments[2];
 
   std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-  std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
 
   if (std::get<1>(tup) && std::get<2>(tup)) {
 	// (VAR, PARTIAL_EXPR)
