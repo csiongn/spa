@@ -596,5 +596,54 @@ TEST_CASE("PKB Relationship Test") {
 	// hasReadRelationship
 	REQUIRE(pkbFacade->hasReadRelationship());
   }
+
+  SECTION("PKBFacade - CallsProcStmtManager") {
+	// Create an instance of PKB
+	auto pkb = std::make_shared<PKB>();
+	auto pkbFacade = pkb->pkbFacade;
+
+	REQUIRE(!pkbFacade->hasCallsProcStmtRelationship());
+
+	// insertCallsProcStmt
+	pkbFacade->insertCallsProcStmt("main", 10);
+	pkbFacade->insertCallsProcStmt("procedureOne", 3);
+	pkbFacade->insertCallsProcStmt("procedureTwo", {4, 7, 8});
+	// getCallsProcStmtNum
+	std::vector<int> mainStmtNum = pkbFacade->getCallsProcStmtNum("main");
+	std::vector<int> expectedStmtNum = {10};
+	REQUIRE(checkVecValuesEqual(mainStmtNum, expectedStmtNum));
+	std::vector<int> callsProcStmtNum = pkbFacade->getCallsProcStmtNum();
+	std::vector<int> expectedCallsProcStmtNum = {10, 3, 4, 7, 8};
+	REQUIRE(checkVecValuesEqual(callsProcStmtNum, expectedCallsProcStmtNum));
+
+	// getCallsProcName
+	auto readVarStmtEight = pkbFacade->getCallsProcName(8);
+	std::vector<std::string> expectedReadVarStmtEight = {"procedureTwo"};
+	REQUIRE(checkVecValuesEqual(readVarStmtEight, expectedReadVarStmtEight));
+	auto readVar = pkbFacade->getCallsProcName();
+	std::vector<std::string> expectedReadVar = {"main", "procedureOne", "procedureTwo"};
+	REQUIRE(checkVecValuesEqual(readVar, expectedReadVar));
+
+	// containsCallsProcStmt
+	bool containsCallsProcStmtTen = pkbFacade->containsCallsProcStmt(10);
+	REQUIRE(containsCallsProcStmtTen == true);
+	bool containsCallsProcStmtTwo = pkbFacade->containsCallsProcStmt(2);
+	REQUIRE(containsCallsProcStmtTwo == false);
+	// containsCallsProcName
+	bool containsCallsProcName = pkbFacade->containsCallsProcName("procedureTwo");
+	REQUIRE(containsCallsProcName == true);
+	bool containsCallsProcNameHello = pkbFacade->containsCallsProcName("hello");
+	REQUIRE(containsCallsProcNameHello == false);
+
+	// containsCallsProcStmtRelationship
+	bool containsCallsProcStmtRelationship = pkbFacade->containsCallsProcStmtRelationship("main", 10);
+	REQUIRE(containsCallsProcStmtRelationship == true);
+
+	bool containsCallsProcStmtRelationshipFalse = pkbFacade->containsCallsProcStmtRelationship("main", 3);
+	REQUIRE(containsCallsProcStmtRelationshipFalse == false);
+
+	// hasCallsProcStmtRelationship
+	REQUIRE(pkbFacade->hasCallsProcStmtRelationship());
+  }
 }
 

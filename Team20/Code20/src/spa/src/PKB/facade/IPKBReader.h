@@ -195,6 +195,16 @@ class IPKBReader {
   virtual bool containsReadRelationship(std::string const &variable, int stmtNum) = 0;
   virtual bool hasReadRelationship() = 0;
 
+  // CallsProcStmt
+  virtual std::vector<int> getCallsProcStmtNum(std::string const &callsProcName) = 0;
+  virtual std::vector<std::string> getCallsProcName(int stmtNum) = 0;
+  virtual std::vector<int> getCallsProcStmtNum() = 0;
+  virtual std::vector<std::string> getCallsProcName() = 0;
+  virtual bool containsCallsProcStmt(int stmtNum) = 0;
+  virtual bool containsCallsProcName(std::string const &callsProcName) = 0;
+  virtual bool containsCallsProcStmtRelationship(std::string const &callsProcName, int stmtNum) = 0;
+  virtual bool hasCallsProcStmtRelationship() = 0;
+
   // Pattern
 
   // Assign

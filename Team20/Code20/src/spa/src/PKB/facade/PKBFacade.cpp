@@ -808,6 +808,50 @@ bool PKBFacade::hasReadRelationship() {
   return DatabaseUtils::hasRelationship<std::string, int>(db->getReadVarManager());
 }
 
+// CallsProcStmt
+void PKBFacade::insertCallsProcStmt(const std::string &callsProcName, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmtNum);
+}
+
+void PKBFacade::insertCallsProcStmt(const std::string &callsProcName, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getCallsProcStmtNum(std::string const &callsProcName) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName);
+}
+
+std::vector<int> PKBFacade::getCallsProcStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getCallsProcStmtManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsProcName(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getCallsProcStmtManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcName() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getCallsProcStmtManager());
+}
+
+bool PKBFacade::containsCallsProcName(std::string const &callsProcName) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getCallsProcStmtManager(), callsProcName);
+}
+
+bool PKBFacade::containsCallsProcStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getCallsProcStmtManager(), stmtNum);
+}
+
+bool PKBFacade::containsCallsProcStmtRelationship(std::string const &callsProcName, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmtNum);
+}
+
+bool PKBFacade::hasCallsProcStmtRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getCallsProcStmtManager());
+}
+
+
 // Assign Pattern
 void PKBFacade::insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
 									const std::shared_ptr<ExprNode> &nodePtr) {

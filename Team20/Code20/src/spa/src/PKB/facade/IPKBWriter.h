@@ -117,6 +117,10 @@ class IPKBWriter {
   virtual void insertReadVar(std::string const &variable, const int &stmtNum) = 0;
   virtual void insertReadVar(std::string const &variable, const std::unordered_set<int> &stmtSet) = 0;
 
+  // CallsProcStmt
+  virtual void insertCallsProcStmt(std::string const &procName, const int &stmtNum) = 0;
+  virtual void insertCallsProcStmt(std::string const &procName, const std::unordered_set<int> &stmtSet) = 0;
+
   // Pattern
   // Assign
   // T is string, U is hash, stmt number, V is Ptr to node

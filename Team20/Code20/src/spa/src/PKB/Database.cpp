@@ -92,6 +92,10 @@ std::shared_ptr<ReadVarManager> Database::getReadVarManager() {
   return readVarManager;
 }
 
+std::shared_ptr<CallsProcStmtManager> Database::getCallsProcStmtManager() {
+  return callsProcStmtManager;
+}
+
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
   return assignPatternManager;
 }

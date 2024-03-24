@@ -245,6 +245,18 @@ class PKBFacade : public IPKBWriter, public IPKBReader {
   bool containsReadRelationship(std::string const &variable, int stmtNum) override;
   bool hasReadRelationship() override;
 
+  // CallsProcStmt
+  void insertCallsProcStmt(std::string const &procName, const int &stmtNum) override;
+  void insertCallsProcStmt(std::string const &procName, const std::unordered_set<int> &stmtSet) override;
+  std::vector<int> getCallsProcStmtNum(std::string const &callsProcName) override;
+  std::vector<std::string> getCallsProcName(int stmtNum) override;
+  std::vector<int> getCallsProcStmtNum() override;
+  std::vector<std::string> getCallsProcName() override;
+  bool containsCallsProcStmt(int stmtNum) override;
+  bool containsCallsProcName(std::string const &callsProcName) override;
+  bool containsCallsProcStmtRelationship(std::string const &callsProcName, int stmtNum) override;
+  bool hasCallsProcStmtRelationship() override;
+
   // Assign Pattern
   void insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
 						   const std::shared_ptr<ExprNode> &nodePtr) override;

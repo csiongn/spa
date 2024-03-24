@@ -50,6 +50,7 @@ class MockPKBWriter : public IPKBWriter {
   std::vector<std::pair<int, int>> nextRelations;
   std::vector<std::pair<const std::string, int>> printVarRelations;
   std::vector<std::pair<const std::string, int>> readVarRelations;
+  std::vector<std::pair<const std::string, int>> callsProcStmtRelations;
   std::vector<std::tuple<std::string, size_t, int, std::shared_ptr<ExprNode>>> assignPatterns;
   std::vector<std::tuple<std::string, size_t, int, std::shared_ptr<ExprNode>>> assignPartialPatterns;
   std::vector<std::pair<const std::string, const int>> ifPatterns;
@@ -245,6 +246,14 @@ class MockPKBWriter : public IPKBWriter {
   }
 
   void insertReadVar(std::string const &variable, const std::unordered_set<int> &stmtSet) override {
+	throw TestException("Method not supposed to be called");
+  }
+
+  void insertCallsProcStmt(std::string const &procName, const int &stmtNum) override {
+	callsProcStmtRelations.emplace_back(procName, stmtNum);
+  }
+
+  void insertCallsProcStmt(std::string const &procName, const std::unordered_set<int> &stmtSet) override {
 	throw TestException("Method not supposed to be called");
   }
 
