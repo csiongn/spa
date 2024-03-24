@@ -221,6 +221,30 @@ class PKBFacade : public IPKBWriter, public IPKBReader {
   bool containsNextRelationship(int stmtNum, int nextStmtNum) override;
   bool hasNextRelationship() override;
 
+  // Print
+  void insertPrintVar(std::string const &variable, const int &stmtNum) override;
+  void insertPrintVar(std::string const &variable, const std::unordered_set<int> &stmtSet) override;
+  std::vector<int> getPrintStmtNum(std::string const &variable) override;
+  std::vector<std::string> getPrintVariable(int stmtNum) override;
+  std::vector<int> getPrintStmtNum() override;
+  std::vector<std::string> getPrintVariable() override;
+  bool containsPrintStmt(int stmtNum) override;
+  bool containsPrintVariable(std::string const &variable) override;
+  bool containsPrintRelationship(std::string const &variable, int stmtNum) override;
+  bool hasPrintRelationship() override;
+
+  // Read
+  void insertReadVar(std::string const &variable, const int &stmtNum) override;
+  void insertReadVar(std::string const &variable, const std::unordered_set<int> &stmtSet) override;
+  std::vector<int> getReadStmtNum(std::string const &variable) override;
+  std::vector<std::string> getReadVariable(int stmtNum) override;
+  std::vector<int> getReadStmtNum() override;
+  std::vector<std::string> getReadVariable() override;
+  bool containsReadStmt(int stmtNum) override;
+  bool containsReadVariable(std::string const &variable) override;
+  bool containsReadRelationship(std::string const &variable, int stmtNum) override;
+  bool hasReadRelationship() override;
+
   // Assign Pattern
   void insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
 						   const std::shared_ptr<ExprNode> &nodePtr) override;

@@ -84,6 +84,14 @@ std::shared_ptr<NextManager> Database::getNextManager() {
   return nextManager;
 }
 
+std::shared_ptr<PrintVarManager> Database::getPrintVarManager() {
+  return printVarManager;
+}
+
+std::shared_ptr<ReadVarManager> Database::getReadVarManager() {
+  return readVarManager;
+}
+
 std::shared_ptr<AssignPatternManager> Database::getAssignPatternManager() {
   return assignPatternManager;
 }

@@ -690,11 +690,11 @@ void PKBFacade::insertNext(int stmtNum, const std::unordered_set<int> &nextStmtS
 }
 
 bool PKBFacade::containsNext(int nextStmtNum) {
-  return DatabaseUtils::containsKey<int, int>(db->getNextManager(), nextStmtNum);
+  return DatabaseUtils::containsValue<int, int>(db->getNextManager(), nextStmtNum);
 }
 
 bool PKBFacade::containsNextReverse(int stmtNum) {
-  return DatabaseUtils::containsValue<int, int>(db->getNextManager(), stmtNum);
+  return DatabaseUtils::containsKey<int, int>(db->getNextManager(), stmtNum);
 }
 
 bool PKBFacade::containsNextRelationship(int stmtNum, int nextStmtNum) {
@@ -722,7 +722,91 @@ std::vector<int> PKBFacade::getNext() {
   return DatabaseUtils::getValues<int, int>(db->getNextManager());
 }
 
+// Print
+void PKBFacade::insertPrintVar(const std::string &variable, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getPrintVarManager(), variable, stmtNum);
+}
 
+void PKBFacade::insertPrintVar(const std::string &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getPrintVarManager(), variable, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getPrintStmtNum(std::string const &variable) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getPrintVarManager(), variable);
+}
+
+std::vector<int> PKBFacade::getPrintStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getPrintVarManager());
+}
+
+std::vector<std::string> PKBFacade::getPrintVariable(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getPrintVarManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getPrintVariable() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getPrintVarManager());
+}
+
+bool PKBFacade::containsPrintVariable(std::string const &variable) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getPrintVarManager(), variable);
+}
+
+bool PKBFacade::containsPrintStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getPrintVarManager(), stmtNum);
+}
+
+bool PKBFacade::containsPrintRelationship(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getPrintVarManager(), variable, stmtNum);
+}
+
+bool PKBFacade::hasPrintRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getPrintVarManager());
+}
+
+// Read
+void PKBFacade::insertReadVar(const std::string &variable, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getReadVarManager(), variable, stmtNum);
+}
+
+void PKBFacade::insertReadVar(const std::string &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getReadVarManager(), variable, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getReadStmtNum(std::string const &variable) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getReadVarManager(), variable);
+}
+
+std::vector<int> PKBFacade::getReadStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getReadVarManager());
+}
+
+std::vector<std::string> PKBFacade::getReadVariable(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getReadVarManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getReadVariable() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getReadVarManager());
+}
+
+bool PKBFacade::containsReadVariable(std::string const &variable) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getReadVarManager(), variable);
+}
+
+bool PKBFacade::containsReadStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getReadVarManager(), stmtNum);
+}
+
+bool PKBFacade::containsReadRelationship(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getReadVarManager(), variable, stmtNum);
+}
+
+bool PKBFacade::hasReadRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getReadVarManager());
+}
 
 // Assign Pattern
 void PKBFacade::insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,

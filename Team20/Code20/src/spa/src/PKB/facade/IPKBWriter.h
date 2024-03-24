@@ -109,6 +109,14 @@ class IPKBWriter {
   virtual void insertNext(int stmtNum, int nextStmtNum) = 0;
   virtual void insertNext(int stmtNum, std::unordered_set<int> const &nextStmtSet) = 0;
 
+  // Print
+  virtual void insertPrintVar(std::string const &variable, const int &stmtNum) = 0;
+  virtual void insertPrintVar(std::string const &variable, const std::unordered_set<int> &stmtSet) = 0;
+
+  // Read
+  virtual void insertReadVar(std::string const &variable, const int &stmtNum) = 0;
+  virtual void insertReadVar(std::string const &variable, const std::unordered_set<int> &stmtSet) = 0;
+
   // Pattern
   // Assign
   // T is string, U is hash, stmt number, V is Ptr to node

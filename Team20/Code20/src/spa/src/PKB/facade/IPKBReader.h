@@ -175,6 +175,26 @@ class IPKBReader {
   virtual bool containsNextRelationship(int stmtNum, int nextStmtNum) = 0;
   virtual bool hasNextRelationship() = 0;
 
+  // Print
+  virtual std::vector<int> getPrintStmtNum(std::string const &variable) = 0;
+  virtual std::vector<std::string> getPrintVariable(int stmtNum) = 0;
+  virtual std::vector<int> getPrintStmtNum() = 0;
+  virtual std::vector<std::string> getPrintVariable() = 0;
+  virtual bool containsPrintStmt(int stmtNum) = 0;
+  virtual bool containsPrintVariable(std::string const &variable) = 0;
+  virtual bool containsPrintRelationship(std::string const &variable, int stmtNum) = 0;
+  virtual bool hasPrintRelationship() = 0;
+
+  // Read
+  virtual std::vector<int> getReadStmtNum(std::string const &variable) = 0;
+  virtual std::vector<std::string> getReadVariable(int stmtNum) = 0;
+  virtual std::vector<int> getReadStmtNum() = 0;
+  virtual std::vector<std::string> getReadVariable() = 0;
+  virtual bool containsReadStmt(int stmtNum) = 0;
+  virtual bool containsReadVariable(std::string const &variable) = 0;
+  virtual bool containsReadRelationship(std::string const &variable, int stmtNum) = 0;
+  virtual bool hasReadRelationship() = 0;
+
   // Pattern
 
   // Assign

@@ -487,13 +487,114 @@ TEST_CASE("PKB Relationship Test") {
 	bool containsNext = pkbFacade->containsNext(10);
 	REQUIRE(containsNext == false);
 
+	bool containsNextThree = pkbFacade->containsNext(3);
+	REQUIRE(containsNextThree == true);
+
 	// containsNextReverse
-	bool containsNextReverse = pkbFacade->containsNextReverse(2);
+	bool containsNextReverse = pkbFacade->containsNextReverse(1);
 	REQUIRE(containsNextReverse == true);
 
 	// containsNextRelationship
 	bool containsNextRelationship = pkbFacade->containsNextRelationship(1, 2);
 	REQUIRE(containsNextRelationship == true);
+  }
+
+  SECTION("PKBFacade - PrintManager") {
+	// Create an instance of PKB
+	auto pkb = std::make_shared<PKB>();
+	auto pkbFacade = pkb->pkbFacade;
+
+	REQUIRE(!pkbFacade->hasPrintRelationship());
+
+	// insertPrintVar
+	pkbFacade->insertPrintVar("x", 1);
+	pkbFacade->insertPrintVar("y", 2);
+	pkbFacade->insertPrintVar("z", {4, 7, 8});
+	// getPrintStmtNum
+	std::vector<int> xStmtNum = pkbFacade->getPrintStmtNum("x");
+	std::vector<int> expectedXStmtNum = {1};
+	REQUIRE(checkVecValuesEqual(xStmtNum, expectedXStmtNum));
+	std::vector<int> printStmtNum = pkbFacade->getPrintStmtNum();
+	std::vector<int> expectedPrintStmtNum = {1, 2, 4, 7, 8};
+	REQUIRE(checkVecValuesEqual(printStmtNum, expectedPrintStmtNum));
+
+	// getPrintVariable
+	auto printVarStmtEight = pkbFacade->getPrintVariable(8);
+	std::vector<std::string> expectedPrintVarStmtEight = {"z"};
+	REQUIRE(checkVecValuesEqual(printVarStmtEight, expectedPrintVarStmtEight));
+	auto printVar = pkbFacade->getPrintVariable();
+	std::vector<std::string> expectedPrintVar = {"x", "y", "z"};
+	REQUIRE(checkVecValuesEqual(printVar, expectedPrintVar));
+
+	// containsPrintStmt
+	bool containsPrintStmtOne = pkbFacade->containsPrintStmt(1);
+	REQUIRE(containsPrintStmtOne == true);
+	bool containsPrintStmtThree = pkbFacade->containsPrintStmt(3);
+	REQUIRE(containsPrintStmtThree == false);
+	// containsPrintVariable
+	bool containsPrintVariableZ = pkbFacade->containsPrintVariable("z");
+	REQUIRE(containsPrintVariableZ == true);
+	bool containsPrintVariableW = pkbFacade->containsPrintVariable("w");
+	REQUIRE(containsPrintVariableW == false);
+
+	// containsPrintRelationship
+	bool containsPrintRelationship = pkbFacade->containsPrintRelationship("x", 1);
+	REQUIRE(containsPrintRelationship == true);
+
+	bool containsPrintRelationshipFalse = pkbFacade->containsPrintRelationship("x", 2);
+	REQUIRE(containsPrintRelationshipFalse == false);
+
+	// hasPrintRelationship
+	REQUIRE(pkbFacade->hasPrintRelationship());
+  }
+
+  SECTION("PKBFacade - ReadManager") {
+	// Create an instance of PKB
+	auto pkb = std::make_shared<PKB>();
+	auto pkbFacade = pkb->pkbFacade;
+
+	REQUIRE(!pkbFacade->hasReadRelationship());
+
+	// insertReadVar
+	pkbFacade->insertReadVar("x", 10);
+	pkbFacade->insertReadVar("y", 3);
+	pkbFacade->insertReadVar("w", {4, 7, 8});
+	// getReadStmtNum
+	std::vector<int> xStmtNum = pkbFacade->getReadStmtNum("x");
+	std::vector<int> expectedXStmtNum = {10};
+	REQUIRE(checkVecValuesEqual(xStmtNum, expectedXStmtNum));
+	std::vector<int> readStmtNum = pkbFacade->getReadStmtNum();
+	std::vector<int> expectedReadStmtNum = {10, 3, 4, 7, 8};
+	REQUIRE(checkVecValuesEqual(readStmtNum, expectedReadStmtNum));
+
+	// getReadVariable
+	auto readVarStmtEight = pkbFacade->getReadVariable(8);
+	std::vector<std::string> expectedReadVarStmtEight = {"w"};
+	REQUIRE(checkVecValuesEqual(readVarStmtEight, expectedReadVarStmtEight));
+	auto readVar = pkbFacade->getReadVariable();
+	std::vector<std::string> expectedReadVar = {"x", "y", "w"};
+	REQUIRE(checkVecValuesEqual(readVar, expectedReadVar));
+
+	// containsReadStmt
+	bool containsReadStmtTen = pkbFacade->containsReadStmt(10);
+	REQUIRE(containsReadStmtTen == true);
+	bool containsReadStmtTwo = pkbFacade->containsReadStmt(2);
+	REQUIRE(containsReadStmtTwo == false);
+	// containsReadVariable
+	bool containsReadVariableW = pkbFacade->containsReadVariable("w");
+	REQUIRE(containsReadVariableW == true);
+	bool containsReadVariableZ = pkbFacade->containsReadVariable("z");
+	REQUIRE(containsReadVariableZ == false);
+
+	// containsReadRelationship
+	bool containsReadRelationship = pkbFacade->containsReadRelationship("x", 10);
+	REQUIRE(containsReadRelationship == true);
+
+	bool containsReadRelationshipFalse = pkbFacade->containsReadRelationship("x", 3);
+	REQUIRE(containsReadRelationshipFalse == false);
+
+	// hasReadRelationship
+	REQUIRE(pkbFacade->hasReadRelationship());
   }
 }
 
