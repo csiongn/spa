@@ -8,7 +8,9 @@
 
 void DesignExtractor::extractDesign(const ProgramNode &astRoot) {
   visitProgramNode(astRoot);
+	callGraph->finalize();
   pushToPKB();
+	callGraph->pushToPKB(pkbWriter);
 }
 
 void DesignExtractor::pushToPKB() {
@@ -166,6 +168,7 @@ void DesignExtractor::visitStmtNode(const StmtNode &node, int parentStmt, std::v
 	visitExprNode(*assignNode->value, stmtNumber);
   } else if (const auto *callNode = dynamic_cast<const CallNode *>(&node)) {
 	insertCall(stmtNumber);
+  	updateCall(ctxt->procName, callNode->procName);
   } else if (const auto *readNode = dynamic_cast<const ReadNode *>(&node)) {
 	insertRead(stmtNumber);
 	insertVariable(readNode->varName);
@@ -265,6 +268,11 @@ void DesignExtractor::updateModifies(int stmtNumber, const std::string &variable
 	modifies[parentStmt].insert(variableName);
   }
 }
+
+void DesignExtractor::updateCall(const std::string &callingProc, const std::string &calledProc) {
+	callGraph->addCall(callingProc, calledProc);
+}
+
 
 void DesignExtractor::insertProcedure(const std::string &procName) {
   procedures.insert(procName);
