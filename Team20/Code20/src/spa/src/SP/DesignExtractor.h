@@ -88,7 +88,7 @@ class DesignExtractor {
   std::unordered_set<std::string> literals;
   std::unordered_set<int> stmts;
   std::unordered_set<int> assignStmts;
-  std::unordered_set<int> callStmts;
+  std::unordered_map<int, std::string> callStmts;
   std::unordered_set<int> readStmts;
   std::unordered_set<int> printStmts;
   std::unordered_map<int, std::unordered_set<std::string>> ifStmts;

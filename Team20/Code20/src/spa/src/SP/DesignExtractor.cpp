@@ -70,8 +70,9 @@ void DesignExtractor::pushToPKB() {
 	pkbWriter->insertAssign(stmtNum);
   }
 
-  for (const auto &stmtNum : callStmts) {
-	pkbWriter->insertCall(stmtNum);
+  for (const auto &pair : callStmts) {
+  	pkbWriter->insertCall(pair.first);
+	pkbWriter->insertCallsProcStmt(pair.second, pair.first);
   }
 
   for (const auto &stmtNum : readStmts) {
@@ -286,7 +287,7 @@ void DesignExtractor::insertAssign(const int stmtNum) {
 }
 
 void DesignExtractor::insertCall(const int stmtNum) {
-  callStmts.insert(stmtNum);
+  callStmts[stmtNum] = ctxt->procName;
 }
 
 void DesignExtractor::insertPrint(const int stmtNum) {
