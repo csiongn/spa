@@ -263,12 +263,16 @@ std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
   std::vector<int> keyStmtNums;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
 	  keyStmtNums = reader->getFolloweeStmts();
 	  break;
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  keyStmtNums = reader->getFolloweeTStmts();
+	  break;
 	case SimpleProgram::DesignAbstraction::PARENT:
-	case SimpleProgram::DesignAbstraction::PARENTT:
 	  keyStmtNums = reader->getParentStmts();
+	  break;
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  keyStmtNums = reader->getParentTStmts();
 	  break;
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  keyStmtNums = reader->getNextReverse();
@@ -291,12 +295,16 @@ std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
   std::vector<int> valueStmtNums;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
 	  valueStmtNums = reader->getFollowerStmts();
 	  break;
+	case SimpleProgram::DesignAbstraction::FOLLOWST:
+	  valueStmtNums = reader->getFollowerTStmts();
+	  break;
 	case SimpleProgram::DesignAbstraction::PARENT:
-	case SimpleProgram::DesignAbstraction::PARENTT:
 	  valueStmtNums = reader->getChildStmts();
+	  break;
+	case SimpleProgram::DesignAbstraction::PARENTT:
+	  valueStmtNums = reader->getChildTStmts();
 	  break;
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  valueStmtNums = reader->getNext();

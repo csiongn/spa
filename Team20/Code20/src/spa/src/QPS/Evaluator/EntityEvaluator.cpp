@@ -24,6 +24,16 @@ bool EntityEvaluator::evaluate() {
 	}
   }
 
+  if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	// Only for CALLS/CALLST (_, _) / (_, IDENT), (_, PROC_SYN)
+	if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  return hasAtLeastOneRelationship();
+	} else if (rArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	  return getWildcardSynonym();
+	} else {
+	  return getReversedRelationship();
+	}
+  }
   // 7 cases = (SYN, IDENT)
   if (rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
 	return getReversedRelationship();
@@ -92,8 +102,15 @@ EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relatio
 }
 
 bool EntityEvaluator::hasAtLeastOneRelationship() {
-  // handles XXX(_, _), which is invalid case
-  return false;
+  // handles CALLS/CALLST (_, _),
+  switch (clause.clauseType) {
+	case SimpleProgram::DesignAbstraction::CALLS:
+	  return reader->hasCallsProcRelationship();
+	case SimpleProgram::DesignAbstraction::CALLST:
+	  return reader->hasCallsTProcRelationship();
+	default:
+	  return false;
+  }
 }
 
 bool EntityEvaluator::getForwardRelationship() {
@@ -151,9 +168,11 @@ bool EntityEvaluator::getReversedRelationship() {
 bool EntityEvaluator::getLeftResults() {
   // get all left STMT_NUM/IDENT that satisfy the relationship with the fixed right IDENT
   PQL::Synonym lArg = clause.arguments[0];
+  PQL::Synonym rArg = clause.arguments[1];
   std::string ident = clause.arguments[1].identity;
 
-  if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
+  if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE
+	  || lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	// USESP/MODIFIESP/CALLS/CALLST
 	std::vector<std::string> procNames = getUniqueLeftProcNames(ident);
 	if (procNames.empty()) {
@@ -222,8 +241,16 @@ bool EntityEvaluator::getSynonymWildcard() {
 }
 
 bool EntityEvaluator::getWildcardSynonym() {
-  // Handles XXX(_, VAR_SYN), which is invalid case
-  return false;
+  // Handles CALLS/CALLST (_, PROC_SYN)
+  PQL::Synonym rArg = clause.arguments[1];
+  std::vector<std::string> rResults = getUniqueValues();
+
+  if (rResults.empty()) {
+	return false;
+  }
+
+  resultStore->createColumn(rArg, rResults);
+  return true;
 }
 
 bool EntityEvaluator::getDoubleSynonym() {

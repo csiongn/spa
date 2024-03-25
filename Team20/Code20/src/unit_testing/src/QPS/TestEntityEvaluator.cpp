@@ -15,7 +15,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: STMT_NUM, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: STMT_NUM, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: variable v; Select v such that XXX(2, v);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -109,7 +109,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: STMT_NUM, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: STMT_NUM, rArg: WILDCARD" << std::endl;
 	  std::cout << "Testing query: variable v; Select v such that XXX(2, _);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -203,7 +203,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: STMT_NUM, rArg: IDENT" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: STMT_NUM, rArg: IDENT" << std::endl;
 	  std::cout << "Testing query: variable v; Select v such that XXX(2, TEST_IDENT);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -300,7 +300,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: SYN, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: variable v; Select v such that XXX(SYN, v);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -371,7 +371,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: SYN, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: variable v; Select SYN such that XXX(SYN, v);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -510,7 +510,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: STMT_NUM, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: STMT_NUM, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: SYN_S; Select SYN such that XXX(SYN, _);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -641,7 +641,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: SYN, rArg: IDENT" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: SYN, rArg: IDENT" << std::endl;
 	  std::cout << "Testing query: SYN_S; Select SYN such that XXX(SYN, TEST_IDENT);" << std::endl;
 
 	  writer->insertVariable("testVar1");
@@ -798,7 +798,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, varDeclaration});
-	  PQL::Query q2 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration}, {modifiesp}, {varDeclaration});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -810,7 +810,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with non-empty result that has lArg: IDENT, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: IDENT, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, v);" << std::endl;
 
 	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
@@ -830,7 +830,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, varDeclaration});
-	  PQL::Query q2 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration}, {modifiesp}, {varDeclaration});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -867,7 +867,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, wildcard});
-	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  PQL::Query q2 = PQL::Query({varDec}, {modifiesp}, {varDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -899,7 +899,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, wildcard});
-	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  PQL::Query q2 = PQL::Query({varDec}, {modifiesp}, {varDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -937,7 +937,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {lIdent, ident});
-	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  PQL::Query q2 = PQL::Query({varDec}, {modifiesp}, {varDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -973,7 +973,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {lIdent, ident});
-	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  PQL::Query q2 = PQL::Query({varDec}, {modifiesp}, {varDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -987,7 +987,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: procedure p; variable v; Select p such that XXX(p, v);" << std::endl;
 
 	  writer->insertModifiesProc("testProc1", "testVar1");
@@ -1011,7 +1011,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
-	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {modifiesp}, {varDeclaration});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -1023,7 +1023,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
 	  std::cout << "Testing query: procedure p; variable v; Select p such that XXX(p, v);" << std::endl;
 
 	  writer->insertModifiesProc("testProc1", "testVar1");
@@ -1047,10 +1047,11 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
-	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {modifiesp}, {procedureDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
+
 	SECTION("VAR_SYN right argument empty") {
 	  auto pkb = std::make_shared<PKB>();
 	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
@@ -1078,7 +1079,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
-	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {modifiesp}, {procedureDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -1090,7 +1091,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: PROC_SYN, rArg: WILDCARD" << std::endl;
 	  std::cout << "Testing query: procedure p; Select p such that XXX(p, _);" << std::endl;
 
 	  writer->insertModifiesProc("testProc1", "testVar1");
@@ -1114,7 +1115,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, wildcard});
-	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {modifiesp}, {procedureDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -1145,7 +1146,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, wildcard});
-	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {modifiesp}, {procedureDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -1157,7 +1158,7 @@ TEST_CASE("Entity Evaluator") {
 	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  std::cout << "============ Start testing ============" << std::endl;
-	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: IDENT" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: PROC_SYN, rArg: IDENT" << std::endl;
 	  std::cout << "Testing query: procedure p; Select p such that XXX(p, \"testVar1\");" << std::endl;
 
 	  writer->insertModifiesProc("testProc1", "testVar1");
@@ -1182,7 +1183,7 @@ TEST_CASE("Entity Evaluator") {
 	  evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, ident});
-	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {modifiesp}, {procedureDec});
 	  res = evaluator.evaluateQuery(q2);
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
@@ -1217,9 +1218,221 @@ TEST_CASE("Entity Evaluator") {
 	evaluator = QueryEvaluator::QueryEvaluator(reader);
 
 	PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, ident});
-	PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	PQL::Query q2 = PQL::Query({procedureDec}, {modifiesp}, {procedureDec});
 	res = evaluator.evaluateQuery(q2);
 	REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+  }
+
+  SECTION("Evaluate CALLS/CALLST evaluator with WILDCARD as left argument") {
+	SECTION("PROC_SYN right argument non-empty and correct procedures") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: PROC_SYN" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, p);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3", "testProc4"});
+
+	  writer->insertCallsProc("testProc1", "testProc2");
+	  writer->insertCallsProc("testProc2", "testProc3");
+	  writer->insertCallsProc("testProc1", "testProc4");
+
+	  writer->insertCallsTProc("testProc1", "testProc3");
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc2", "testProc3", "testProc4"};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, procDec});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  expectedRes = {"testProc3"};
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, procDec});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("PROC_SYN right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: PROC_SYN" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, p);" << std::endl;
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, procDec});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, procDec});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument non-empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, _);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"});
+
+	  writer->insertCallsProc("testProc1", "testProc2");
+	  writer->insertCallsProc("testProc2", "testProc3");
+	  writer->insertCallsProc("testProc1", "testProc4");
+
+	  writer->insertCallsTProc("testProc1", "testProc3");
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, wildcard});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, wildcard});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, _);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"});
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, wildcard});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, wildcard});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument non-empty and correct statements") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: IDENT" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, testProc3);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"});
+
+	  writer->insertCallsProc("testProc1", "testProc2");
+	  writer->insertCallsProc("testProc2", "testProc3");
+	  writer->insertCallsProc("testProc1", "testProc4");
+
+	  writer->insertCallsTProc("testProc1", "testProc3");
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc3");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, ident});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, ident});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: WILDCARD, rArg: IDENT" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that CALLS/CALLST(_, testProc4);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3", "testProc4", "testProc5"});
+
+	  writer->insertCallsProc("testProc1", "testProc2");
+	  writer->insertCallsProc("testProc2", "testProc3");
+
+	  writer->insertCallsTProc("testProc1", "testProc3");
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc4");
+	  auto procDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause calls = PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, {wildcard, ident});
+	  PQL::Query q1 = PQL::Query({procDec}, {calls}, {procDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause callst = PQL::Clause(SimpleProgram::DesignAbstraction::CALLST, {wildcard, ident});
+	  PQL::Query q2 = PQL::Query({procDec}, {callst}, {procDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
   }
 }
