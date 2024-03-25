@@ -8,8 +8,8 @@ namespace QueryEvaluator {
 class IfAndWhilePatternEvaluator : private ClauseEvaluator {
  public:
   IfAndWhilePatternEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl,
-							 std::shared_ptr<ResultStore> resultStore1)
-	  : ClauseEvaluator(r, cl, resultStore1) {};
+							 std::shared_ptr<ResultStore> resultStore)
+	  : ClauseEvaluator(r, cl, resultStore) {};
 
   bool evaluate() override;
 

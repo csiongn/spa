@@ -17,9 +17,9 @@ class ClauseEvaluator {
   std::shared_ptr<ResultStore> resultStore;
 
  public:
-  ClauseEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore1)
+  ClauseEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> _resultStore)
 	  : reader(r), clause(cl) {
-	resultStore = resultStore1;
+	resultStore = _resultStore;
   };
 
   virtual bool evaluate() = 0;

@@ -9,15 +9,18 @@ namespace PQL {
 struct Synonym {
   SimpleProgram::DesignEntity entityType;
   std::string identity;
+  SimpleProgram::AttributeRef attribute;
 
   Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id);
 
+  Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id, const SimpleProgram::AttributeRef &attribute);
+
   bool operator==(const Synonym &other) const {
-	return entityType == other.entityType && identity == other.identity;
+	return entityType == other.entityType && identity == other.identity && attribute == other.attribute;
   };
 
   bool operator!=(const Synonym &other) const {
-	return entityType != other.entityType || identity != other.identity;
+	return entityType != other.entityType || identity != other.identity || attribute != other.attribute;
   };
 };
 

@@ -11,6 +11,7 @@
 #include "EntityEvaluator.h"
 #include "AssignPatternEvaluator.h"
 #include "IfAndWhilePatternEvaluator.h"
+#include "WithEvaluator.h"
 
 namespace QueryEvaluator {
 QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(std::make_shared<ResultStore>()),
@@ -56,9 +57,9 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 	  return AssignPatternEvaluator{reader, clause, resultStore}.evaluate();
 	case SimpleProgram::DesignAbstraction::PATTERN_IF:
 	case SimpleProgram::DesignAbstraction::PATTERN_WHILE:
-	  return IfAndWhilePatternEvaluator(reader,
-										clause,
-										resultStore).evaluate();
+	  return IfAndWhilePatternEvaluator(reader, clause, resultStore).evaluate();
+	case SimpleProgram::DesignAbstraction::WITH:
+	  return WithEvaluator(reader, clause, resultStore).evaluate();
 	default:
 	  return false;
   }

@@ -40,4 +40,10 @@ enum class DesignAbstraction {
   AFFECTS,
   WITH
 };
+
+enum class AttributeRef {
+  NAME, // for proc/call/var/read/print
+  INTEGER, // for const/stmt/read/print/call/while/if/assign
+  NO_REF // for synonym not using any of the above
+};
 }
