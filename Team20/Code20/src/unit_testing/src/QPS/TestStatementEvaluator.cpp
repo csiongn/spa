@@ -307,6 +307,81 @@ TEST_CASE("Statement Evaluator") {
 	  std::vector<std::string> expectedRes = {};
 	  REQUIRE(res == expectedRes);
 	}
+
+	SECTION("Next and non-empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with parent* that has both statement number as arguments." << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that Next(2,5);" << std::endl;
+
+	  writer->insertVariable("testVar1");
+	  writer->insertNext(2, 5);
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "5");
+	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"testVar1"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("Next and empty (same statement number)") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with parent* that has both statement number as arguments." << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that Parent*(2,2);" << std::endl;
+
+	  writer->insertVariable("testVar1");
+	  // not supposed to have such relationship, added just to test
+	  writer->insertNext(2, 2);
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("Next and empty (different statement number)") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with parent* that has both statement number as arguments." << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that Next(2,3);" << std::endl;
+
+	  writer->insertVariable("testVar1");
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto lArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "2");
+	  auto rArgSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT_NO, "3");
+	  auto parentTClause = PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn});
+	  auto q = PQL::Query({varDeclaration}, {parentTClause}, {selectSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {};
+	  REQUIRE(res == expectedRes);
+	}
   }
 
   SECTION("Evaluate statement only queries with STMT_NUM as left argument") {
@@ -326,6 +401,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(2, 3);
 	  writer->insertParent(2, 3);
 	  writer->insertParentT(2, 3);
+	  writer->insertNext(2, 3);
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
@@ -336,7 +412,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -361,6 +438,9 @@ TEST_CASE("Statement Evaluator") {
 			break;
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
+			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
 			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -389,7 +469,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -415,6 +496,9 @@ TEST_CASE("Statement Evaluator") {
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
 			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
+			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
@@ -436,6 +520,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(2, 3);
 	  writer->insertParent(2, 3);
 	  writer->insertParentT(2, 3);
+	  writer->insertNext(2, 3);
 	  writer->insertStatement(3);
 	  writer->insertRead(3);
 	  writer->insertPrint(3);
@@ -470,7 +555,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -486,6 +572,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -516,6 +605,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(2, 3);
 	  writer->insertParent(2, 3);
 	  writer->insertParentT(2, 3);
+	  writer->insertNext(2, 3);
 	  writer->insertStatement(3);
 	  writer->insertRead(3);
 	  writer->insertPrint(3);
@@ -551,7 +641,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -567,6 +658,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -621,7 +715,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -637,6 +732,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -670,6 +768,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
@@ -680,7 +779,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -705,6 +805,9 @@ TEST_CASE("Statement Evaluator") {
 			break;
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
+			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
 			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -733,7 +836,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -759,6 +863,9 @@ TEST_CASE("Statement Evaluator") {
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
 			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
+			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
@@ -780,6 +887,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
 	  writer->insertPrint(1);
@@ -814,7 +922,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -830,6 +939,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -860,6 +972,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
 	  writer->insertPrint(1);
@@ -895,7 +1008,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -911,6 +1025,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -965,7 +1082,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -981,6 +1099,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1014,6 +1135,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 
 	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
@@ -1024,7 +1146,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -1049,6 +1172,9 @@ TEST_CASE("Statement Evaluator") {
 			break;
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
+			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
 			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1077,7 +1203,8 @@ TEST_CASE("Statement Evaluator") {
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, rArgSyn}),
 		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, rArgSyn}),
-		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn})
+		  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, rArgSyn}),
+		  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, rArgSyn})
 	  };
 
 	  // no default constructor
@@ -1103,6 +1230,9 @@ TEST_CASE("Statement Evaluator") {
 		  case SimpleProgram::DesignAbstraction::PARENTT:
 			std::cout << "PARENTT passed" << std::endl;
 			break;
+		  case SimpleProgram::DesignAbstraction::NEXT:
+			std::cout << "TESTING NEXT" << std::endl;
+			break;
 		  default:
 			std::cout << "UNKNOWN CLAUSE" << std::endl;
 		}
@@ -1124,6 +1254,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(2);
 	  writer->insertRead(2);
 	  writer->insertPrint(2);
@@ -1158,7 +1289,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1174,6 +1306,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1204,6 +1339,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(2);
 	  writer->insertRead(2);
 	  writer->insertPrint(2);
@@ -1238,7 +1374,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1254,6 +1391,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1307,7 +1447,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lArgSyn, syn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lArgSyn, syn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lArgSyn, syn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lArgSyn, syn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1323,6 +1464,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1355,6 +1499,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
 	  writer->insertPrint(1);
@@ -1389,7 +1534,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1405,6 +1551,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1435,6 +1584,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
 	  writer->insertPrint(1);
@@ -1469,7 +1619,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1485,6 +1636,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1538,7 +1692,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {syn, rArgSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {syn, rArgSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {syn, rArgSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {syn, rArgSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1554,6 +1709,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1586,6 +1744,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement({1, 2});
 	  writer->insertRead({1, 2});
 	  writer->insertPrint({1, 2});
@@ -1629,7 +1788,8 @@ TEST_CASE("Statement Evaluator") {
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lSyn, rSyn}),
-			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn})
+			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn}),
+			  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lSyn, rSyn})
 		  };
 
 		  for (auto const &cl : clauses) {
@@ -1645,6 +1805,9 @@ TEST_CASE("Statement Evaluator") {
 				break;
 			  case SimpleProgram::DesignAbstraction::PARENTT:
 				std::cout << "TESTING PARENTT" << std::endl;
+				break;
+			  case SimpleProgram::DesignAbstraction::NEXT:
+				std::cout << "TESTING NEXT" << std::endl;
 				break;
 			  default:
 				std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1676,6 +1839,7 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertFollowsT(1, 2);
 	  writer->insertParent(1, 2);
 	  writer->insertParentT(1, 2);
+	  writer->insertNext(1, 2);
 	  writer->insertStatement({1, 2});
 	  writer->insertRead({1, 2});
 	  writer->insertPrint({1, 2});
@@ -1719,7 +1883,8 @@ TEST_CASE("Statement Evaluator") {
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lSyn, rSyn}),
-			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn})
+			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn}),
+			  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lSyn, rSyn})
 		  };
 
 		  for (auto const &cl : clauses) {
@@ -1735,6 +1900,9 @@ TEST_CASE("Statement Evaluator") {
 				break;
 			  case SimpleProgram::DesignAbstraction::PARENTT:
 				std::cout << "TESTING PARENTT" << std::endl;
+				break;
+			  case SimpleProgram::DesignAbstraction::NEXT:
+				std::cout << "TESTING NEXT" << std::endl;
 				break;
 			  default:
 				std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1798,7 +1966,8 @@ TEST_CASE("Statement Evaluator") {
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lSyn, rSyn}),
-			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn})
+			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn}),
+			  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lSyn, rSyn})
 		  };
 
 		  for (auto const &cl : clauses) {
@@ -1814,6 +1983,9 @@ TEST_CASE("Statement Evaluator") {
 				break;
 			  case SimpleProgram::DesignAbstraction::PARENTT:
 				std::cout << "TESTING PARENTT" << std::endl;
+				break;
+			  case SimpleProgram::DesignAbstraction::NEXT:
+				std::cout << "TESTING NEXT" << std::endl;
 				break;
 			  default:
 				std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1867,7 +2039,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lSyn, lSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lSyn, lSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lSyn, lSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, lSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, lSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lSyn, lSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -1883,6 +2056,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -1945,7 +2121,8 @@ TEST_CASE("Statement Evaluator") {
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {lSyn, rSyn}),
 			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {lSyn, rSyn}),
-			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn})
+			  PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {lSyn, rSyn}),
+			  PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {lSyn, rSyn})
 		  };
 
 		  for (auto const &cl : clauses) {
@@ -1961,6 +2138,9 @@ TEST_CASE("Statement Evaluator") {
 				break;
 			  case SimpleProgram::DesignAbstraction::PARENTT:
 				std::cout << "TESTING PARENTT" << std::endl;
+				break;
+			  case SimpleProgram::DesignAbstraction::NEXT:
+				std::cout << "TESTING NEXT" << std::endl;
 				break;
 			  default:
 				std::cout << "UNKNOWN CLAUSE" << std::endl;
@@ -2013,7 +2193,8 @@ TEST_CASE("Statement Evaluator") {
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWS, {rSyn, rSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, {rSyn, rSyn}),
 			PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, {rSyn, rSyn}),
-			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {rSyn, rSyn})
+			PQL::Clause(SimpleProgram::DesignAbstraction::PARENTT, {rSyn, rSyn}),
+			PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, {rSyn, rSyn})
 		};
 
 		for (auto const &cl : clauses) {
@@ -2029,6 +2210,9 @@ TEST_CASE("Statement Evaluator") {
 			  break;
 			case SimpleProgram::DesignAbstraction::PARENTT:
 			  std::cout << "TESTING PARENTT" << std::endl;
+			  break;
+			case SimpleProgram::DesignAbstraction::NEXT:
+			  std::cout << "TESTING NEXT" << std::endl;
 			  break;
 			default:
 			  std::cout << "UNKNOWN CLAUSE" << std::endl;
