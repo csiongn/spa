@@ -61,6 +61,11 @@ bool IfAndWhilePatternEvaluator::getForwardRelationship() {
 
 bool IfAndWhilePatternEvaluator::getSynonymWildcard() {
   // Handles (VAR, _) / (VAR, _, _)
+	return getLeftResults();
+}
+
+bool IfAndWhilePatternEvaluator::getLeftResults() {
+  // Handles (VAR, _) / (VAR, _, _)
   PQL::Synonym patternSyn = clause.arguments[0];
   PQL::Synonym lArg = clause.arguments[1];
   std::vector<std::string> vars;
@@ -97,35 +102,5 @@ bool IfAndWhilePatternEvaluator::getSynonymWildcard() {
 
   resultStore->insertResult(std::make_shared<Result>(newResult));
   return true;
-}
-
-bool IfAndWhilePatternEvaluator::getLeftResults() {
-  // same as getSynonymWildCard in this case
-  return false;
-}
-
-bool IfAndWhilePatternEvaluator::isAlwaysFalse() {
-  // No always false case for if/while pattern
-  return false;
-}
-
-bool IfAndWhilePatternEvaluator::getReversedRelationship() {
-  // No RIGHT SYN for if/while pattern
-  return false;
-}
-
-bool IfAndWhilePatternEvaluator::getRightResults() {
-  // No RIGHT SYN for if/while pattern
-  return false;
-}
-
-bool IfAndWhilePatternEvaluator::getWildcardSynonym() {
-  // No RIGHT SYN for if/while pattern
-  return false;
-}
-
-bool IfAndWhilePatternEvaluator::getDoubleSynonym() {
-  // No RIGHT SYN for if/while pattern
-  return false;
 }
 }

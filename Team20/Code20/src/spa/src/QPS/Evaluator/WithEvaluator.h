@@ -17,7 +17,7 @@ class WithEvaluator : private ClauseEvaluator {
   bool evaluate() override;
 
  private:
-  bool isAlwaysFalse() override;
+  bool isAlwaysFalse();
 
   bool isAlwaysTrue();
 
@@ -40,23 +40,5 @@ class WithEvaluator : private ClauseEvaluator {
 								const PQL::Synonym &rArg,
 								std::vector<T> &lValues,
 								const std::vector<T> &rValues);
-
-  bool hasRelationship() override;
-
-  bool hasAtLeastOneRelationship() override;
-
-  bool getForwardRelationship() override;
-
-  bool getReversedRelationship() override;
-
-  bool getLeftResults() override;
-
-  bool getSynonymWildcard() override;
-
-  bool getRightResults() override;
-
-  bool getWildcardSynonym() override;
-
-  bool getDoubleSynonym() override;
 };
 }

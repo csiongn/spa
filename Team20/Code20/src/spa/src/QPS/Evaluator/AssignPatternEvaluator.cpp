@@ -296,29 +296,4 @@ std::vector<int> AssignPatternEvaluator::getAssignSynResults(const std::vector<s
 
   return assignSynResults;
 }
-
-bool AssignPatternEvaluator::isAlwaysFalse() {
-  // No always false case for assign pattern
-  return false;
-}
-
-bool AssignPatternEvaluator::getReversedRelationship() {
-  // No RIGHT SYN for assign pattern
-  return false;
-}
-
-bool AssignPatternEvaluator::getRightResults() {
-  // No RIGHT SYN for assign pattern
-  return false;
-}
-
-bool AssignPatternEvaluator::getWildcardSynonym() {
-  // No RIGHT SYN for assign pattern
-  return false;
-}
-
-bool AssignPatternEvaluator::getDoubleSynonym() {
-  // No RIGHT SYN for assign pattern
-  return false;
-}
 }

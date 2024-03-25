@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "ClauseEvaluator.h"
+#include "RelationshipEvaluator.h"
 
 namespace QueryEvaluator {
-class EntityEvaluator : private ClauseEvaluator {
+class EntityEvaluator : private RelationshipEvaluator {
  public:
   EntityEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {};
+	  : RelationshipEvaluator(r, cl, resultStore) {};
 
   bool evaluate() override;
 

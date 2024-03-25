@@ -4,20 +4,18 @@
 #include <string>
 #include <vector>
 
-#include "ClauseEvaluator.h"
+#include "PatternEvaluator.h"
 
 namespace QueryEvaluator {
-class AssignPatternEvaluator : private ClauseEvaluator {
+class AssignPatternEvaluator : private PatternEvaluator {
  public:
   AssignPatternEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl,
 						 std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {};
+	  : PatternEvaluator(r, cl, resultStore) {};
 
   bool evaluate() override;
 
  private:
-  bool isAlwaysFalse() override;
-
   bool hasRelationship() override;
 
   bool hasRelationship(const std::string &ident, const std::string &expr);
@@ -26,17 +24,9 @@ class AssignPatternEvaluator : private ClauseEvaluator {
 
   bool getForwardRelationship() override;
 
-  bool getReversedRelationship() override;
-
   bool getLeftResults() override;
 
   bool getSynonymWildcard() override;
-
-  bool getRightResults() override;
-
-  bool getWildcardSynonym() override;
-
-  bool getDoubleSynonym() override;
 
   std::vector<std::shared_ptr<ExprNode>> getAllPartialNodes(const std::shared_ptr<ExprNode> &exprNode);
 

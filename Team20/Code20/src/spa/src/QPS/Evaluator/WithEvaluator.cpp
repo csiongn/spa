@@ -204,43 +204,4 @@ bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 
   return true;
 }
-
-bool WithEvaluator::hasRelationship() {
-  return false;
-}
-
-bool WithEvaluator::hasAtLeastOneRelationship() {
-  // with clause does not have wildcard
-  return false;
-}
-
-bool WithEvaluator::getForwardRelationship() {
-  return false;
-}
-
-bool WithEvaluator::getReversedRelationship() {
-  return false;
-}
-
-bool WithEvaluator::getLeftResults() {
-  return false;
-}
-
-bool WithEvaluator::getSynonymWildcard() {
-  // with clause does not have wildcard
-  return false;
-}
-
-bool WithEvaluator::getRightResults() {
-  return false;
-}
-
-bool WithEvaluator::getWildcardSynonym() {
-  // with clause does not have wildcard
-  return false;
-}
-
-bool WithEvaluator::getDoubleSynonym() {
-  return false;
-}
 }

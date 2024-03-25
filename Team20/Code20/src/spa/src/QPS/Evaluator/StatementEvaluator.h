@@ -3,14 +3,14 @@
 #include <memory>
 #include <vector>
 
-#include "ClauseEvaluator.h"
+#include "RelationshipEvaluator.h"
 
 namespace QueryEvaluator {
-class StatementEvaluator : private ClauseEvaluator {
+class StatementEvaluator : private RelationshipEvaluator {
  public:
   StatementEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl,
 					 std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {
+	  : RelationshipEvaluator(r, cl, resultStore) {
   };
 
   bool evaluate() override;
