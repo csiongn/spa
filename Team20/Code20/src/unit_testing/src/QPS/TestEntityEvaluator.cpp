@@ -241,7 +241,6 @@ TEST_CASE("Entity Evaluator") {
 		q = PQL::Query({varDeclaration}, {cl}, {selectSyn});
 		res = evaluator.evaluateQuery(q);
 		bool equal = checkVecValuesEqual(res, expectedRes);
-//                REQUIRE(checkVecValuesEqual(res, expectedRes));
 		REQUIRE(equal == true);
 	  }
 	}
@@ -293,7 +292,7 @@ TEST_CASE("Entity Evaluator") {
 	}
   }
 
-  SECTION("Evaluate entity evaluator with SYN as left argument") {
+  SECTION("Evaluate entity evaluator with STMT_SYN as left argument") {
 	SECTION("VAR_SYN right argument non-empty and correct variables") {
 	  auto pkb = std::make_shared<PKB>();
 	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
@@ -764,6 +763,463 @@ TEST_CASE("Entity Evaluator") {
 		  std::cout << syn.identity << " passed" << std::endl;
 		}
 	  }
+	}
+  }
+
+  SECTION("Evaluate entity evaluator with IDENT as left argument") {
+	SECTION("VAR_SYN right argument non-empty and correct variables") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: IDENT, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, v);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+
+	  std::vector<std::string> expectedRes = {"testVar1"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {ident, varDeclaration});
+	  PQL::Query q1 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(res == expectedRes);
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("VAR_SYN right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: IDENT, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, v);" << std::endl;
+
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testVar1", "testVar2", "testVar3"});
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {ident, varDeclaration});
+	  PQL::Query q1 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration}, {usesp}, {varDeclaration});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument non-empty and correct procedure") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: IDENT, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, _);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+	  auto varDec = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+	  std::vector<std::string> expectedRes = {"testVar1", "testVar2", "testVar3"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {ident, wildcard});
+	  PQL::Query q1 = PQL::Query({varDec}, {usesp}, {varDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, wildcard});
+	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: IDENT, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, _);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto varDec = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {ident, wildcard});
+	  PQL::Query q1 = PQL::Query({varDec}, {usesp}, {varDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {ident, wildcard});
+	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument non-empty and correct statements") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with non-empty result that has lArg: ident, rArg: IDENT" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, testVar1);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto lIdent = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+	  auto varDec = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+
+	  std::vector<std::string> expectedRes = {"testVar1", "testVar2", "testVar3"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {lIdent, ident});
+	  PQL::Query q1 = PQL::Query({varDec}, {usesp}, {varDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(res == expectedRes);
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {lIdent, ident});
+	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: IDENT, rArg: IDENT" << std::endl;
+	  std::cout << "Testing query: variable v; Select v such that XXX(testProc1, testVar1);" << std::endl;
+
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto varDec = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto lIdent = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testProc1");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {lIdent, ident});
+	  PQL::Query q1 = PQL::Query({varDec}, {usesp}, {varDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {lIdent, ident});
+	  PQL::Query q2 = PQL::Query({varDec}, {usesp}, {varDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+  }
+
+  SECTION("Evaluate entity evaluator with PROC_SYN as left argument") {
+	SECTION("VAR_SYN right argument non-empty and correct variables") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing query: procedure p; variable v; Select p such that XXX(p, v);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testVar1", "testVar2"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, varDeclaration});
+	  PQL::Query q1 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {varDeclaration});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {varDeclaration});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("VAR_SYN right argument non-empty and correct procedures") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing query: procedure p; variable v; Select p such that XXX(p, v);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc1", "testProc2"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, varDeclaration});
+	  PQL::Query q1 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+	SECTION("VAR_SYN right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: VAR_SYN" << std::endl;
+	  std::cout << "Testing query: procedure p; variable v; Select p such that XXX(p, v);" << std::endl;
+
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testVar1", "testVar2", "testVar3"});
+
+	  auto varDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, varDeclaration});
+	  PQL::Query q1 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, varDeclaration});
+	  PQL::Query q2 = PQL::Query({varDeclaration, procedureDec}, {usesp}, {procedureDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument non-empty and correct procedure") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that XXX(p, _);" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc1", "testProc2"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, wildcard});
+	  PQL::Query q1 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, wildcard});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("WILDCARD right argument empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: WILDCARD" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that XXX(p, _);" << std::endl;
+
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, wildcard});
+	  PQL::Query q1 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, wildcard});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument non-empty and correct statements") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: IDENT" << std::endl;
+	  std::cout << "Testing query: procedure p; Select p such that XXX(p, \"testVar1\");" << std::endl;
+
+	  writer->insertModifiesProc("testProc1", "testVar1");
+	  writer->insertUsesProc("testProc1", "testVar1");
+	  writer->insertModifiesProc("testProc2", "testVar2");
+	  writer->insertUsesProc("testProc2", "testVar2");
+	  writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	  writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	  auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
+	  auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	  auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	  std::vector<std::string> expectedRes = {"testProc1"};
+
+	  PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, ident});
+	  PQL::Query q1 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	  // reset evaluator
+	  evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, ident});
+	  PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	  res = evaluator.evaluateQuery(q2);
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("IDENT right argument empty") {
+	auto pkb = std::make_shared<PKB>();
+	std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	std::cout << "============ Start testing ============" << std::endl;
+	std::cout << "Testing PQL query with empty result that has lArg: PROC_SYN, rArg: IDENT" << std::endl;
+	std::cout << "Testing query: procedure p; Select p such that XXX(p, \"testVar1\");" << std::endl;
+
+	writer->insertModifiesProc("testProc2", "testVar2");
+	writer->insertUsesProc("testProc2", "testVar2");
+	writer->insertVariable({"testVar1", "testVar2", "testVar3"});
+	writer->insertProcedure({"testProc1", "testProc2", "testProc3"});
+
+	auto ident = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
+	auto wildcard = PQL::Synonym(SimpleProgram::DesignEntity::WILDCARD, "_");
+	auto procedureDec = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	std::vector<std::string> expectedRes = {};
+
+	PQL::Clause usesp = PQL::Clause(SimpleProgram::DesignAbstraction::USESP, {procedureDec, ident});
+	PQL::Query q1 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	std::vector<std::string> res = evaluator.evaluateQuery(q1);
+	REQUIRE(checkVecValuesEqual(res, expectedRes));
+
+	// reset evaluator
+	evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	PQL::Clause modifiesp = PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, {procedureDec, ident});
+	PQL::Query q2 = PQL::Query({procedureDec}, {usesp}, {procedureDec});
+	res = evaluator.evaluateQuery(q2);
+	REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
   }
 }

@@ -50,6 +50,8 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 	  return StatementEvaluator{reader, clause, resultStore}.evaluate();
 	case SimpleProgram::DesignAbstraction::USESS:
 	case SimpleProgram::DesignAbstraction::MODIFIESS:
+	case SimpleProgram::DesignAbstraction::USESP:
+	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	case SimpleProgram::DesignAbstraction::CALLS:
 	case SimpleProgram::DesignAbstraction::CALLST:
 	  return EntityEvaluator{reader, clause, resultStore}.evaluate();
