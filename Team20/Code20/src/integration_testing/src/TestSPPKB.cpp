@@ -21,6 +21,9 @@ TEST_CASE("Integration test SP to PKB") {
 							"} else {"
 							"a = 5;"
 							"}"
+							"while (x < 2) {"
+							"x = 1;"
+							"}"
 							"}"
 							"procedure avg {"
 							"avg = num1 + num2;"
@@ -51,7 +54,7 @@ TEST_CASE("Integration test SP to PKB") {
 	  REQUIRE(checkVecValuesEqual(expectedliterals, actualLiterals));
 
 	  // Check statements
-	  std::vector<int> expectedStmts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+	  std::vector<int> expectedStmts = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 	  std::vector<int> actualStmts = pkbFacade->getAllStatementNum();
 	  REQUIRE(checkVecValuesEqual(expectedStmts, actualStmts));
 
@@ -61,12 +64,12 @@ TEST_CASE("Integration test SP to PKB") {
 	  REQUIRE(checkVecValuesEqual(expectedIfStmts, actualIfStmts));
 
 	  // Check print statements
-	  std::vector<int> expectedPrintStmts = {11};
+	  std::vector<int> expectedPrintStmts = {13};
 	  std::vector<int> actualPrintStmts = pkbFacade->getAllPrintStmtNum();
 	  REQUIRE(checkVecValuesEqual(expectedPrintStmts, actualPrintStmts));
 
 	  // Check assignment statements
-	  std::vector<int> expectedAssignStmts = {1, 3, 4, 6, 7, 8, 9, 10};
+	  std::vector<int> expectedAssignStmts = {1, 3, 4, 6, 7, 8, 10, 11, 12};
 	  std::vector<int> actualAssignStmts = pkbFacade->getAllAssignStmtNum();
 	  REQUIRE(checkVecValuesEqual(expectedAssignStmts, actualAssignStmts));
 
@@ -74,9 +77,30 @@ TEST_CASE("Integration test SP to PKB") {
 	  REQUIRE(pkbFacade->getAllReadStmtNum().empty());
 
 	  // No while statements
-	  REQUIRE(pkbFacade->getAllWhileStmtNum().empty());
+	  std::vector<int> expectedWhileStmts = {9};
+	  std::vector<int> actualWhileStmts = pkbFacade->getAllWhileStmtNum();
+	  REQUIRE(checkVecValuesEqual(expectedWhileStmts, actualWhileStmts));
+	}
+
+  	AND_THEN("The PKB should store the correct relationships") {
+	  // Check Next relationships
+	  REQUIRE(pkbFacade->containsNextRelationship(1, 2));
+	  REQUIRE(pkbFacade->containsNextRelationship(2, 3));
+	  REQUIRE(pkbFacade->containsNextRelationship(2, 8));
+	  REQUIRE(pkbFacade->containsNextRelationship(3, 4));
+	  REQUIRE(pkbFacade->containsNextRelationship(4, 5));
+	  REQUIRE(pkbFacade->containsNextRelationship(5, 6));
+	  REQUIRE(pkbFacade->containsNextRelationship(5, 7));
+	  REQUIRE(pkbFacade->containsNextRelationship(6, 9));
+	  REQUIRE(pkbFacade->containsNextRelationship(7, 9));
+	  REQUIRE(pkbFacade->containsNextRelationship(8, 9));
+	  REQUIRE(pkbFacade->containsNextRelationship(9, 10));
+	  REQUIRE(pkbFacade->containsNextRelationship(10, 9));
+	  REQUIRE(pkbFacade->containsNextRelationship(11, 12));
+	  REQUIRE(pkbFacade->containsNextRelationship(12, 13));
 	}
   }
+
 }
 
 TEST_CASE("Integration test from SP Parser to PKB") {

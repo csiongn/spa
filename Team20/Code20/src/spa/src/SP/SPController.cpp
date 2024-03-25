@@ -6,6 +6,10 @@
 
 #include "SPController.h"
 
+#include "control_flow_graph/CFG.h"
+#include "control_flow_graph/CFGBuilder.h"
+#include "control_flow_graph/NextExtractor.h"
+
 void SPController::populatePKB() {
   // Tokenize program
   tokenizer.tokenizeProgram();
@@ -18,6 +22,11 @@ void SPController::populatePKB() {
   // Extract designs and populate PKB
   const ProgramNode &astRoot = *parsed_program;
   designExtractor.extractDesign(astRoot);
+
+  const std::shared_ptr<CFGManager> cfgManager = CFGBuilder::buildCFG(astRoot);
+  const std::shared_ptr<NextExtractor> nextExtractor = std::make_shared<NextExtractor>();
+  cfgManager->accept(*nextExtractor);
+  nextExtractor->pushToPKB(pkbWriter);
 
   // PKB is populated
 }
