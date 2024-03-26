@@ -34,14 +34,8 @@ while IFS= read -r line; do
         IFS= read -r line
         current_file_name=$(echo "$line" | tr -d '\r')
 
-        while IFS= read -r line && ! [[ $line == *"End"* ]]; do
-            # Keep reading until we find the comment
-            :
-        done
         # Now we are at "Beginning to evaluate Query File."
         # Read the next line which we want to echo
-        IFS= read -r line
-        current_file_name=$(echo "$line" | tr -d '\r')
         echo "Testing folder $current_file_name"
         current_folder=$current_file_name
         succeeded_testcases[$current_folder]=0

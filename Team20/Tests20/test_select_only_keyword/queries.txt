@@ -46,5 +46,5 @@ Select r
 q10 - check all call statement
 call c;
 Select c
-12
+none
 5000

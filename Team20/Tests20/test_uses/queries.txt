@@ -1,0 +1,115 @@
+1.1.1 - Uses (s, v)
+variable v;
+Select v such that Uses(3, v)
+east
+5000
+1.1.2 - Uses (s, v)
+variable v; stmt s;
+Select v such that Uses(5, v)
+Yishun
+5000
+1.1.3 - Uses (s, v)
+variable v; stmt s;
+Select v such that Uses(s, v)
+x, y, v, west, Yishun
+5000
+1.2 - Uses (a, _)
+assign a;
+Select a such that Uses(a, _)
+2, 3, 4, 6, 8, 10, 11, 12, 14
+5000
+1.3.1 - Uses (a,v)
+assign a;
+Select a such that Uses(a, "east")
+2, 3, 8, 12
+5000
+1.3.2 - Uses (a, v)
+assign a; variable v1;
+Select a such that Uses(a, v1)
+2, 3, 4, 6, 8, 10, 11, 12, 14
+5000
+1.4 - Uses (pn, v)
+print pn;
+Select pn such that Uses(pn, "west")
+15
+5000
+1.5 - Uses (pn, v)
+print pn;
+Select pn such that Uses(pn, "east")
+1
+5000
+1.6 - Uses (v, v) - incorrect first arg type
+variable v;
+Select v such that Uses(v, "east")
+SemanticError
+5000
+1.7.1 - Uses (w, v) - while first arg type
+while w; stmt s;
+Select s such that Uses(w, "east")
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+1.7.2 - Uses (w, _)
+while w; stmt s;
+Select s such that Uses(w, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+1.8.1 - Uses (if, v) - if first arg type
+stmt s; if if;
+Select s such that Uses(if, "east")
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+1.8.2 - Uses (if, _) - if first arg type
+stmt s; if if;
+Select s such that Uses(if, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+5000
+1.9 - Uses (s, v) - test 1
+while w; stmt s;
+Select s such that Uses(s, "east")
+1, 2, 3, 7, 8, 9, 12
+5000
+1.10 - Uses (w, v) - non-existent second ident
+while w; stmt s;
+Select s such that Uses(w, "asdfion")
+none
+5000
+1.11 - Uses (s, _)
+stmt s;
+Select s such that Uses(s, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+5000
+1.12 - Uses(c, _)
+call c;
+Select c such that Uses(c, _)
+none
+5000
+2.1 - uses wildcard / variable, incorrect declaration
+stmt s;
+Select s such that Uses(_, v)
+none
+5000
+2.2 - uses wildcard, wildcard
+stmt s;
+Select s such that Uses(_, _)
+none
+5000
+2.3 - Uses with procedure flipped
+stmt s; procedure p1;
+Select s such that Uses(s, p1)
+none
+5000
+2.4 - Uses (pn, v) - false declaration
+print stmt pn;
+Select pn such that Uses(pn, "east")
+none
+5000
+2.5 - Uses (s, IDENT) fake ident
+stmt s; 
+Select s such that Uses(s, "test")
+none
+5000
+2.6 - Uses exceed statement num
+stmt s; 
+Select s such that Uses(601, "test")
+none
+5000
