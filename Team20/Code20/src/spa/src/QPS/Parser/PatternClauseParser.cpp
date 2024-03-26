@@ -1,8 +1,9 @@
 #include "PatternClauseParser.h"
 #include "QPS/Utils/ParseUtils.h"
 
-PatternClauseParser::PatternClauseParser(std::vector<std::shared_ptr<QueryToken>>& relationshipClauseTokens, ClauseValidator& validator) 
-    : relationshipClauseTokens(relationshipClauseTokens), validator(validator) {}
+PatternClauseParser::PatternClauseParser(std::vector<std::shared_ptr<QueryToken>>& relationshipClauseTokens, 
+    ClauseValidator& validator, std::vector<PQL::Synonym>& declarations) 
+    : relationshipClauseTokens(relationshipClauseTokens), validator(validator), declarations(declarations) {}
 
 std::vector<std::shared_ptr<QueryToken>> PatternClauseParser::getPatternClause(const int start) {
     std::vector<std::shared_ptr<QueryToken>> patternClauseTokens;
@@ -23,11 +24,11 @@ std::vector<std::shared_ptr<QueryToken>> PatternClauseParser::getPatternClause(c
 }
 
 SimpleProgram::DesignAbstraction PatternClauseParser::getPatternClauseType(std::shared_ptr<QueryToken>& patternClauseToken) {
-    auto entity = validator.getDeclarationUsed(patternClauseToken);
+    auto entity = QueryEvaluator::ParseUtils::getEntityType(patternClauseToken, declarations);
 
-    if (entity.entityType == SimpleProgram::DesignEntity::ASSIGN) {
+    if (entity == SimpleProgram::DesignEntity::ASSIGN) {
         return SimpleProgram::DesignAbstraction::PATTERN_ASSIGN;
-    } else if (entity.entityType == SimpleProgram::DesignEntity::WHILE) {
+    } else if (entity == SimpleProgram::DesignEntity::WHILE) {
         return SimpleProgram::DesignAbstraction::PATTERN_WHILE;
     } else {
         return SimpleProgram::DesignAbstraction::PATTERN_IF;
@@ -41,28 +42,64 @@ PQL::Clause PatternClauseParser::parse(std::vector<std::shared_ptr<QueryToken>>&
     validator.validateDeclarationExists(patternSynonymToken);
     validator.validatePatternSynonym(patternSynonymToken);
 
-
     auto patternClauseType = getPatternClauseType(patternSynonymToken);
-    std::vector<std::shared_ptr<QueryToken>> argTokens = QueryEvaluator::ParseUtils::removeBracketsAndCommas(patternClauseTokens);
+    std::vector<std::shared_ptr<QueryToken>> cleanedPatternTokens = QueryEvaluator::ParseUtils::removeBracketsAndCommas(patternClauseTokens);
+    std::vector<std::shared_ptr<QueryToken>> patternArgsTokens = QueryEvaluator::ParseUtils::splitTokens(cleanedPatternTokens, 1, cleanedPatternTokens.size());
 
-    auto patternSynonymEntityType = validator.getDeclarationUsed(patternSynonymToken).entityType;
+    auto patternSynonymEntityType = QueryEvaluator::ParseUtils::getEntityType(patternSynonymToken, declarations);
     auto patternSynonym = QueryEvaluator::ParseUtils::createSynonym(patternSynonymEntityType, patternSynonymToken);
 
     patternArgs.push_back(patternSynonym);
 
-    int count = 1;
-
-    for (const auto& argToken : argTokens) {
-        if (patternClauseType == SimpleProgram::DesignAbstraction::PATTERN_ASSIGN) {
-            validator.validatePatternAssign(argToken, count);
-        } else if (patternClauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
-            
+    validator.validatePatternArgs(patternClauseType, patternArgsTokens);
+    if (patternClauseType == SimpleProgram::DesignAbstraction::PATTERN_ASSIGN) {
+        auto largToken = patternArgsTokens[0];
+        auto rargToken = patternArgsTokens[1];
+        SimpleProgram::DesignEntity largTokenType; 
+        if (validator.isSynonym(largToken)) {
+            largTokenType = QueryEvaluator::ParseUtils::getEntityType(largToken, declarations);
         } else {
-            
+            largTokenType = largToken->getType() == QPS::TokenType::WILDCARD
+                ? SimpleProgram::DesignEntity::WILDCARD 
+                : SimpleProgram::DesignEntity::IDENT;
         }
-        count++;
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(largTokenType, largToken));
+
+        SimpleProgram::DesignEntity rargTokenType = validator.isPartialExpression(rargToken) 
+            ? SimpleProgram::DesignEntity::PARTIAL_EXPR 
+            : SimpleProgram::DesignEntity::EXPR;
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(rargTokenType, rargToken));
+
+    } else if (patternClauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
+        auto largToken = patternArgsTokens[0];
+        auto rargToken = patternArgsTokens[1];
+        SimpleProgram::DesignEntity largTokenType;
+        if (validator.isSynonym(largToken)) {
+            largTokenType = QueryEvaluator::ParseUtils::getEntityType(largToken, declarations);
+        } else {
+            largTokenType = largToken->getType() == QPS::TokenType::WILDCARD
+                                ? SimpleProgram::DesignEntity::WILDCARD
+                                : SimpleProgram::DesignEntity::IDENT;
+        }
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(largTokenType, largToken));
+
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, rargToken));
+    } else {
+        auto largToken = patternArgsTokens[0];
+        auto margToken = patternArgsTokens[1];
+        auto rargToken = patternArgsTokens[2];
+        SimpleProgram::DesignEntity largTokenType;
+        if (validator.isSynonym(largToken)) {
+            largTokenType = QueryEvaluator::ParseUtils::getEntityType(largToken, declarations);
+        } else {
+            largTokenType = largToken->getType() == QPS::TokenType::WILDCARD
+                                ? SimpleProgram::DesignEntity::WILDCARD
+                                : SimpleProgram::DesignEntity::IDENT;
+        }
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(largTokenType, largToken));
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, margToken));
+        patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, rargToken));
     }
     
-
-    return;
+    return PQL::Clause(patternClauseType, patternArgs);
 }

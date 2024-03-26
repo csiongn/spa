@@ -9,8 +9,6 @@ class ClauseValidator {
         std::vector<PQL::Synonym> declarations;
 
     private:
-        bool isSynonym(std::shared_ptr<QueryToken> token);
-
         bool isValidIdent(std::shared_ptr<QueryToken> token);
 
         bool isStmtRef(std::shared_ptr<QueryToken> token);
@@ -22,10 +20,6 @@ class ClauseValidator {
         bool isExpression(std::shared_ptr<QueryToken> token);
 
         bool isExpressionSpec(std::shared_ptr<QueryToken> token);
-
-        bool isFactor(std::shared_ptr<QueryToken> token);
-
-        bool isTerm(std::shared_ptr<QueryToken> token);
     
     public:
         explicit ClauseValidator(std::vector<PQL::Synonym>& declarations);
@@ -34,7 +28,9 @@ class ClauseValidator {
 
         bool hasError();
 
-        PQL::Synonym getDeclarationUsed(std::shared_ptr<QueryToken> synonymToken);
+        bool isSynonym(std::shared_ptr<QueryToken> token);
+
+        bool isPartialExpression(std::shared_ptr<QueryToken> token);
 
         void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
 
@@ -48,5 +44,11 @@ class ClauseValidator {
 
         void validatePatternSynonym(std::shared_ptr<QueryToken>& patternToken);
 
-        void validatePatternAssign(std::shared_ptr<QueryToken>& patternToken, int count);
+        void validatePatternAssign(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+
+        void validatePatternIf(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+
+        void validatePatternWhile(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+
+        void validatePatternArgs(SimpleProgram::DesignAbstraction patternType, std::vector<std::shared_ptr<QueryToken>>& patternArgs);
 };

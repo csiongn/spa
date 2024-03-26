@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <string>
+#include "QueryError.h"
 
 class QuerySemanticError : public QueryError {
  public:

@@ -57,8 +57,8 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
     std::vector<PQL::Clause> clauses;
 
     std::vector<std::shared_ptr<QueryToken>> relationshipClauseTokens = QueryEvaluator::ParseUtils::splitTokens(clauseTokens, 2, clauseTokens.size());
-    PatternClauseParser patternClauseParser = PatternClauseParser(relationshipClauseTokens, declarations);
-    SuchThatClauseParser suchThatClauseParser = SuchThatClauseParser(relationshipClauseTokens, declarations);
+    PatternClauseParser patternClauseParser = PatternClauseParser(relationshipClauseTokens, validator, declarations);
+    SuchThatClauseParser suchThatClauseParser = SuchThatClauseParser(relationshipClauseTokens, validator, declarations);
 
     SimpleProgram::DesignAbstraction prevRelationship;
 
@@ -77,13 +77,12 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
             auto suchThatType = suchThatClause.clauseType;
             prevRelationship = suchThatType;
         } else if (tokenValue == "with") {
-            
+
         } else if (tokenValue == "and") {
 
         } else {
             throw QuerySyntaxError("Syntax Error: Invalid relationship clause");
         }
-
     }
 
     return clauses;

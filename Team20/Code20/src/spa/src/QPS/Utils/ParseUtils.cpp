@@ -185,11 +185,11 @@ SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getSynonymType(std::shar
     }
 }
 
-PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity& entityType, std::shared_ptr<QueryToken>& token) {
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType, std::shared_ptr<QueryToken>& token) {
     return {entityType, token->getValue()};
 }
 
-PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity &entityType, std::string synonymIdentity) {
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType, std::string synonymIdentity) {
     return {entityType, synonymIdentity};
 }
 
@@ -254,5 +254,4 @@ bool QueryEvaluator::ParseUtils::isName(const std::string &str) {
     }
 
     return true;
->>>>>>> ac0e613 (refactor: qps logic)
 }

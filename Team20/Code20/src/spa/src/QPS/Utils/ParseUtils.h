@@ -24,9 +24,9 @@ class ParseUtils {
 
   static SimpleProgram::DesignEntity getSynonymType(std::shared_ptr<QueryToken>& token);
 
-  static PQL::Synonym createSynonym(SimpleProgram::DesignEntity& entityType, std::shared_ptr<QueryToken>& token);
+  static PQL::Synonym createSynonym(SimpleProgram::DesignEntity entityType, std::shared_ptr<QueryToken>& token);
 
-  static PQL::Synonym createSynonym(SimpleProgram::DesignEntity &entityType, std::string synonymIdentity);
+  static PQL::Synonym createSynonym(SimpleProgram::DesignEntity entityType, std::string synonymIdentity);
 
   static std::vector<std::string> splitTuple(std::shared_ptr<QueryToken>& tupleToken);
 

@@ -9,9 +9,10 @@ class PatternClauseParser {
     protected:
         std::vector<std::shared_ptr<QueryToken>> relationshipClauseTokens;
         ClauseValidator validator;
+        std::vector<PQL::Synonym>& declarations;
 
     public:
-        explicit PatternClauseParser(std::vector<std::shared_ptr<QueryToken>>& relationshipClauseTokens, ClauseValidator& validator);
+        explicit PatternClauseParser(std::vector<std::shared_ptr<QueryToken>>& relationshipClauseTokens, ClauseValidator& validator, std::vector<PQL::Synonym>& declarations);
         std::vector<std::shared_ptr<QueryToken>> getPatternClause(const int start);
         SimpleProgram::DesignAbstraction getPatternClauseType(std::shared_ptr<QueryToken>& patternClauseToken);
         PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>>& patternClauseTokens);
