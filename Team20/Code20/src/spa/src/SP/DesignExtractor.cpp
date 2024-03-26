@@ -77,12 +77,14 @@ void DesignExtractor::pushToPKB() {
 	pkbWriter->insertCallsProcStmt(pair.second, pair.first);
   }
 
-  for (const auto &stmtNum : readStmts) {
-	pkbWriter->insertRead(stmtNum);
+  for (const auto &pair : readStmts) {
+	pkbWriter->insertRead(pair.first);
+  	pkbWriter->insertReadVar(pair.second, pair.first);
   }
 
-  for (const auto &stmtNum : printStmts) {
-	pkbWriter->insertPrint(stmtNum);
+  for (const auto &pair : printStmts) {
+	pkbWriter->insertPrint(pair.first);
+  	pkbWriter->insertPrintVar(pair.second, pair.first);
   }
 
   for (const auto &ifStmtMap : ifStmts) {
@@ -170,11 +172,11 @@ void DesignExtractor::visitStmtNode(const StmtNode &node, int parentStmt, std::v
 	insertCall(stmtNumber);
   	updateCall(ctxt->procName, callNode->procName);
   } else if (const auto *readNode = dynamic_cast<const ReadNode *>(&node)) {
-	insertRead(stmtNumber);
+	insertRead(stmtNumber, readNode->varName);
 	insertVariable(readNode->varName);
 	updateModifies(stmtNumber, readNode->varName);
   } else if (const auto *printNode = dynamic_cast<const PrintNode *>(&node)) {
-	insertPrint(stmtNumber);
+	insertPrint(stmtNumber, printNode->varName);
 	insertVariable(printNode->varName);
 	updateUses(stmtNumber, printNode->varName);
   }
@@ -298,12 +300,12 @@ void DesignExtractor::insertCall(const int stmtNum) {
   callStmts[stmtNum] = ctxt->procName;
 }
 
-void DesignExtractor::insertPrint(const int stmtNum) {
-  printStmts.insert(stmtNum);
+void DesignExtractor::insertPrint(const int stmtNum, const std::string& variable) {
+  printStmts[stmtNum] = variable;
 }
 
-void DesignExtractor::insertRead(const int stmtNum) {
-  readStmts.insert(stmtNum);
+void DesignExtractor::insertRead(const int stmtNum, const std::string& variable) {
+  readStmts[stmtNum] = variable;
 }
 
 void DesignExtractor::insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables) {
