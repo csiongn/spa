@@ -14,7 +14,22 @@ bool ClauseValidator::isValidIdent(std::shared_ptr<QueryToken> token) {
 }
 
 bool ClauseValidator::isStmtRef(std::shared_ptr<QueryToken> token) {
-    std::unordered_set<SimpleProgram::DesignEntity> stmtTypes({
+    auto tokenType = token->getType();
+    return tokenType == QPS::TokenType::WILDCARD 
+        || tokenType == QPS::TokenType::INTEGER 
+        || isSynonym(token);
+}
+
+void ClauseValidator::validateStmtRef(std::shared_ptr<QueryToken> token) {
+    if (!isStmtRef(token)) {
+        throw QuerySyntaxError("Syntax Error: Invalid statement reference");
+    }
+
+    if (!isSynonym(token)) {
+        return;
+    }
+
+     std::unordered_set<SimpleProgram::DesignEntity> stmtTypes({
         SimpleProgram::DesignEntity::STMT,
         SimpleProgram::DesignEntity::ASSIGN, 
         SimpleProgram::DesignEntity::CALL, 
@@ -23,56 +38,70 @@ bool ClauseValidator::isStmtRef(std::shared_ptr<QueryToken> token) {
         SimpleProgram::DesignEntity::READ, 
         SimpleProgram::DesignEntity::WHILE});
 
-    auto tokenType = token->getType();
-    return tokenType == QPS::TokenType::WILDCARD 
-        || tokenType == QPS::TokenType::INTEGER 
-        || isSynonym(token) 
-        && stmtTypes.find(QueryEvaluator::ParseUtils::getEntityType(token, declarations)) != stmtTypes.end();
+    auto entRefSynonymType = QueryEvaluator::ParseUtils::getEntityType(token, declarations);
+    bool isValidSynonymType = stmtTypes.find(QueryEvaluator::ParseUtils::getEntityType(token, declarations)) != stmtTypes.end();
+
+    if (!isValidSynonymType) {
+        setSemanticError();
+    }
 }
 
 bool ClauseValidator::isEntRef(std::shared_ptr<QueryToken> token) {
+    return token->getType() == QPS::TokenType::WILDCARD
+        || isValidIdent(token)
+        || isSynonym(token);
+}
+
+void ClauseValidator::validateEntRef(std::shared_ptr<QueryToken> token) {
+    if (!isEntRef(token)) {
+        throw QuerySyntaxError("Syntax Error: Invalid entity reference");
+    }
+
+    if (!isSynonym(token)) {
+        return;
+    }
+
     std::unordered_set<SimpleProgram::DesignEntity> entTypes({
         SimpleProgram::DesignEntity::PROCEDURE,
         SimpleProgram::DesignEntity::VARIABLE, 
         SimpleProgram::DesignEntity::CONSTANT});
 
-    auto tokenType = token->getType();
-    return tokenType == QPS::TokenType::WILDCARD
-        || isValidIdent(token)
-        || isSynonym(token)
-        && entTypes.find(QueryEvaluator::ParseUtils::getEntityType(token, declarations)) != entTypes.end();
+    auto entRefSynonymType = QueryEvaluator::ParseUtils::getEntityType(token, declarations);
+    bool isValidSynonymType = entTypes.find(QueryEvaluator::ParseUtils::getEntityType(token, declarations)) != entTypes.end();
+
+    if (!isValidSynonymType) {
+        setSemanticError();
+    }
 }
 
 bool ClauseValidator::isExpression(std::shared_ptr<QueryToken> token) {
     return token->getType() == QPS::TokenType::EXPRESSION || token->getType() == QPS::TokenType::CONSTANT_STRING;
 }
 
-bool ClauseValidator::isExpressionSpec(std::shared_ptr<QueryToken> token) {
-    if (!isExpression(token)) {
-        return false;
+bool ClauseValidator::isExpressionSpec(std::vector<std::shared_ptr<QueryToken>>& tokens) {
+    if (tokens.size() == 1) {
+        auto token = tokens[0];
+        return isExpression(token) || token->getType() == QPS::TokenType::WILDCARD;
+    } else {
+        if (tokens.size() != 3) {
+            return false;
+        }
+        auto token1 = tokens[0];
+        auto token2 = tokens[1];
+        auto token3 = tokens[2];
+        return token1->getType() == QPS::TokenType::WILDCARD && token3->getType() == QPS::TokenType::WILDCARD &&
+               isExpression(token2);
     }
-    std::string value = token->getValue();
-    bool hasOnlyOneUnderscore = (value.find('_') == 0 || value.find('_') == value.size() - 1) 
-        && (value.find('_') == value.rfind('_')) 
-        && (value.find('_') != std::string::npos);
-    if (hasOnlyOneUnderscore) {
-        return false;
-    }
-
-    bool hasTwoUnderscores = (value.find('_') == 0 && value.rfind('_') == value.size() - 1);
-    return hasTwoUnderscores || value.find('_') == std::string::npos;
 }
 
-bool ClauseValidator::isPartialExpression(std::shared_ptr<QueryToken> token) {
-    if (!isExpression(token)) {
-        return false;
-    }
-    std::string value = token->getValue();
-    bool hasOnlyOneUnderscore = (value.find('_') == 0 || value.find('_') == value.size() - 1) 
-        && (value.find('_') == value.rfind('_')) 
-        && (value.find('_') != std::string::npos);
-    return hasOnlyOneUnderscore;
-}
+//bool ClauseValidator::isPartialExpression(std::shared_ptr<QueryToken> token) {
+//    if (!isExpression(token)) {
+//        return false;
+//    }
+//    std::string value = token->getValue();
+//    bool hasTwoUnderscores = (value.find('_') == 0 && value.rfind('_') == value.size() - 1);
+//    return hasTwoUnderscores;
+//}
 
 void ClauseValidator::setSemanticError() {
     hasSemanticError = true;
@@ -127,24 +156,19 @@ void ClauseValidator::validatePatternSynonym(std::shared_ptr<QueryToken>& patter
 }
 
 void ClauseValidator::validatePatternAssign(std::vector<std::shared_ptr<QueryToken>> &patternTokens) {
-    for (int count = 0; count < patternTokens.size(); count++) {
-        auto currToken = patternTokens[count];
-        if (count == 0) {
-            if (!isStmtRef(currToken)) {
-                throw QuerySyntaxError("Syntax Error: First argument of pattern assign should be a statement reference");
-            }
-            if (isSynonym(currToken)) {
-                validateDeclarationExists(currToken);
-            }
-        }
-        else if (count == 1) {
-            if (!isExpressionSpec(currToken)) {
-                throw QuerySyntaxError("Syntax Error: Second argument of pattern assign should be an expression spec");
-            }
-        }
-        else {
-            throw QuerySyntaxError("Syntax Error: Pattern assign should have two arguments");
-        }
+    int n = patternTokens.size();
+    auto lArgToken = patternTokens[0];
+
+    validateEntRef(lArgToken); 
+
+    if (isSynonym(lArgToken)) {
+        validateDeclarationExists(lArgToken);
+    }
+
+    auto remainingArgs = QueryEvaluator::ParseUtils::splitTokens(patternTokens, 1, n);
+
+    if (!isExpressionSpec(remainingArgs)) {
+        throw QuerySyntaxError("Syntax Error: Second argument of pattern assign should be an expression spec");
     }
 }
 

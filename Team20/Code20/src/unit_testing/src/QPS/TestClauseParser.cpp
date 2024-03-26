@@ -17,7 +17,8 @@ TEST_CASE("Clause Parser") {
     SECTION("Parse select query") {
         SECTION("Single value") {
             std::vector<std::shared_ptr<QueryToken>> selectQ1Tokens = tokenizer.tokenize(selectQ1);
-            ClauseParser parser(selectQ1Tokens, selectQ1Declarations);
+            auto validator = std::make_shared<ClauseValidator>(ClauseValidator(selectQ1Declarations));
+            ClauseParser parser(selectQ1Tokens, selectQ1Declarations, validator);
             std::vector<PQL::Synonym> selectSynonyms = parser.parseSelectClause();
 
             REQUIRE_NOTHROW(selectSynonyms);
@@ -28,7 +29,8 @@ TEST_CASE("Clause Parser") {
 
         SECTION("Multiple values (tuple)") {
             std::vector<std::shared_ptr<QueryToken>> selectQ2Tokens = tokenizer.tokenize(selectQ2);
-            ClauseParser parser(selectQ2Tokens, selectQ2Declarations);
+            auto validator = std::make_shared<ClauseValidator>(ClauseValidator(selectQ2Declarations));
+            ClauseParser parser(selectQ2Tokens, selectQ2Declarations, validator);
             std::vector<PQL::Synonym> selectSynonyms = parser.parseSelectClause();
 
             REQUIRE_NOTHROW(selectSynonyms);
@@ -41,7 +43,8 @@ TEST_CASE("Clause Parser") {
         SECTION("Invalid select clause") {
             std::string invalidSelectQ = R"(Select)";
             std::vector<std::shared_ptr<QueryToken>> invalidSelectQTokens = tokenizer.tokenize(invalidSelectQ);
-            ClauseParser parser(invalidSelectQTokens, selectQ1Declarations);
+            auto validator = std::make_shared<ClauseValidator>(ClauseValidator(selectQ1Declarations));
+            ClauseParser parser(invalidSelectQTokens, selectQ1Declarations, validator);
 
             REQUIRE_THROWS_AS(parser.parseSelectClause(), QuerySyntaxError);
         }
@@ -49,7 +52,8 @@ TEST_CASE("Clause Parser") {
         SECTION("Invalid select clause \"select\"") {
             std::string invalidSelectQ = R"(select a)";
             std::vector<std::shared_ptr<QueryToken>> invalidSelectQTokens = tokenizer.tokenize(invalidSelectQ);
-            ClauseParser parser(invalidSelectQTokens, selectQ1Declarations);
+            auto validator = std::make_shared<ClauseValidator>(ClauseValidator(selectQ1Declarations));
+            ClauseParser parser(invalidSelectQTokens, selectQ1Declarations, validator);
 
             REQUIRE_THROWS_AS(parser.parseSelectClause(), QuerySyntaxError);
         }
@@ -58,7 +62,8 @@ TEST_CASE("Clause Parser") {
             std::string selectQ = R"(Select Select)";
             std::vector<PQL::Synonym> selectQDeclarations{PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "Select")};
             std::vector<std::shared_ptr<QueryToken>> invalidSelectQTokens = tokenizer.tokenize(selectQ);
-            ClauseParser parser(invalidSelectQTokens, selectQDeclarations);
+            auto validator = std::make_shared<ClauseValidator>(ClauseValidator(selectQDeclarations));
+            ClauseParser parser(invalidSelectQTokens, selectQDeclarations, validator);
             std::vector<PQL::Synonym> selectSynonyms = parser.parseSelectClause();
 
             REQUIRE_NOTHROW(selectSynonyms);

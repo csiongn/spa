@@ -8,12 +8,11 @@
 class DeclarationsParser {
 protected:
     std::vector<std::shared_ptr<QueryToken>> declarationTokens;
-    std::vector<std::shared_ptr<QueryToken>> initialDeclarations;
-    std::vector<std::shared_ptr<QueryToken>> usedDeclarations;
     std::vector<int> semicolonPos;
-    DeclarationsValidator validator;
+    std::shared_ptr<DeclarationsValidator>& validator;
 
 public:
-    explicit DeclarationsParser(std::vector<std::shared_ptr<QueryToken>> declarationTokens, std::vector<int> semicolonPos);
+    explicit DeclarationsParser(std::vector<std::shared_ptr<QueryToken>> declarationTokens, std::vector<int> semicolonPos, std::shared_ptr<DeclarationsValidator>& validator);
+
     std::vector<PQL::Synonym> parseDeclarations();
 };

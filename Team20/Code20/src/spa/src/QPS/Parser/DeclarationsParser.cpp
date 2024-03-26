@@ -4,8 +4,8 @@
 
 #include <utility>
 
-DeclarationsParser::DeclarationsParser(std::vector<std::shared_ptr<QueryToken>> declarationTokens, std::vector<int> semicolonPos)
-    : declarationTokens(std::move(declarationTokens)), semicolonPos(std::move(semicolonPos)), validator(DeclarationsValidator{}) {}
+DeclarationsParser::DeclarationsParser(std::vector<std::shared_ptr<QueryToken>> declarationTokens, std::vector<int> semicolonPos, std::shared_ptr<DeclarationsValidator>& validator)
+    : declarationTokens(std::move(declarationTokens)), semicolonPos(std::move(semicolonPos)), validator(validator) {}
 
 std::vector<PQL::Synonym> DeclarationsParser::parseDeclarations() {
     std::vector<PQL::Synonym> declarations;
@@ -31,7 +31,7 @@ std::vector<PQL::Synonym> DeclarationsParser::parseDeclarations() {
                 continue;
             }
             PQL::Synonym synonym = QueryEvaluator::ParseUtils::createSynonym(synonymType, currToken);
-            validator.validateNoDuplicates(declarations, currToken);
+            validator->validateNoDuplicates(declarations, currToken);
             declarations.push_back(synonym);
             count++;
         }

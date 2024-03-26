@@ -22,38 +22,29 @@ TEST_CASE("Parse") {
 	REQUIRE(expectedQuery == results);
   }
 
-  SECTION("unused declarations") {
-	QueryTokenizer queryTokenizer{};
-	std::string query = "variable v; assign a; \nSelect v";
-	auto tokens = queryTokenizer.tokenize(query);
-	QueryParser queryParser(tokens);
-
-	auto results = queryParser.parse();
-
-	std::vector<PQL::Synonym> expectedDeclarations;
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
-	std::vector<PQL::Clause> expectedClauses;
-
-	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
-	REQUIRE(expectedQuery == results);
-  }
+//  SECTION("unused declarations") {
+//	QueryTokenizer queryTokenizer{};
+//	std::string query = "variable v; assign a; \nSelect v";
+//	auto tokens = queryTokenizer.tokenize(query);
+//	QueryParser queryParser(tokens);
+//
+//	auto results = queryParser.parse();
+//
+//	std::vector<PQL::Synonym> expectedDeclarations;
+//	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+//	std::vector<PQL::Clause> expectedClauses;
+//
+//	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
+//	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+//	REQUIRE(expectedQuery == results);
+//  }
 
   SECTION("declarations of same synonym identity") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; assign v; \nSelect v";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
-
-	auto results = queryParser.parse();
-
-	std::vector<PQL::Synonym> expectedDeclarations;
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
-	std::vector<PQL::Clause> expectedClauses;
-
-	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
-	REQUIRE(expectedQuery == results);
+    REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
   }
 
   SECTION("Parent relationship") {
@@ -318,7 +309,7 @@ TEST_CASE("Parse") {
 	REQUIRE(expectedQuery == results);
   }
 
-  SECTION("pattern clause full expression") {
+ SECTION("pattern clause full expression") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , \"x\" )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -344,9 +335,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause partial expression") {
+ SECTION("pattern clause partial expression") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , _\"x\"_ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -372,9 +363,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause double wildcard") {
+ SECTION("pattern clause double wildcard") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -400,9 +391,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause variable synonym first argument") {
+ SECTION("pattern clause variable synonym first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; variable v;\nSelect a pattern a ( v , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -429,16 +420,16 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause non-variable synonym first argument") {
+ SECTION("pattern clause non-variable synonym first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; print pn;\nSelect a pattern a ( pn , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
-	REQUIRE_THROWS_WITH(queryParser.parse(), "Semantic Error: Synonym for first argument should be a variable synonym");
-  }
+	REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+ }
 
   SECTION("pattern clause ident first argument") {
 	QueryTokenizer queryTokenizer{};

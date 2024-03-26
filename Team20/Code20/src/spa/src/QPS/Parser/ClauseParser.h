@@ -9,10 +9,10 @@ class ClauseParser {
 protected:
     std::vector<std::shared_ptr<QueryToken>> clauseTokens;
     std::vector<PQL::Synonym>& declarations;
-    ClauseValidator validator;
+    std::shared_ptr<ClauseValidator>& validator;
 
 public:
-    explicit ClauseParser(std::vector<std::shared_ptr<QueryToken>>& clauseTokens, std::vector<PQL::Synonym>& declarations);
+    explicit ClauseParser(std::vector<std::shared_ptr<QueryToken>>& clauseTokens, std::vector<PQL::Synonym>& declarations, std::shared_ptr<ClauseValidator>& validator);
     PQL::Synonym getDeclarationUsed(std::shared_ptr<QueryToken> synonymToken);
     PQL::Synonym getDeclarationUsed(std::string synonymIdentity);
     std::vector<PQL::Synonym> parseSelectClause();

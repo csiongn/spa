@@ -7,12 +7,12 @@
 
 class SuchThatClauseParser {
 protected:
-    std::vector<std::shared_ptr<QueryToken>> relationshipClauseTokens;
-    ClauseValidator validator;
+    std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>>& relationshipClauseTokens;
+    std::shared_ptr<ClauseValidator>& validator;
     std::vector<PQL::Synonym> declarations;
 
     public:
-        explicit SuchThatClauseParser(std::vector<std::shared_ptr<QueryToken>>& relationshipClauseTokens, ClauseValidator& validator, std::vector<PQL::Synonym>& declarations);
+        explicit SuchThatClauseParser(std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>>& relationshipClauseTokens, std::shared_ptr<ClauseValidator>& validator, std::vector<PQL::Synonym>& declarations);
         std::vector<std::shared_ptr<QueryToken>> getSuchThatClause(const int start);
         PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>>& suchThatClauseTokens);
 };

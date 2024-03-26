@@ -2,6 +2,16 @@
 #include "QPS/QuerySyntaxError.h"
 #include <unordered_set>
 
+DeclarationsValidator::DeclarationsValidator() : hasSemanticError(false) {}
+
+void DeclarationsValidator::setSemanticError() {
+    hasSemanticError = true;
+}
+
+bool DeclarationsValidator::hasError() {
+    return hasSemanticError;
+}
+
 void DeclarationsValidator::validateSynonymType(std::shared_ptr<QueryToken>& token) {
     auto tokenValue = token->getValue();
     std::unordered_set<std::string> validTypes( {"procedure",
@@ -25,7 +35,8 @@ void DeclarationsValidator::validateSynonymType(std::shared_ptr<QueryToken>& tok
 void DeclarationsValidator::validateNoDuplicates(std::vector<PQL::Synonym>& declarations, std::shared_ptr<QueryToken>& token) {
     for (auto& declaration : declarations) {
         if (declaration.identity == token->getValue()) {
-            throw QuerySyntaxError("Syntax Error: Duplicate declaration synonym");
+            setSemanticError();
+            break;
         }
     }
 }

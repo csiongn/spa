@@ -19,7 +19,7 @@ class ClauseValidator {
 
         bool isExpression(std::shared_ptr<QueryToken> token);
 
-        bool isExpressionSpec(std::shared_ptr<QueryToken> token);
+        bool isExpressionSpec(std::vector<std::shared_ptr<QueryToken>>& tokens);
     
     public:
         explicit ClauseValidator(std::vector<PQL::Synonym>& declarations);
@@ -31,6 +31,10 @@ class ClauseValidator {
         bool isSynonym(std::shared_ptr<QueryToken> token);
 
         bool isPartialExpression(std::shared_ptr<QueryToken> token);
+
+        void validateStmtRef(std::shared_ptr<QueryToken> token);
+
+        void validateEntRef(std::shared_ptr<QueryToken> token);
 
         void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
 

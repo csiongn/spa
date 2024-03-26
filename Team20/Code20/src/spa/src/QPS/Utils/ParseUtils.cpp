@@ -223,7 +223,7 @@ SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getEntityType(std::share
 std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::removeBracketsAndCommas(std::vector<std::shared_ptr<QueryToken>>& tokens) {
     std::vector<std::shared_ptr<QueryToken>> res;
     std::copy_if(tokens.begin(), tokens.end(), std::back_inserter(res), [](std::shared_ptr<QueryToken> token) {
-        return token->getValue() != "," || token->getValue() == "(" || token->getValue() == ")";
+        return token->getValue() != "," && token->getValue() != "(" && token->getValue() != ")";
     });
     return res;
 }
