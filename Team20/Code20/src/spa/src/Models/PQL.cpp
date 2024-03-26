@@ -6,6 +6,8 @@
 
 namespace PQL {
 
+Synonym::Synonym() : entityType(SimpleProgram::DesignEntity::INVALID), identity(""), attribute(SimpleProgram::AttributeRef::NO_REF) {}
+
 Synonym::Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id)
 	: entityType(entity), identity(id), attribute(SimpleProgram::AttributeRef::NO_REF) {}
 

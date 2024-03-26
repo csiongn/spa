@@ -31,8 +31,11 @@ SimpleProgram::DesignAbstraction PatternClauseParser::getPatternClauseType(std::
         return SimpleProgram::DesignAbstraction::PATTERN_ASSIGN;
     } else if (entity == SimpleProgram::DesignEntity::WHILE) {
         return SimpleProgram::DesignAbstraction::PATTERN_WHILE;
-    } else {
+    } else if (entity == SimpleProgram::DesignEntity::IF) {
         return SimpleProgram::DesignAbstraction::PATTERN_IF;
+    } else {
+        validator->setSemanticError();
+        return SimpleProgram::DesignAbstraction::INVALID;
     }
 }
 
@@ -102,7 +105,7 @@ PQL::Clause PatternClauseParser::parse(std::vector<std::shared_ptr<QueryToken>>&
         patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(largTokenType, largToken));
 
         patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, rargToken));
-    } else {
+    } else if (patternClauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
         auto largToken = patternArgsTokens[0];
         auto margToken = patternArgsTokens[1];
         auto rargToken = patternArgsTokens[2];
@@ -117,6 +120,7 @@ PQL::Clause PatternClauseParser::parse(std::vector<std::shared_ptr<QueryToken>>&
         patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(largTokenType, largToken));
         patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, margToken));
         patternArgs.push_back(QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::WILDCARD, rargToken));
+    } else {
     }
     
     return {patternClauseType, patternArgs};

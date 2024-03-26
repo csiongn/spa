@@ -11,6 +11,8 @@ struct Synonym {
   std::string identity;
   SimpleProgram::AttributeRef attribute;
 
+  Synonym();
+
   Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id);
 
   Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id, const SimpleProgram::AttributeRef &attribute);

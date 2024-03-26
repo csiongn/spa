@@ -20,7 +20,6 @@ PQL::Query QueryParser::parse() {
     DeclarationsParser declarationsParser = DeclarationsParser(declarationTokens, semicolonPos, declarationsValidator);
     auto declarations = declarationsParser.parseDeclarations();
 
-
     auto clauseTokens = QueryEvaluator::ParseUtils::splitTokens(tokens, semicolonPos.back() + 1, tokens.size());
     auto clauseValidator = std::make_shared<ClauseValidator>(ClauseValidator(declarations));
     ClauseParser clauseParser = ClauseParser(clauseTokens, declarations, clauseValidator);
@@ -34,10 +33,6 @@ PQL::Query QueryParser::parse() {
     PQL::Query query = PQL::Query(declarations, clauses, selectSynonym);
     return query;
 }
-
-// PQL::Query QueryParser::parse() {
-//     return PQL::Query(std::vector{PQL::Synonym(SimpleProgram::DesignEntity{}, "1")}, std::vector{PQL::Clause(SimpleProgram::DesignAbstraction{}, std::vector{PQL::Synonym(SimpleProgram::DesignEntity{}, "2")})}, PQL::Synonym(SimpleProgram::DesignEntity{}, "3"));
-// }
 
 std::vector<int> QueryParser::parseSemicolons() {
     std::vector<int> semicolonPos;

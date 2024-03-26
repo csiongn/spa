@@ -2,6 +2,7 @@
 
 namespace SimpleProgram {
 enum class DesignEntity {
+  INVALID,
   PROCEDURE,
   STMT,
   READ,
@@ -22,6 +23,7 @@ enum class DesignEntity {
 };
 
 enum class DesignAbstraction {
+  INVALID,
   FOLLOWS,
   FOLLOWST,
   PARENT,

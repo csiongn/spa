@@ -181,7 +181,7 @@ SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getSynonymType(std::shar
     } else if (tokenValue == "constant") {
         return SimpleProgram::DesignEntity::CONSTANT;
     } else {
-        return SimpleProgram::DesignEntity{};
+        return SimpleProgram::DesignEntity::INVALID;
     }
 }
 

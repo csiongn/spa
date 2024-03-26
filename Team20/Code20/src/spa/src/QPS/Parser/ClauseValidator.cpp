@@ -148,10 +148,14 @@ void ClauseValidator::validatePatternSynonym(std::shared_ptr<QueryToken>& patter
         SimpleProgram::DesignEntity::IF, 
         SimpleProgram::DesignEntity::WHILE});
 
+    if (!isSynonym(patternToken)) {
+        throw QuerySyntaxError("Syntax Error: Pattern synonym should be a synonym");
+    }
+
     auto patternEntityType = QueryEvaluator::ParseUtils::getEntityType(patternToken, declarations);
 
     if (allowedTypes.find(patternEntityType) == allowedTypes.end()) {
-        throw QuerySyntaxError("Syntax Error: Invalid pattern synonym used");
+        setSemanticError();
     }
 }
 
@@ -176,9 +180,8 @@ void ClauseValidator::validatePatternIf(std::vector<std::shared_ptr<QueryToken>>
     for (int count = 0; count < patternTokens.size(); count++) {
         auto currToken = patternTokens[count];
         if (count == 0) {
-            if (!isEntRef(currToken)) {
-                throw QuerySyntaxError("Syntax Error: First argument of pattern assign should be a statement reference");
-            }
+            validateEntRef(currToken);
+            
             if (isSynonym(currToken)) {
                 validateDeclarationExists(currToken);
             }
@@ -196,9 +199,8 @@ void ClauseValidator::validatePatternWhile(std::vector<std::shared_ptr<QueryToke
     for (int count = 0; count < patternTokens.size(); count++) {
         auto currToken = patternTokens[count];
         if (count == 0) {
-            if (!isEntRef(currToken)) {
-                throw QuerySyntaxError("Syntax Error: First argument of pattern assign should be a statement reference");
-            }
+            validateEntRef(currToken);
+            
             if (isSynonym(currToken)) {
                 validateDeclarationExists(currToken);
             }
