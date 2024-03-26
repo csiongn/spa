@@ -3,8 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-class QuerySemanticError : public std::runtime_error {
+class QuerySemanticError : public QueryError {
  public:
-  explicit QuerySemanticError(const std::string &message)
-	  : std::runtime_error(message) {}
+  explicit QuerySemanticError(const std::string &message) : QueryError(message) {}
 };

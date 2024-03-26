@@ -6,14 +6,17 @@
 #include <vector>
 #include <tuple>
 
-#include "QueryToken.h"
+#include "QPS/QueryToken.h"
 #include "Models/PQL.h"
+#include "QPS/QueryError.h"
 
 class QueryParser {
  protected:
   std::vector<std::shared_ptr<QueryToken>> tokens;
   std::vector<PQL::Synonym> initialDeclarations;
   std::vector<PQL::Synonym> usedDeclarations;
+  std::vector<PQL::Clause> clauses;
+  std::vector<std::shared_ptr<QueryError>> errors;
   int pos;
 
  public:
@@ -46,4 +49,9 @@ class QueryParser {
   std::vector<PQL::Synonym> parseDeclarations();
   std::vector<PQL::Clause> parseClauses();
   PQL::Synonym parseSelectClause();
+  std::vector<int> parseSemicolons();
+  std::vector<std::shared_ptr<QueryToken>> splitTokens(int start, int end);
+  bool validateSynonymType(std::shared_ptr<QueryToken> &token);
+  void checkErrors();
+  void addError(QueryError& err);
 };

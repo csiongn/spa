@@ -1,5 +1,5 @@
 #include "../lib/catch.hpp"
-#include "QPS/QueryParser.h"
+#include "QPS/Parser/QueryParser.h"
 #include "QPS/QueryTokenizer.h"
 #include "QPS/QuerySemanticError.h"
 #include "QPS/QuerySyntaxError.h"

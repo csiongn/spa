@@ -1,6 +1,7 @@
 #include <functional>
 #include <memory>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -8,6 +9,7 @@
 
 #include "ParseUtils.h"
 #include "SP/Token.h"
+#include "QPS/QuerySyntaxError.h"
 
 std::tuple<std::string, bool, bool> QueryEvaluator::ParseUtils::parsePattern(const std::string &pattern) {
   bool hasWildcardLeft = false;
@@ -154,4 +156,103 @@ std::shared_ptr<ExprNode> QueryEvaluator::ParseUtils::getExprNode(const std::str
   std::vector<Token> tokens = tokenize(pattern);
   std::shared_ptr<ExprNode> node = parse(tokens);
   return node;
+}
+
+SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getSynonymType(std::shared_ptr<QueryToken>& token) {
+    std::string tokenValue = token->getValue();
+    if (tokenValue == "procedure") {
+        return SimpleProgram::DesignEntity::PROCEDURE;
+    } else if (tokenValue == "stmt") {
+        return SimpleProgram::DesignEntity::STMT;
+    } else if (tokenValue == "read") {
+        return SimpleProgram::DesignEntity::READ;
+    } else if (tokenValue == "print") {
+        return SimpleProgram::DesignEntity::PRINT;
+    } else if (tokenValue == "assign") {
+        return SimpleProgram::DesignEntity::ASSIGN;
+    } else if (tokenValue == "call") {
+        return SimpleProgram::DesignEntity::CALL;
+    } else if (tokenValue == "while") {
+        return SimpleProgram::DesignEntity::WHILE;
+    } else if (tokenValue == "if") {
+        return SimpleProgram::DesignEntity::IF;
+    } else if (tokenValue == "variable") {
+        return SimpleProgram::DesignEntity::VARIABLE;
+    } else if (tokenValue == "constant") {
+        return SimpleProgram::DesignEntity::CONSTANT;
+    } else {
+        return SimpleProgram::DesignEntity{};
+    }
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity& entityType, std::shared_ptr<QueryToken>& token) {
+    return {entityType, token->getValue()};
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity &entityType, std::string synonymIdentity) {
+    return {entityType, synonymIdentity};
+}
+
+std::vector<std::string> QueryEvaluator::ParseUtils::splitTuple(std::shared_ptr<QueryToken>& tupleToken) {
+    std::string tokenValue = tupleToken->getValue();
+    const std::regex pattern("<|>");
+    auto removedBracketsStr = std::regex_replace(tokenValue, pattern, "");
+
+    std::vector<std::string> res;
+    std::istringstream iss(removedBracketsStr);
+    std::string token;
+    while (std::getline(iss, token, ',')) {
+        res.push_back(token);
+    }
+    return res;
+}
+
+std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::splitTokens(std::vector<std::shared_ptr<QueryToken>>& tokens, int start, int end) {
+    return {tokens.begin() + start, tokens.begin() + end};
+}
+
+SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getEntityType(std::shared_ptr<QueryToken>& token, std::vector<PQL::Synonym>& declarations) {
+    std::string tokenValue = token->getValue();
+    for (auto& declaration : declarations) {
+        if (declaration.identity == tokenValue) {
+            return declaration.entityType;
+        }
+    }
+}
+
+std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::removeBracketsAndCommas(std::vector<std::shared_ptr<QueryToken>>& tokens) {
+    std::vector<std::shared_ptr<QueryToken>> res;
+    std::copy_if(tokens.begin(), tokens.end(), std::back_inserter(res), [](std::shared_ptr<QueryToken> token) {
+        return token->getValue() != "," || token->getValue() == "(" || token->getValue() == ")";
+    });
+    return res;
+}
+
+bool QueryEvaluator::ParseUtils::isLetter(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool QueryEvaluator::ParseUtils::isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+bool QueryEvaluator::ParseUtils::isName(const std::string &str) {
+    if (str.empty()) {
+        return false; // Empty string is not a valid name
+    }
+
+    // Check if the first character is a letter
+    if (!isLetter(str[0])) {
+        return false;
+    }
+
+    // Check if the remaining characters are letters or digits
+    for (size_t i = 1; i < str.size(); ++i) {
+        if (!isLetter(str[i]) && !isDigit(str[i])) {
+            return false;
+        }
+    }
+
+    return true;
+>>>>>>> ac0e613 (refactor: qps logic)
 }
