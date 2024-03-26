@@ -21,7 +21,7 @@ none
 4.1 - invalid pattern while with constant
 while w; constant c;
 Select w pattern w(c,_)
-SyntaxError
+SemanticError
 5000
 4.2 - invalid pattern while with non wildcard second argument
 while w; variable v;

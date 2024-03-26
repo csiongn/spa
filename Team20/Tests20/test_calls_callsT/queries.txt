@@ -1,0 +1,175 @@
+1.1 - calls with 2 procedure
+procedure p1, p2;
+Select p1 such that Calls(p1, p2)
+procA, mainProc, procC
+5000
+1.2 - calls with procedure, wildcard
+procedure p1;
+Select p1 such that Calls(p1, _)
+procA, mainProc, procC
+5000
+1.3 - calls with wildcard, procedure
+procedure p2;
+Select p2 such that Calls(_, p2)
+procB, procA, procC, procD
+5000
+1.4 - calls with procedure, IDENT
+procedure p1;
+Select p1 such that Calls(p1, "procB")
+procA, mainProc
+5000
+1.5 - calls with IDENT, procedure
+procedure p1;
+Select p1 such that Calls("mainProc", p1)
+procA, procB, procC
+5000
+1.6 - calls with wildcard, wildcard
+procedure p2;
+Select p2 such that Calls(_, p2)
+procB, procA, procC, procD
+5000
+1.7 - calls with IDENT, IDENT
+procedure p2;
+Select p2 such that Calls("mainProc", "procB")
+procA, mainProc, procB, procC, procD
+5000
+2.1 - calls with 2 statement
+stmt s1, s2;
+Select p1 such that Calls(s1, s2)
+SemanticError
+5000
+2.2 - calls with stmt, wildcard
+stmt s1;
+Select p1 such that Calls(s1, _)
+SemanticError
+5000
+2.3 - calls with wildcard, stmt
+stmt s1;
+Select p1 such that Calls(_, s1)
+SemanticError
+5000
+2.4 - calls with procedure, read
+procedure p1, read r1;
+Select p1 such that Calls(p1, read)
+SemanticError
+5000
+2.5 - calls with procedure, while
+procedure p1, while w;
+Select p1 such that Calls(w, p1)
+SemanticError
+5000
+2.6 - calls with procedure, ifs
+procedure p2, if ifs;
+Select p2 such that Calls(p2, ifs)
+SemanticError
+5000
+2.7 - calls with procedure, assign
+procedure p2; assign a;
+Select p2 such that Calls(p2, a)
+SemanticError
+5000
+2.8 - calls with procedure, constant
+procedure p2, constant c;
+Select p2 such that Calls(p2, c)
+SemanticError
+5000
+2.9 - calls with procedure, integer
+procedure p2;
+Select p2 such that Calls(p2, 2)
+SyntaxError
+5000
+2.10 - calls with procedure, integer
+procedure p2;
+Select p2 such that Calls(2, p2)
+SyntaxError
+5000
+3.1 - calls* with 2 procedure
+procedure p1, p2;
+Select p1 such that Calls*(p1, p2)
+procA, mainProc, procC
+5000
+3.2 - calls* with procedure, wildcard
+procedure p1;
+Select p1 such that Calls*(p1, _)
+procA, mainProc, procC
+5000
+3.3 - calls* with wildcard, procedure
+procedure p2;
+Select p2 such that Calls*(_, p2)
+procB, procA, procC, procD
+5000
+3.4 - calls* with procedure, IDENT
+procedure p1;
+Select p1 such that Calls*(p1, "procB")
+procA, mainProc
+5000
+3.5 - calls* with IDENT, procedure
+procedure p1;
+Select p1 such that Calls*("mainProc", p1)
+procA, procB, procC, procD
+5000
+3.6 - calls* with wildcard, wildcard
+procedure p2;
+Select p2 such that Calls*(_, _)
+procA, mainProc, procB, procC, procD
+5000
+3.7 - calls* with IDENT, IDENT
+procedure p2;
+Select p2 such that Calls*("mainProc", "procB")
+procA, mainProc, procB, procC, procD
+5000
+3.8 - calls* with recursive calls
+procedure p2;
+Select p2 such that Calls*("mainProc", "procC")
+procA, mainProc, procB, procC, procD
+5000
+4.1 - calls* with 2 statement
+stmt s1, s2;
+Select p1 such that Calls*(s1, s2)
+SemanticError
+5000
+4.2 - calls* with stmt, wildcard
+stmt s1;
+Select p1 such that Calls*(s1, _)
+SemanticError
+5000
+4.3 - calls* with wildcard, stmt
+stmt s1;
+Select p1 such that Calls*(_, s1)
+SemanticError
+5000
+4.4 - calls* with procedure, read
+procedure p1, read r1;
+Select p1 such that Calls*(p1, read)
+SemanticError
+5000
+4.5 - calls* with procedure, while
+procedure p1, while w;
+Select p1 such that Calls*(w, p1)
+SemanticError
+5000
+4.6 - calls* with procedure, ifs
+procedure p2, if ifs;
+Select p2 such that Calls*(p2, ifs)
+SemanticError
+5000
+4.7 - calls* with procedure, assign
+procedure p2; assign a;
+Select p2 such that Calls*(p2, a)
+SemanticError
+5000
+4.8 - calls* with procedure, constant
+procedure p2, constant c;
+Select p2 such that Calls*(p2, c)
+SemanticError
+5000
+4.9 - calls* with procedure, integer
+procedure p2;
+Select p2 such that Calls*(p2, 2)
+SyntaxError
+5000
+4.10 - calls* with procedure, integer
+procedure p2;
+Select p2 such that Calls*(2, p2)
+SyntaxError
+5000

@@ -1,0 +1,15 @@
+1 - pattern if with 3 wildcards
+if ifs;
+Select ifs pattern ifs(_,_,_)
+12, 16, 19, 21, 25, 32, 33, 36, 39, 41, 43
+5000
+2.1 - pattern if with variable synonym, synonym matches variable found
+if ifs; variable x;
+Select ifs pattern ifs(x,_,_)
+12, 16, 19, 21, 25, 32, 33, 36, 39, 41, 43
+5000
+2.2 - pattern if with variable synonym, synonym does not match variable found
+if ifs; variable v;
+Select ifs pattern ifs(v,_,_)
+12, 16, 19, 21, 25, 32, 33, 36, 39, 41, 43
+5000

@@ -31,7 +31,7 @@ Select ifs pattern ifs("x",_,_)
 4.1 - pattern if with constant, SyntaxError
 if ifs; while w; constant c;
 Select ifs pattern ifs(c,_,_)
-SyntaxError
+SemanticError
 5000
 4.2.1 - pattern if with non-underscore as second and third arguments - second constant
 if ifs; while w; constant c;

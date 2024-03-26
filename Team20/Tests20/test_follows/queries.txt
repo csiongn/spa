@@ -46,17 +46,17 @@ SemanticError
 10 - same stmtSyn - Valid
 stmt s;
 Select s such that Follows(s, s)
-
+none
 5000
 11 - same stmtNum - Valid
 stmt s;
 Select s such that Follows(1, 1)
-
+none
 5000
 12 - stmtNum, stmtNum - Valid
 stmt s;
 Select s such that Follows(1, 3)
-
+none
 5000
 13 - wildcard, wildcard
 stmt s;
@@ -71,7 +71,7 @@ Select a such that Follows(1, a)
 15 - stmtNum, stmtSyn
 assign a;
 Select a such that Follows(3, a)
-
+none
 5000
 16 - stmtSyn, stmtNum
 assign a;
@@ -111,7 +111,7 @@ SyntaxError
 23 -stmtNum, ifs
 if ifs;
 Select ifs such that Follows(1, ifs)
-
+none
 5000
 24 -ifs, stmtNum
 if ifs;
@@ -146,7 +146,7 @@ SyntaxError
 30 - while
 while w;
 Select w such that Follows(1, w)
-
+none
 5000
 31 - variable - Valid Follows
 variable v;
@@ -157,4 +157,24 @@ v,x,y,z
 constant c;
 Select c such that Follows(1, 2)
 0,1,2
+5000
+33 - BOOLEAN follows
+stmt s;
+Select BOOLEAN such that Follows(1, 2)
+TRUE
+5000
+34 - BOOLEAN follows false
+stmt s;
+Select BOOLEAN such that Follows(0, 4)
+FALSE
+5000
+35 - BOOLEAN follows with and
+stmt s;
+Select BOOLEAN such that Follows(0, 1) and Follows(1, 2)
+FALSE
+5000
+36 - BOOLEAN follows with underscore
+stmt s;
+Select BOOLEAN such that Follows(s, _) and Follows(1, 2)
+TRUE
 5000

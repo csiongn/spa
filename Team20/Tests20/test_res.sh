@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+trap 'echo "An error occured when running $BASH_COMMAND.; exit code: $?;"' ERR
 
 # Parse the input files
 source_file=$1
@@ -10,8 +12,8 @@ if [ ! -f "$source_file" ]; then
 fi
 
 # Initialize counters
-declare -A succeeded_testcases
-declare -A failed_testcases
+declare -A -i succeeded_testcases
+declare -A -i failed_testcases
 
 current_folder=""
 
@@ -23,6 +25,15 @@ while IFS= read -r line; do
 
     # Echo the third line of each block of test results and reset counters
     if [[ $line == *"Beginning to parse"* ]]; then
+        while IFS= read -r line && ! [[ $line == *"End of parsing Simple"* ]]; do
+            # Keep reading until we find the comment
+            :
+        done
+        # Now we are at "End of parsing Simple Program."
+        # Read the next line which we want to echo
+        IFS= read -r line
+        current_file_name=$(echo "$line" | tr -d '\r')
+
         while IFS= read -r line && ! [[ $line == *"End"* ]]; do
             # Keep reading until we find the comment
             :
@@ -38,19 +49,19 @@ while IFS= read -r line; do
     fi
 
     # Skip lines that include "is an Unnamedvar"
-    if [[ $line == *"is an Unnamedvar"* ]]; then
+    if [[ $line =~ (?i).*"is an Unnamedvar".* ]]; then
         read -r line
     fi
 
     # Check if the line contains the query evaluation
-    if [[ $line == *"- "* ]]; then
+    if [[ $line == *"-"* ]]; then
         query_num=$(echo "$line" | cut -d'-' -f1 | xargs)
         
         # Skip lines until we reach the answers
-        while IFS= read -r line && ! [[ $line == "Your answer:"* ]]; do
-            read -r line
+        while IFS= read -r line && ! [[ $line == *"answer"* ]]; do
+            :
         done
-        
+
         # Extract the answers
         your_answer=$(echo "$line" | cut -d':' -f2 | xargs)
         read -r line
@@ -73,20 +84,21 @@ while IFS= read -r line; do
             if [ "$match" = true ]; then
                 # Ensure current_folder is not empty
                 if [ -n "$current_folder" ]; then
-                    ((succeeded_testcases["$current_folder"]++))
+                    # echo $succeeded_testcases
+                    ((succeeded_testcases["$current_folder"]+=1))
                 fi
             else
                 echo "Testcase failed: $current_file_name, $query_num"
                 # Ensure current_folder is not empty
                 if [ -n "$current_folder" ]; then
-                    ((failed_testcases["$current_folder"]++))
+                    ((failed_testcases["$current_folder"]+=1))
                 fi
             fi
         else
             echo "Testcase failed: $current_file_name, $query_num"
             # Ensure current_folder is not empty
             if [ -n "$current_folder" ]; then
-                ((failed_testcases["$current_folder"]++))
+                ((failed_testcases["$current_folder"]+=1))
             fi
         fi
     fi
@@ -94,7 +106,9 @@ while IFS= read -r line; do
     # At the end of each folder, output the results
     if [[ $line == *"Completed"* ]]; then
         echo "Folder $current_folder: ${succeeded_testcases[$current_folder]} succeeded, ${failed_testcases[$current_folder]} failed"
-        read -r line # Skip Autotester completed
+        if ! IFS= read -r next_line; then
+            echo "Script finished"
+        fi
     fi
 
 done < "$source_file"

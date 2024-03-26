@@ -1,0 +1,95 @@
+1.1 - next with 2 statements
+stmt s1, s2;
+Select s1 such that Next(s1, s2)
+1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17
+5000
+1.2 - next with statement, wildcard
+stmt s1;
+Select s1 such that Next(s1, _)
+1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17
+5000
+1.3 - next with wildcard, statement
+stmt s1;
+Select s1 such that Next(_, s1)
+2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18
+5000
+1.4 - next with wildcard, wildcard
+stmt s1;
+Select s1 such that Next(_, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.5 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 2)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.6 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 5)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.7 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 8)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.8 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 15)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.9 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 19)
+none
+5000
+1.10 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 25)
+none
+5000
+1.11 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 20)
+none
+5000
+1.12 - next with wildcard, int
+stmt s1;
+Select s1 such that Next(_, 20)
+none
+5000
+1.13 - next with int, wildcard
+stmt s1;
+Select s1 such that Next(2, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+5000
+1.14 - next with int, wildcard
+stmt s1;
+Select s1 such that Next(_, 4)
+none
+5000
+2.1 - next with var, statement
+stmt s1; variable x;
+Select s1 such that Next(x, s1)
+SemanticError
+5000
+2.2 - next with IDENT, IDENT
+stmt s1;
+Select s1 such that Next("x", "x")
+SyntaxError
+5000
+2.3 - next with statement, IDENT
+stmt s1;
+Select s1 such that Next(s1, "x")
+SyntaxError
+5000
+3.1 - next with boolean
+stmt s1;
+Select s1 such that Next(2, 3) and Next(3, 4)
+TRUE
+5000
+3.2 - next with boolean
+stmt s1;
+Select s1 such that Next(2, 3) and Next(4, 3)
+FALSE
+5000

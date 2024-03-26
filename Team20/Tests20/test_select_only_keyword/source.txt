@@ -1,4 +1,4 @@
-procedure procedure {
+procedure p {
     if (less < b + c * d) then {
         hello = (5 + 10) / 3;
         print print;
@@ -14,6 +14,5 @@ procedure procedure {
             while = more + 1;
         }
         read read;
-        call me;
     }
 }
