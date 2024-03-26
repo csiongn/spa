@@ -183,7 +183,7 @@ void ClauseValidator::validatePatternIf(std::vector<std::shared_ptr<QueryToken>>
                 validateDeclarationExists(currToken);
             }
         } else if (count == 1 || count == 2) {
-            if (currToken->getType() == QPS::TokenType::WILDCARD) {
+            if (currToken->getType() != QPS::TokenType::WILDCARD) {
                 throw QuerySyntaxError("Syntax Error: Second argument and third argument of pattern if should be a wildcard");
             }
         } else {
@@ -203,7 +203,7 @@ void ClauseValidator::validatePatternWhile(std::vector<std::shared_ptr<QueryToke
                 validateDeclarationExists(currToken);
             }
         } else if (count == 1) {
-            if (currToken->getType() == QPS::TokenType::WILDCARD) {
+            if (currToken->getType() != QPS::TokenType::WILDCARD) {
                 throw QuerySyntaxError("Syntax Error: Second argument of pattern while should be a wildcard");
             }
         } else {
@@ -219,5 +219,75 @@ void ClauseValidator::validatePatternArgs(SimpleProgram::DesignAbstraction patte
         validatePatternWhile(patternArgs);
     } else {
         validatePatternIf(patternArgs);
+    }
+}
+
+void ClauseValidator::validateUsesSModifiesSArgs(std::vector<std::shared_ptr<QueryToken>>& relationshipArgs) {
+    if (relationshipArgs.size() != 2) {
+        throw QuerySyntaxError("Syntax Error: UsesS/ModifiesS clause should have two arguments");
+    }
+
+    auto lArgToken = relationshipArgs[0];
+    auto rArgToken = relationshipArgs[1];
+
+    validateStmtRef(lArgToken);
+    validateEntRef(rArgToken);
+
+    if (isSynonym(lArgToken)) {
+        validateDeclarationExists(lArgToken);
+    }
+
+    if (isSynonym(rArgToken)) {
+        if (QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations) != SimpleProgram::DesignEntity::VARIABLE) {
+            setSemanticError();
+        }
+        validateDeclarationExists(rArgToken);
+    }
+}
+
+void ClauseValidator::validateUsesPModifiesPArgs(std::vector<std::shared_ptr<QueryToken>>& relationshipArgs) {
+    if (relationshipArgs.size() != 2) {
+        throw QuerySyntaxError("Syntax Error: UsesP/ModifiesP clause should have two arguments");
+    }
+
+    auto lArgToken = relationshipArgs[0];
+    auto rArgToken = relationshipArgs[1];
+
+    validateEntRef(lArgToken);
+    validateEntRef(rArgToken);
+
+    if (isSynonym(lArgToken)) {
+        if (QueryEvaluator::ParseUtils::getEntityType(lArgToken, declarations) != SimpleProgram::DesignEntity::PROCEDURE) {
+            setSemanticError();
+        }
+        validateDeclarationExists(lArgToken);
+    }
+
+    if (isSynonym(rArgToken)) {
+        if (QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations) != SimpleProgram::DesignEntity::VARIABLE) {
+            setSemanticError();
+        }
+        validateDeclarationExists(rArgToken);
+    }
+}
+
+void ClauseValidator::validateFollowsParentsArgs(std::vector<std::shared_ptr<QueryToken>>& relationshipArgs) {
+    if (relationshipArgs.size() != 2) {
+        throw QuerySyntaxError("Syntax Error: Follows/Parent clause should have two arguments");
+    }
+
+    auto lArgToken = relationshipArgs[0];
+    auto rArgToken = relationshipArgs[1];
+
+    validateStmtRef(lArgToken);
+
+    if (isSynonym(lArgToken)) {
+        validateDeclarationExists(lArgToken);
+    }
+
+    validateStmtRef(rArgToken);
+
+    if (isSynonym(rArgToken)) {
+        validateDeclarationExists(rArgToken);
     }
 }

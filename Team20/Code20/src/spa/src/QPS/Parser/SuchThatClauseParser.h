@@ -14,5 +14,6 @@ protected:
     public:
         explicit SuchThatClauseParser(std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>>& relationshipClauseTokens, std::shared_ptr<ClauseValidator>& validator, std::vector<PQL::Synonym>& declarations);
         std::vector<std::shared_ptr<QueryToken>> getSuchThatClause(const int start);
+        SimpleProgram::DesignAbstraction getSuchThatClauseType(std::shared_ptr<QueryToken>& suchThatClauseToken);
         PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>>& suchThatClauseTokens);
 };

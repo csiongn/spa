@@ -30,6 +30,7 @@ std::vector<PQL::Synonym> DeclarationsParser::parseDeclarations() {
                 count++;
                 continue;
             }
+            validator->validateSynonymName(currToken);
             PQL::Synonym synonym = QueryEvaluator::ParseUtils::createSynonym(synonymType, currToken);
             validator->validateNoDuplicates(declarations, currToken);
             declarations.push_back(synonym);

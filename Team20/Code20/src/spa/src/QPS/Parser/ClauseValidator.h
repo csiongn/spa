@@ -55,4 +55,10 @@ class ClauseValidator {
         void validatePatternWhile(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
 
         void validatePatternArgs(SimpleProgram::DesignAbstraction patternType, std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+
+        void validateUsesSModifiesSArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
+
+        void validateUsesPModifiesPArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
+
+        void validateFollowsParentsArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
 };

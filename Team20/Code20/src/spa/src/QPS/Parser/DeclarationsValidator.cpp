@@ -1,5 +1,6 @@
 #include "DeclarationsValidator.h"
 #include "QPS/QuerySyntaxError.h"
+#include "QPS/Utils/ParseUtils.h"
 #include <unordered_set>
 
 DeclarationsValidator::DeclarationsValidator() : hasSemanticError(false) {}
@@ -38,5 +39,11 @@ void DeclarationsValidator::validateNoDuplicates(std::vector<PQL::Synonym>& decl
             setSemanticError();
             break;
         }
+    }
+}
+
+void DeclarationsValidator::validateSynonymName(std::shared_ptr<QueryToken>& token) {
+    if (!QueryEvaluator::ParseUtils::isName(token->getValue())) {
+        throw QuerySyntaxError("Syntax Error: Invalid synonym name used for declaration");
     }
 }

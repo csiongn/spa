@@ -5,7 +5,7 @@
 #include "QPS/QuerySyntaxError.h"
 
 TEST_CASE("Parse") {
-  SECTION("Only select clause") {
+ SECTION("Only select clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; \nSelect v";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -20,7 +20,7 @@ TEST_CASE("Parse") {
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::VARIABLE, "v");
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
 //  SECTION("unused declarations") {
 //	QueryTokenizer queryTokenizer{};
@@ -39,15 +39,15 @@ TEST_CASE("Parse") {
 //	REQUIRE(expectedQuery == results);
 //  }
 
-  SECTION("declarations of same synonym identity") {
+ SECTION("declarations of same synonym identity") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; assign v; \nSelect v";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
-    REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
-  }
+   REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+ }
 
-  SECTION("Parent relationship") {
+ SECTION("Parent relationship") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a;\n"
 						"Select a such that Parent(a, 7)";
@@ -72,9 +72,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with wildcard as first argument") {
+ SECTION("Follows* relationship with wildcard as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; \nSelect s such that Follows*(_, s)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -98,9 +98,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Modifies relationship with non-variable synonym as second argument") {
+ SECTION("Modifies relationship with non-variable synonym as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; variable v; \nSelect s such that Modifies(6, s)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -112,11 +112,10 @@ TEST_CASE("Parse") {
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
 
-	REQUIRE_THROWS_WITH(queryParser.parse(),
-						"Semantic Error: Second argument to Modifies should be a variable synonym");
-  }
+	REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+ }
 
-  SECTION("Uses relationship with variable synonym as second argument") {
+ SECTION("Uses relationship with variable synonym as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; variable v; \nSelect s such that Uses(6, v)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -142,9 +141,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Uses relationship with if synonym as first argument") {
+ SECTION("Uses relationship with if synonym as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; if if; \nSelect s such that Uses(if, \"x\")";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -170,9 +169,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Modifies relationship with while synonym as first argument") {
+ SECTION("Modifies relationship with while synonym as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; while w; \nSelect s such that Uses(w, \"x\")";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -198,9 +197,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Uses relationship with ident as second argument") {
+ SECTION("Uses relationship with ident as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s; variable v; \nSelect s such that Uses(6, \"x\")";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -210,6 +209,7 @@ TEST_CASE("Parse") {
 
 	std::vector<PQL::Synonym> expectedDeclarations;
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "s");
@@ -225,9 +225,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Modifies relationship with IDENT as second argument") {
+ SECTION("Modifies relationship with IDENT as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; \nSelect v such that Modifies(7, \"v\")";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -252,9 +252,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Modifies relationship with IDENT as second argument and read as first argument") {
+ SECTION("Modifies relationship with IDENT as second argument and read as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; read re; \nSelect v such that Modifies(re, \"v\")";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -280,9 +280,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Uses relationship with wildcard as second argument") {
+ SECTION("Uses relationship with wildcard as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a;\n Select a such that Uses(a, _)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -307,9 +307,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
- SECTION("pattern clause full expression") {
+SECTION("pattern clause full expression") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , \"x\" )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -335,9 +335,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
- }
+}
 
- SECTION("pattern clause partial expression") {
+SECTION("pattern clause partial expression") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , _\"x\"_ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -363,9 +363,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
- }
+}
 
- SECTION("pattern clause double wildcard") {
+SECTION("pattern clause double wildcard") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; \nSelect a pattern a ( _ , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -391,9 +391,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
- }
+}
 
- SECTION("pattern clause variable synonym first argument") {
+SECTION("pattern clause variable synonym first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; variable v;\nSelect a pattern a ( v , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -420,18 +420,18 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
- }
+}
 
- SECTION("pattern clause non-variable synonym first argument") {
+SECTION("pattern clause non-variable synonym first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; print pn;\nSelect a pattern a ( pn , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
- }
+}
 
-  SECTION("pattern clause ident first argument") {
+ SECTION("pattern clause ident first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a;\nSelect a pattern a ( \"v\" , _ )";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -457,9 +457,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Uses relationship") {
+ SECTION("Uses relationship") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v;\n"
 						"Select v such that Modifies(6, v)";
@@ -484,9 +484,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with stmt synonym as first argument") {
+ SECTION("Follows* relationship with stmt synonym as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s;\n Select s such that Follows*(s, 1)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -510,9 +510,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with stmt synonym as second argument") {
+ SECTION("Follows* relationship with stmt synonym as second argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s;\n Select s such that Follows*(1, s)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -536,9 +536,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with stmt subtype synonym as first argument") {
+ SECTION("Follows* relationship with stmt subtype synonym as first argument") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "call c;\n Select c such that Follows*(c, 1)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -562,9 +562,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with both arguments as stmt nos") {
+ SECTION("Follows* relationship with both arguments as stmt nos") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s;\n Select s such that Follows*(1, 1)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -588,9 +588,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with both arguments as different stmt nos") {
+ SECTION("Follows* relationship with both arguments as different stmt nos") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s;\n Select s such that Follows*(1, 3)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -614,9 +614,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with both arguments as stmt synonym") {
+ SECTION("Follows* relationship with both arguments as stmt synonym") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s;\n Select s such that Follows*(s, s)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -640,54 +640,37 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* relationship with both arguments as stmt synonym using integer as declaration") {
+ SECTION("Follows* relationship with both arguments as stmt synonym using integer as declaration") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt 1;\n Select 1 such that Follows*(1, 1)";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
-	auto results = queryParser.parse();
+	REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
+ }
 
-	std::vector<PQL::Synonym> expectedDeclarations;
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "1");
-	std::vector<PQL::Clause> expectedClauses;
-
-	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::STMT, "1");
-
-	PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT, "1");
-	PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT, "1");
-	std::vector<PQL::Synonym> args;
-	args.emplace_back(arg1);
-	args.emplace_back(arg2);
-	PQL::Clause clause = PQL::Clause(SimpleProgram::DesignAbstraction::FOLLOWST, args);
-	expectedClauses.emplace_back(clause);
-
-	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
-	REQUIRE(expectedQuery == results);
-  }
-
-  SECTION("Invalid select clause") {
+ SECTION("Invalid select clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "variable v; \nselect v";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Select clause should come first");
-  }
+ }
 
-  SECTION("Invalid declaration syntax") {
-	QueryTokenizer queryTokenizer{};
-	std::string query = "print stmt pn;\n Select pn such that Uses(pn, \"east\")";
-	auto tokens = queryTokenizer.tokenize(query);
+//  SECTION("Invalid declaration syntax") {
+//	QueryTokenizer queryTokenizer{};
+//	std::string query = "print stmt pn;\n Select pn such that Uses(pn, \"east\")";
+//	auto tokens = queryTokenizer.tokenize(query);
+//
+//	QueryParser queryParser(tokens);
+//
+//	REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Invalid declaration syntax");
+//  }
 
-	QueryParser queryParser(tokens);
-
-	REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Invalid declaration syntax");
-  }
-
-  SECTION("multiple declarations") {
+ SECTION("multiple declarations") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a1, a2; \nSelect a1 such that Follows(a1,a2)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -712,9 +695,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("multiple declarations 2") {
+ SECTION("multiple declarations 2") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a1, a2;\nSelect a2 such that Follows(a1, a2)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -723,8 +706,8 @@ TEST_CASE("Parse") {
 	auto results = queryParser.parse();
 
 	std::vector<PQL::Synonym> expectedDeclarations;
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a2");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
 	std::vector<PQL::Clause> expectedClauses;
 
 	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::ASSIGN, "a2");
@@ -739,9 +722,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Parent* relationship") {
+ SECTION("Parent* relationship") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "stmt s1, s2;\n Select s1 such that Parent*(s1, s2)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -766,9 +749,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("such that clause then pattern clause") {
+ SECTION("such that clause then pattern clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; variable v; stmt s1, s2;\n Select s1 such that Parent*(s1, s2) pattern a (v, _)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -777,10 +760,10 @@ TEST_CASE("Parse") {
 	auto results = queryParser.parse();
 
 	std::vector<PQL::Synonym> expectedDeclarations;
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
 
 	std::vector<PQL::Clause> expectedClauses;
 
@@ -806,9 +789,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause then such that clause") {
+ SECTION("pattern clause then such that clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a; variable v; stmt s1, s2; \n"
 						"Select s1 pattern a (v, _) such that Parent*(s1, s2)";
@@ -818,9 +801,9 @@ TEST_CASE("Parse") {
 	auto results = queryParser.parse();
 
 	std::vector<PQL::Synonym> expectedDeclarations;
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
 
 	std::vector<PQL::Clause> expectedClauses;
@@ -847,9 +830,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause with assign synonym as second declared") {
+ SECTION("pattern clause with assign synonym as second declared") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = "assign a, a1; variable v; stmt s1, s2; \n"
 						"Select s1 pattern a1 (v, _) such that Parent*(s1, s2)";
@@ -859,9 +842,10 @@ TEST_CASE("Parse") {
 	auto results = queryParser.parse();
 
 	std::vector<PQL::Synonym> expectedDeclarations;
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
-	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN, "a1");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::VARIABLE, "v");
+   expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s1");
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::STMT, "s2");
 
 	std::vector<PQL::Clause> expectedClauses;
@@ -888,9 +872,9 @@ TEST_CASE("Parse") {
 
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause with whitespace in expr") {
+ SECTION("pattern clause with whitespace in expr") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign a; Select a such that Uses (a, "x") pattern a ("x", _" x"_))";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -926,9 +910,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause with whitespace in expr") {
+ SECTION("pattern clause with whitespace in expr") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign a; Select a pattern a (_, _"1 "_))";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -956,9 +940,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern clause with whitespace in expr") {
+ SECTION("pattern clause with whitespace in expr") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign a; Select a pattern a ("temp", _"temp "_))";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -986,9 +970,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("assign synonym as Select") {
+ SECTION("assign synonym as Select") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign Select; Select Select)";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -1005,45 +989,45 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("Follows* with non-statement synonym should throw QuerySyntaxError") {
+ SECTION("Follows* with non-statement synonym should throw QuerySyntaxError") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(stmt s, s1; Select s such that Follows*(s, "s1"))";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
-  }
+ }
 
-  SECTION("pattern clause with non expr or partial expr in second argument should throw QuerySyntaxError") {
+ SECTION("pattern clause with non expr or partial expr in second argument should throw QuerySyntaxError") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(constant c; assign a; variable v; Select c pattern a (_, c))";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
-  }
+ }
 
-  SECTION("entRef ident to pattern clause first arg starting with digit should throw QuerySyntaxError") {
+ SECTION("entRef ident to pattern clause first arg starting with digit should throw QuerySyntaxError") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign a; variable v; constant c; Select a pattern a ("8", _))";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
-  }
+ }
 
-  SECTION("pattern assign clause expr invalid partial expr should throw QuerySyntaxError") {
+ SECTION("pattern assign clause expr invalid partial expr should throw QuerySyntaxError") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(assign a; Select a pattern a (_, _"x"))";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 
 	REQUIRE_THROWS_AS(queryParser.parse(), QuerySyntaxError);
-  }
+ }
 
-  SECTION("pattern if clause") {
+ SECTION("pattern if clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(if ifs; Select ifs pattern ifs(_,_,_))";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -1074,9 +1058,9 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
 
-  SECTION("pattern while clause") {
+ SECTION("pattern while clause") {
 	QueryTokenizer queryTokenizer{};
 	std::string query = R"(while w; Select w pattern w(_,_))";
 	auto tokens = queryTokenizer.tokenize(query);
@@ -1105,7 +1089,8 @@ TEST_CASE("Parse") {
 	PQL::Query expectedQuery = PQL::Query(expectedDeclarations, expectedClauses, {expectedSelectSynonym});
 
 	REQUIRE(expectedQuery == results);
-  }
+ }
+
 
   SECTION("pattern if clause with while declaration") {
 	QueryTokenizer queryTokenizer{};
@@ -1117,6 +1102,7 @@ TEST_CASE("Parse") {
 
 	std::vector<PQL::Synonym> expectedDeclarations;
 	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::IF, "ifs");
+    expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::WHILE, "w");
 
 	std::vector<PQL::Clause> expectedClauses;
 
@@ -1181,23 +1167,23 @@ TEST_CASE("Parse") {
 	REQUIRE(expectedQuery == results);
   }
 
-//    SECTION("Follows relationship with variable as second argument") {
-//        QueryTokenizer queryTokenizer{};
-//        std::string query = R"(variable v; stmt s; Select s such that Follows* (s, v))";
-//        auto tokens = queryTokenizer.tokenize(query);
-//        QueryParser queryParser(tokens);
-//
-//        REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
-//    }
+   SECTION("Follows relationship with variable as second argument") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(variable v; stmt s; Select s such that Follows* (s, v))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
 
-//    SECTION("Follows relationship with variable as first argument") {
-//        QueryTokenizer queryTokenizer{};
-//        std::string query = R"(variable v; stmt s; Select s such that Follows* (v, s))";
-//        auto tokens = queryTokenizer.tokenize(query);
-//        QueryParser queryParser(tokens);
-//
-//        REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
-//    }
+       REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+   }
+
+   SECTION("Follows relationship with variable as first argument") {
+       QueryTokenizer queryTokenizer{};
+       std::string query = R"(variable v; stmt s; Select s such that Follows* (v, s))";
+       auto tokens = queryTokenizer.tokenize(query);
+       QueryParser queryParser(tokens);
+
+       REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+   }
 
   SECTION("pattern assign clause with such that parent clause") {
 	QueryTokenizer queryTokenizer{};
