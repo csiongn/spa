@@ -5,12 +5,12 @@ on:
     branches:
       - master
       - develop
-      - release/milestone-1
+      - release/*
   pull_request:
     branches:
       - master
       - develop
-      - release/milestone-1
+      - release/*
 env:
   BUILD_TYPE: Release
 
