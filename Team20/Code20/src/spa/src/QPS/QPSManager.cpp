@@ -3,7 +3,7 @@
 #include <string>
 
 #include "QPSManager.h"
-#include "QueryParser.h"
+#include "QPS/Parser/QueryParser.h"
 #include "QuerySemanticError.h"
 #include "QuerySyntaxError.h"
 

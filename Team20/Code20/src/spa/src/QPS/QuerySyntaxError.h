@@ -2,9 +2,9 @@
 
 #include <stdexcept>
 #include <string>
+#include "QueryError.h"
 
-class QuerySyntaxError : public std::runtime_error {
+class QuerySyntaxError : public QueryError {
  public:
-  explicit QuerySyntaxError(const std::string &message)
-	  : std::runtime_error(message) {}
+  explicit QuerySyntaxError(const std::string &message) : QueryError(message) {}
 };

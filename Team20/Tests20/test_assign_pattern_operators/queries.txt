@@ -1,0 +1,95 @@
+1 - one assign exact pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, "0")
+2,11
+5000
+2 - one assign exact pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, "7")
+5
+5000
+3 - one assign exact pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, "1")
+
+5000
+4 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, _"1"_)
+3,18,23,27
+5000
+5 - one assign exact pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, "temp + 1")
+3
+5000
+6 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a("z", _"1 + x + left"_)
+
+5000
+7 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a("z", _"0"_)
+11
+5000
+8 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a("z", "x * 2")
+9
+5000
+9 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, _"x + left"_)
+19,24,28
+5000
+10 - one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a pattern a(v, _"x + 1"_)
+
+5000
+11 - one Parent*, one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a such that Parent* (s, a) pattern a(v, _"x * 2 + 3"_)
+
+5000
+12 - one Parent*, one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a; if ifs;
+Select a such that Parent* (s, a) pattern a(v, _"x * 2"_)
+9
+5000
+13 - one Modifies, one assign partial pattern, select assign
+print pn; variable v; stmt s; assign a;
+Select a such that Modifies(a, "left") pattern a(v, _"x              + left"_)
+19,24,28
+5000
+14 - one Modifies, one assign partial pattern, select variable
+print pn; variable v; stmt s; assign a;
+Select v such that Modifies(a, "x") pattern a(v, _"1    +   x      "_)
+x
+5000
+15 - one Modifies, one assign partial pattern, select variable
+print pn; variable v; stmt s; assign a;
+Select v such that Modifies(a, v) pattern a(v, _"x  + left "_)
+left
+5000
+17 - one Modifies, one assign exact pattern, select variable
+print pn; variable v; stmt s; assign a;
+Select v such that Modifies(a, v) pattern a(v, "x*2")
+z
+5000
+18 - one Modifies, one assign exact pattern, select assign
+print pn; variable v; stmt s; assign a;
+Select a such that Modifies(a, v) pattern a(v, "x*2")
+9
+5000
+19 - one Modifies, one assign exact pattern, select variable
+print pn; variable v; stmt s; assign a;
+Select v such that Modifies(a, v) pattern a(v, "x + left")
+left
+5000
+20 - one Modifies, one assign exact pattern, select aasign
+print pn; variable v; stmt s; assign a;
+Select a such that Modifies(a, v) pattern a(v, "x + left")
+19,24,28
+5000
