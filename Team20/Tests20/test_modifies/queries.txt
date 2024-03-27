@@ -96,7 +96,7 @@ none
 2.5 - Modifies with undeclared synonym
 stmt s;
 Select s such that Modifies(s2, _)
-none
+SemanticError
 5000
 3.1.1 - modifies p
 procedure p;

@@ -111,7 +111,7 @@ Select a such that Modifies(a, v) pattern a(v, _"1"_)
 23 - one assign a1
 assign a1;
 Select a1 pattern a1("x", _)
-5,18,25,27
+5,18,23,27
 5000
 24 - one assign a2
 assign a2;
