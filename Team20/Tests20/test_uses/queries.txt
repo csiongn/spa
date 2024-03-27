@@ -113,3 +113,43 @@ stmt s;
 Select s such that Uses(601, "test")
 none
 5000
+3.1.1 - uses p
+variable v; procedure p;
+Select p such that Uses(p, v)
+Bedok
+5000
+3.1.2 - uses p
+variable v; procedure p;
+Select p such that Uses(p, _)
+Bedok
+5000
+3.1.3 - uses p
+variable v; procedure p;
+Select p such that Uses(p, "y")
+Bedok
+5000
+3.1.4 - uses p
+variable v; procedure p;
+Select p such that Uses(p, "east")
+Bedok
+5000
+4.1.1 - invalid uses p
+variable v; procedure p;
+Select p such that Uses("east", p)
+SemanticError
+5000
+4.1.2 - invalid uses p
+variable v; procedure p; call c;
+Select p such that Uses(c, p)
+SemanticError
+5000
+4.1.3 - invalid uses p
+variable v; procedure p;
+Select p such that Uses(v, p)
+SemanticError
+5000
+4.1.4 - invalid uses p
+variable v; procedure p; call c;
+Select p such that Uses(c, p)
+SemanticError
+5000
