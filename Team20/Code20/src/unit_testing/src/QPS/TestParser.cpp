@@ -733,16 +733,16 @@ TEST_CASE("Parse") {
 	REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Select clause should come first");
   }
 
-//  SECTION("Invalid declaration syntax") {
-//	QueryTokenizer queryTokenizer{};
-//	std::string query =
-//		"print stmt pn;\n Select pn such that Uses(pn, \"east\")";
-//	auto tokens = queryTokenizer.tokenize(query);
+// SECTION("Invalid declaration syntax") {
+// QueryTokenizer queryTokenizer{};
+// std::string query =
+// "print stmt pn;\n Select pn such that Uses(pn, \"east\")";
+// auto tokens = queryTokenizer.tokenize(query);
 //
-//	QueryParser queryParser(tokens);
+// QueryParser queryParser(tokens);
 //
-//	REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Invalid declaration syntax");
-//  }
+// REQUIRE_THROWS_WITH(queryParser.parse(), "Syntax Error: Invalid declaration syntax");
+// }
 
   SECTION("multiple declarations") {
 	QueryTokenizer queryTokenizer{};
