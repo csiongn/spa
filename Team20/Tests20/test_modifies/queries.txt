@@ -96,6 +96,47 @@ none
 2.5 - Modifies with undeclared synonym
 stmt s;
 Select s such that Modifies(s2, _)
-none
+SemanticError
 5000
+3.1.1 - modifies p
+procedure p;
+Select p such that Modifies(p, _)
+Bedok
+5000
+3.1.2 - modifies p
+variable v; procedure p;
+Select p such that Modifies(p, v)
+Bedok
+5000
+3.1.3 - modifies p
+variable v; procedure p;
+Select p such that Modifies(p, "y")
+Bedok
+5000
+3.1.3 - modifies p
+variable v; procedure p;
+Select p such that Modifies(p, "east")
+Bedok
+5000
+4.1.1 - invalid modifies p
+variable v; procedure p;
+Select p such that Modifies("east", p)
+SemanticError
+5000
+4.1.2 - invalid modifies p
+variable v; procedure p; call c;
+Select p such that Modifies(c, p)
+SemanticError
+5000
+4.1.3 - invalid modifies p
+variable v; procedure p;
+Select p such that Modifies(v, p)
+SemanticError
+5000
+4.1.4 - invalid modifies p
+variable v; procedure p; call c;
+Select p such that Modifies(c, p)
+SemanticError
+5000
+
 

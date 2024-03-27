@@ -1,0 +1,20 @@
+1 - BOOLEAN follows
+stmt s;
+Select BOOLEAN such that Follows(1, 2)
+TRUE
+5000
+2 - BOOLEAN follows false
+stmt s;
+Select BOOLEAN such that Follows(0, 4)
+FALSE
+5000
+3 - BOOLEAN follows with and
+stmt s;
+Select BOOLEAN such that Follows(0, 1) and Follows(1, 2)
+FALSE
+5000
+4 - BOOLEAN follows with underscore
+stmt s;
+Select BOOLEAN such that Follows(s, _) and Follows(1, 2)
+TRUE
+5000
