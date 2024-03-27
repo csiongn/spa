@@ -81,8 +81,6 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
 	  auto suchThatType = suchThatClause.clauseType;
 	  clauses.push_back(suchThatClause);
 	  prevRelationship = suchThatType;
-	} else if (tokenValue == "with") {
-	} else if (tokenValue == "and") {
 	} else {
 	  throw QuerySyntaxError("Syntax Error: Invalid relationship clause");
 	}
