@@ -1,24 +1,25 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "QPS/QueryToken.h"
 #include "Models/PQL.h"
 
 class DeclarationsValidator {
-    protected:
-        bool hasSemanticError;
+ protected:
+  bool hasSemanticError;
 
-    public:
-        explicit DeclarationsValidator();
+ public:
+  DeclarationsValidator();
 
-        void setSemanticError();
+  void setSemanticError();
 
-        bool hasError();
+  bool hasError();
 
-        static void validateSynonymType(std::shared_ptr<QueryToken>& token);
+  static void validateSynonymType(std::shared_ptr<QueryToken> &token);
 
-        void validateNoDuplicates(std::vector<PQL::Synonym>& declarations, std::shared_ptr<QueryToken>& token);
+  void validateNoDuplicates(std::vector<PQL::Synonym> &declarations, std::shared_ptr<QueryToken> &token);
 
-        static void validateSynonymName(std::shared_ptr<QueryToken>& token);
+  static void validateSynonymName(std::shared_ptr<QueryToken> &token);
 };

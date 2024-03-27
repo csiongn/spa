@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include "QPS/QueryToken.h"
 #include "Models/PQL.h"

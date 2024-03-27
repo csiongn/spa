@@ -1,64 +1,76 @@
 #pragma once
 
+#include <memory>
+#include <string>
 #include <vector>
-#include "QPS/QueryToken.h"
+
 #include "Models/PQL.h"
+#include "QPS/QueryToken.h"
 class ClauseValidator {
-    protected:
-        bool hasSemanticError;
-        std::vector<PQL::Synonym> declarations;
+ protected:
+  bool hasSemanticError;
+  std::vector<PQL::Synonym> declarations;
 
-    private:
-        bool isValidIdent(std::shared_ptr<QueryToken> token);
+ private:
+  bool isValidIdent(std::shared_ptr<QueryToken> token);
 
-        bool isStmtRef(std::shared_ptr<QueryToken> token);
+  bool isStmtRef(std::shared_ptr<QueryToken> token);
 
-        bool isEntRef(std::shared_ptr<QueryToken> token);
+  bool isEntRef(std::shared_ptr<QueryToken> token);
 
-        bool isElement(std::shared_ptr<QueryToken> token);
+  bool isElement(std::shared_ptr<QueryToken> token);
 
-        bool isExpression(std::shared_ptr<QueryToken> token);
+  bool isExpression(std::shared_ptr<QueryToken> token);
 
-        bool isExpressionSpec(std::vector<std::shared_ptr<QueryToken>>& tokens);
-    
-    public:
-        explicit ClauseValidator(std::vector<PQL::Synonym>& declarations);
+  bool isExpressionSpec(std::vector<std::shared_ptr<QueryToken>> &tokens);
 
-        void setSemanticError();
+ public:
+  explicit ClauseValidator(std::vector<PQL::Synonym> &declarations);
 
-        bool hasError();
+  void setSemanticError();
 
-        bool isSynonym(std::shared_ptr<QueryToken> token);
+  bool hasError();
 
-        bool isPartialExpression(std::shared_ptr<QueryToken> token);
+  bool isSynonym(std::shared_ptr<QueryToken> token);
 
-        void validateStmtRef(std::shared_ptr<QueryToken> token);
+  bool isPartialExpression(std::shared_ptr<QueryToken> token);
 
-        void validateEntRef(std::shared_ptr<QueryToken> token);
+  void validateStmtRef(std::shared_ptr<QueryToken> token);
 
-        void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
+  void validateEntRef(std::shared_ptr<QueryToken> token);
 
-        void validateDeclarationExists(std::string synonymIdentity);
+  void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
 
-        void validateSelectClauseToken(std::shared_ptr<QueryToken> selectToken);
+  void validateDeclarationExists(std::string synonymIdentity);
 
-        static void validateHasSelectSynonym(std::vector<std::shared_ptr<QueryToken>> &clauseTokens);
+  void validateSelectClauseToken(std::shared_ptr<QueryToken> selectToken);
 
-        void validateSuchThatClause();
+  static void validateHasSelectSynonym(
+	  std::vector<std::shared_ptr<QueryToken>> &clauseTokens);
 
-        void validatePatternSynonym(std::shared_ptr<QueryToken>& patternToken);
+  void validateSuchThatClause();
 
-        void validatePatternAssign(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+  void validatePatternSynonym(std::shared_ptr<QueryToken> &patternToken);
 
-        void validatePatternIf(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+  void validatePatternAssign(
+	  std::vector<std::shared_ptr<QueryToken>> &patternArgs);
 
-        void validatePatternWhile(std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+  void validatePatternIf(
+	  std::vector<std::shared_ptr<QueryToken>> &patternArgs);
 
-        void validatePatternArgs(SimpleProgram::DesignAbstraction patternType, std::vector<std::shared_ptr<QueryToken>>& patternArgs);
+  void validatePatternWhile(
+	  std::vector<std::shared_ptr<QueryToken>> &patternArgs);
 
-        void validateUsesSModifiesSArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
+  void validatePatternArgs(
+	  SimpleProgram::DesignAbstraction patternType,
+	  std::vector<std::shared_ptr<QueryToken>> &patternArgs);
 
-        void validateUsesPModifiesPArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
+  void validateUsesSModifiesSArgs(
+	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
 
-        void validateFollowsParentsArgs(std::vector<std::shared_ptr<QueryToken>>& suchThatArgs);
+  void validateUsesPModifiesPArgs(
+	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
+
+  void validateFollowsParentsArgs(
+	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
 };
