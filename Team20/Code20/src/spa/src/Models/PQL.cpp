@@ -6,14 +6,17 @@
 
 namespace PQL {
 
-Synonym::Synonym() : entityType(SimpleProgram::DesignEntity::INVALID), identity(""), attribute(SimpleProgram::AttributeRef::NO_REF) {}
+Synonym Synonym::createInvalidSynonym() {
+  return {SimpleProgram::DesignEntity::INVALID, "", SimpleProgram::AttributeRef::NO_REF};
+}
 
 Synonym::Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id)
 	: entityType(entity), identity(id), attribute(SimpleProgram::AttributeRef::NO_REF) {}
 
-Synonym::Synonym(const SimpleProgram::DesignEntity &entity, const std::string &id, const SimpleProgram::AttributeRef &attribute)
+Synonym::Synonym(const SimpleProgram::DesignEntity &entity,
+				 const std::string &id,
+				 const SimpleProgram::AttributeRef &attribute)
 	: entityType(entity), identity(id), attribute(attribute) {}
-
 
 Clause::Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args)
 	: clauseType(abstraction), arguments(args) {}

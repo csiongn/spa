@@ -15,13 +15,7 @@ ClauseParser::ClauseParser(std::vector<std::shared_ptr<QueryToken>> &clauseToken
 
 PQL::Synonym ClauseParser::getDeclarationUsed(std::shared_ptr<QueryToken> synonymToken) {
   std::string id = synonymToken->getValue();
-  for (auto &declaration : declarations) {
-	if (declaration.identity == id) {
-	  return declaration;
-	}
-  }
-
-  return PQL::Synonym();
+  return getDeclarationUsed(id);
 }
 
 PQL::Synonym ClauseParser::getDeclarationUsed(std::string synonymIdentity) {
@@ -30,7 +24,7 @@ PQL::Synonym ClauseParser::getDeclarationUsed(std::string synonymIdentity) {
 	  return declaration;
 	}
   }
-  return PQL::Synonym();
+  return PQL::Synonym::createInvalidSynonym();
 }
 
 std::vector<PQL::Synonym> ClauseParser::parseSelectClause() {
