@@ -1,16 +1,22 @@
+#include "SuchThatClauseParser.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include "SuchThatClauseParser.h"
+
 #include "QPS/Utils/ParseUtils.h"
 
-SuchThatClauseParser::SuchThatClauseParser(std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>> &relationshipClauseTokens,
-										   std::shared_ptr<ClauseValidator> &validator,
-										   std::vector<PQL::Synonym> &declarations)
-	: validator(validator), relationshipClauseTokens(relationshipClauseTokens),
+SuchThatClauseParser::SuchThatClauseParser(
+	std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>>
+	&relationshipClauseTokens,
+	std::shared_ptr<ClauseValidator> &validator,
+	std::vector<PQL::Synonym> &declarations)
+	: validator(validator),
+	  relationshipClauseTokens(relationshipClauseTokens),
 	  declarations(declarations) {}
 
-std::vector<std::shared_ptr<QueryToken>> SuchThatClauseParser::getSuchThatClause(const int start) {
+std::vector<std::shared_ptr<QueryToken>>
+SuchThatClauseParser::getSuchThatClause(const int start) {
   std::vector<std::shared_ptr<QueryToken>> suchThatClauseTokens;
   int curr = start;
   while (curr < relationshipClauseTokens->size()) {
@@ -24,16 +30,20 @@ std::vector<std::shared_ptr<QueryToken>> SuchThatClauseParser::getSuchThatClause
 	curr++;
   }
 
-  suchThatClauseTokens = QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens, start, curr);
+  suchThatClauseTokens = QueryEvaluator::ParseUtils::splitTokens(
+	  *relationshipClauseTokens, start, curr);
   relationshipClauseTokens =
-	  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens,
-																										 curr,
-																										 relationshipClauseTokens->size()));
+	  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(
+		  QueryEvaluator::ParseUtils::splitTokens(
+			  *relationshipClauseTokens, curr,
+			  relationshipClauseTokens->size()));
   return suchThatClauseTokens;
 }
 
-SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(std::shared_ptr<QueryToken> &suchThatClauseToken) {
-  std::unordered_map<std::string, SimpleProgram::DesignAbstraction> designAbstractionMap = {
+SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(
+	std::shared_ptr<QueryToken> &suchThatClauseToken) {
+  std::unordered_map<std::string, SimpleProgram::DesignAbstraction>
+	  designAbstractionMap = {
 	  {"Modifies", SimpleProgram::DesignAbstraction::MODIFIESS},
 	  {"Uses", SimpleProgram::DesignAbstraction::USESS},
 	  {"Parent", SimpleProgram::DesignAbstraction::PARENT},
@@ -50,31 +60,37 @@ SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(std
   return designAbstractionMap[tokenValue];
 }
 
-PQL::Clause SuchThatClauseParser::parse(std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens) {
+PQL::Clause SuchThatClauseParser::parse(
+	std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens) {
   std::vector<PQL::Synonym> args;
 
   auto suchThatClauseToken = suchThatClauseTokens[2];
   auto suchThatClauseType = getSuchThatClauseType(suchThatClauseToken);
 
-  std::vector<std::shared_ptr<QueryToken>>
-	  cleanedSuchThatTokens = QueryEvaluator::ParseUtils::removeBracketsAndCommas(suchThatClauseTokens);
+  std::vector<std::shared_ptr<QueryToken>> cleanedSuchThatTokens =
+	  QueryEvaluator::ParseUtils::removeBracketsAndCommas(
+		  suchThatClauseTokens);
   std::vector<std::shared_ptr<QueryToken>> suchThatArgsTokens =
-	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, 3, cleanedSuchThatTokens.size());
+	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, 3,
+											  cleanedSuchThatTokens.size());
 
-  if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS
-	  || suchThatClauseType == SimpleProgram::DesignAbstraction::USESS) {
+  if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS ||
+	  suchThatClauseType == SimpleProgram::DesignAbstraction::USESS) {
 	auto lArgToken = suchThatArgsTokens[0];
 	auto rArgToken = suchThatArgsTokens[1];
 
-	validator->validateUsesSModifiesSArgs(suchThatArgsTokens);
+	validator->validateUsesModifiesArgs(suchThatArgsTokens);
 
 	SimpleProgram::DesignEntity lArgEntityType;
 	SimpleProgram::DesignEntity rArgEntityType;
 
 	if (validator->isSynonym(lArgToken)) {
-	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(lArgToken, declarations);
+	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  lArgToken, declarations);
 	} else {
-	  if (lArgToken->getType() == QPS::TokenType::INTEGER) {
+	  if (lArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
+		lArgEntityType = SimpleProgram::DesignEntity::IDENT;
+	  } else if (lArgToken->getType() == QPS::TokenType::INTEGER) {
 		lArgEntityType = SimpleProgram::DesignEntity::STMT_NO;
 	  } else {
 		lArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
@@ -82,7 +98,8 @@ PQL::Clause SuchThatClauseParser::parse(std::vector<std::shared_ptr<QueryToken>>
 	}
 
 	if (validator->isSynonym(rArgToken)) {
-	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations);
+	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  rArgToken, declarations);
 	} else {
 	  if (rArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
 		rArgEntityType = SimpleProgram::DesignEntity::IDENT;
@@ -91,43 +108,21 @@ PQL::Clause SuchThatClauseParser::parse(std::vector<std::shared_ptr<QueryToken>>
 	  }
 	}
 
-	auto lArg = QueryEvaluator::ParseUtils::createSynonym(lArgEntityType, lArgToken);
-	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType, rArgToken);
+	auto lArg = QueryEvaluator::ParseUtils::createSynonym(lArgEntityType,
+														  lArgToken);
+	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType,
+														  rArgToken);
 
-	args.push_back(lArg);
-	args.push_back(rArg);
-  } else if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESP
-	  || suchThatClauseType == SimpleProgram::DesignAbstraction::USESP) {
-	auto lArgToken = suchThatArgsTokens[0];
-	auto rArgToken = suchThatArgsTokens[1];
-
-	validator->validateUsesPModifiesPArgs(suchThatArgsTokens);
-
-	SimpleProgram::DesignEntity lArgEntityType;
-	SimpleProgram::DesignEntity rArgEntityType;
-
-	if (validator->isSynonym(lArgToken)) {
-	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(lArgToken, declarations);
+	if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS) {
+	  if (lArgEntityType == SimpleProgram::DesignEntity::PROCEDURE) {
+		suchThatClauseType =
+			SimpleProgram::DesignAbstraction::MODIFIESP;
+	  }
 	} else {
-	  if (lArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
-		lArgEntityType = SimpleProgram::DesignEntity::IDENT;
-	  } else {
-		lArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
+	  if (lArgEntityType == SimpleProgram::DesignEntity::PROCEDURE) {
+		suchThatClauseType = SimpleProgram::DesignAbstraction::USESP;
 	  }
 	}
-
-	if (validator->isSynonym(rArgToken)) {
-	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations);
-	} else {
-	  if (rArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
-		rArgEntityType = SimpleProgram::DesignEntity::IDENT;
-	  } else {
-		rArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
-	  }
-	}
-
-	auto lArg = QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::PROCEDURE, lArgToken);
-	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType, rArgToken);
 
 	args.push_back(lArg);
 	args.push_back(rArg);

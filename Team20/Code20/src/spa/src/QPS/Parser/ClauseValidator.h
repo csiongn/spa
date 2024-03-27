@@ -18,6 +18,8 @@ class ClauseValidator {
 
   bool isEntRef(std::shared_ptr<QueryToken> token);
 
+  bool isStmtOrEntRef(std::shared_ptr<QueryToken> token);
+
   bool isElement(std::shared_ptr<QueryToken> token);
 
   bool isExpression(std::shared_ptr<QueryToken> token);
@@ -38,6 +40,8 @@ class ClauseValidator {
   void validateStmtRef(std::shared_ptr<QueryToken> token);
 
   void validateEntRef(std::shared_ptr<QueryToken> token);
+
+  void validateStmtOrEntRef(std::shared_ptr<QueryToken> token);
 
   void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
 
@@ -65,10 +69,7 @@ class ClauseValidator {
 	  SimpleProgram::DesignAbstraction patternType,
 	  std::vector<std::shared_ptr<QueryToken>> &patternArgs);
 
-  void validateUsesSModifiesSArgs(
-	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
-
-  void validateUsesPModifiesPArgs(
+  void validateUsesModifiesArgs(
 	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
 
   void validateFollowsParentsArgs(
