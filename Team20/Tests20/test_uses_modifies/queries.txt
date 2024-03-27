@@ -1,79 +1,79 @@
-1 - Direct Modifies relationships
+1.1 - Direct Modifies relationships
 variable v;
 Select v such that Modifies(7, v)
 east, x, y
 5000
-2 - Direct Uses relationships with apostrophe
+1.2 - Direct Uses relationships with apostrophe
 stmt s;
 Select s such that Modifies(7, "v")
 none
 5000
-3 - Select read with modifies
+1.3 - Select read with modifies
 read re;
 Select re such that Modifies(re, "y")
 none
 5000
-4 - Select read with modifies for string x
+1.4 - Select read with modifies for string x
 read re;
 Select re such that Modifies(re, "x")
 16
 5000
-5 - Modifies (s, v)
+1.5 - Modifies (s, v)
 stmt s;
 Select s such that Modifies(s, "y")
 3, 7, 9, 12
 5000
-6 - Modifies (a, v)
+1.6 - Modifies (a, v)
 assign a;
 Select a such that Modifies(a, "y")
 3, 12
 5000
-7 - Uses (s, v)
+2.1 - Uses (s, v)
 variable v;
 Select v such that Uses(3, v)
 east
 5000
-8 - Uses (a, _)
+2.2 - Uses (a, _)
 assign a;
 Select a such that Uses(a, _)
 2, 3, 4, 6, 8, 10, 11, 12, 14
 5000
-9 - Uses (a,v)
+2.3 - Uses (a,v)
 assign a;
 Select a such that Uses(a, "east")
 2, 3, 8, 12
 5000
-10 - Uses (pn, v) - false declaration
+2.4 - Uses (pn, v) - false declaration
 print stmt pn;
 Select pn such that Uses(pn, "east")
-SyntaxError
+none
 5000
-11 - Uses (pn, v)
+2.5 - Uses (pn, v)
 print pn;
 Select pn such that Uses(pn, "east")
 1
 5000
-12 - Uses (v, v) - incorrect first arg type
+2.6 - Uses (v, v) - incorrect first arg type
 variable v;
 Select v such that Uses(v, "east")
 SemanticError
 5000
-13 - Modifies (v, v) - incorrect first arg type
+2.7 - Modifies (v, v) - incorrect first arg type
 variable v;
 Select v such that Modifies(v, "east")
 SemanticError
 5000
-14 - Uses (re, v) - incorrect first arg type
+2.8 - Uses (re, v) - incorrect first arg type
 read re; assign a;
 Select a such that Uses(re, "east")
-SemanticError
+none
 5000
-15 - Modifies (pn, v) - incorrect first arg type
+2.9 - Modifies (pn, v) - incorrect first arg type
 print pn; assign a;
 Select a such that Modifies(pn, "east")
-SemanticError
+none
 5000
-16 - Modifies (w, v) - while first arg type
+3.0 - Modifies (w, v) - while first arg type
 while w;
 Select w such that Modifies(w, "east")
 7

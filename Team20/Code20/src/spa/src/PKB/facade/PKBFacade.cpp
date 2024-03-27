@@ -1,521 +1,1104 @@
 #include <utility>
 #include <vector>
 #include <string>
-#include <iostream>
+#include <memory>
+#include <unordered_set>
 
 #include "PKBFacade.h"
 #include "PKB/Database.h"
+#include "PKB/utils/DatabaseUtils.h"
 
-// What is the std::move warning
 PKBFacade::PKBFacade(std::shared_ptr<Database> db) : db(std::move(db)) {}
 
 // Procedure
-void PKBFacade::insertProcedure(std::string const & procedure) {
-    db->getProcedureManager()->insert(procedure);
+void PKBFacade::insertProcedure(std::string const &procedure) {
+  DatabaseUtils::insertEntity<std::string>(db->getProcedureManager(), procedure);
 }
-void PKBFacade::insertProcedure(const std::unordered_set<std::string>& procedureSet) {
-    for (const auto &procedure : procedureSet) {
-        insertProcedure(procedure);
-    }
+void PKBFacade::insertProcedure(const std::unordered_set<std::string> &procedureSet) {
+  for (const auto &procedure : procedureSet) {
+	DatabaseUtils::insertEntity<std::string>(db->getProcedureManager(), procedure);
+  }
 }
 
 std::vector<std::string> PKBFacade::getAllProcedures() {
-    return db->getProcedureManager()->get();
+  return DatabaseUtils::getAllEntities<std::string>(db->getProcedureManager());
 }
 
-bool PKBFacade::containsProcedure(std::string const & procedure) {
-    return db->getProcedureManager()->contains(procedure);
+bool PKBFacade::containsProcedure(std::string const &procedure) {
+  return DatabaseUtils::containsEntity<std::string>(db->getProcedureManager(), procedure);
+}
+
+bool PKBFacade::hasProcedure() {
+  return DatabaseUtils::hasEntity<std::string>(db->getProcedureManager());
 }
 
 // Variable
-void PKBFacade::insertVariable(std::string const & variable) {
-    db->getVariableManager()->insert(variable);
+void PKBFacade::insertVariable(std::string const &variable) {
+  DatabaseUtils::insertEntity<std::string>(db->getVariableManager(), variable);
 };
 
-void PKBFacade::insertVariable(const std::unordered_set<std::string>& variableSet) {
-    for (const auto &variable : variableSet) {
-        insertVariable(variable);
-    }
-}
-
-bool PKBFacade::containsVariable(std::string const & variable) {
-    return db->getVariableManager()->contains(variable);
+void PKBFacade::insertVariable(const std::unordered_set<std::string> &variableSet) {
+  for (const auto &variable : variableSet) {
+	DatabaseUtils::insertEntity<std::string>(db->getVariableManager(), variable);
+  }
 }
 
 std::vector<std::string> PKBFacade::getAllVariables() {
-    return db->getVariableManager()->get();
+  return DatabaseUtils::getAllEntities<std::string>(db->getVariableManager());
+}
+
+bool PKBFacade::containsVariable(std::string const &variable) {
+  return DatabaseUtils::containsEntity<std::string>(db->getVariableManager(), variable);
+}
+
+bool PKBFacade::hasVariable() {
+  return DatabaseUtils::hasEntity<std::string>(db->getVariableManager());
 }
 
 // Constant
 void PKBFacade::insertConstant(int constant) {
-    db->getConstantManager()->insert(constant);
+  DatabaseUtils::insertEntity<int>(db->getConstantManager(), constant);
 }
 
-void PKBFacade::insertConstant(const std::unordered_set<int>& constantSet) {
-    for (const auto &constant : constantSet) {
-        insertConstant(constant);
-    }
+void PKBFacade::insertConstant(const std::unordered_set<int> &constantSet) {
+  for (const auto &constant : constantSet) {
+	DatabaseUtils::insertEntity<int>(db->getConstantManager(), constant);
+  }
 }
 
 std::vector<int> PKBFacade::getAllConstants() {
-    return db->getConstantManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getConstantManager());
 }
 
 bool PKBFacade::containsConstant(int constant) {
-    return db->getConstantManager()->contains(constant);
+  return DatabaseUtils::containsEntity<int>(db->getConstantManager(), constant);
+}
+
+bool PKBFacade::hasConstant() {
+  return DatabaseUtils::hasEntity<int>(db->getConstantManager());
 }
 
 // Statement
 void PKBFacade::insertStatement(int stmtNum) {
-    db->getStatementManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getStatementManager(), stmtNum);
 }
 
-void PKBFacade::insertStatement(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertStatement(stmt);
-    }
+void PKBFacade::insertStatement(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getStatementManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllStatementNum() {
-    return db->getStatementManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getStatementManager());
 }
 
 bool PKBFacade::containsStatement(int stmtNum) {
-    return db->getStatementManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getStatementManager(), stmtNum);
+}
+
+bool PKBFacade::hasStatement() {
+  return DatabaseUtils::hasEntity<int>(db->getStatementManager());
 }
 
 // Assign
 void PKBFacade::insertAssign(int stmtNum) {
-    db->getAssignManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getAssignManager(), stmtNum);
 }
 
-void PKBFacade::insertAssign(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertAssign(stmt);
-    }
+void PKBFacade::insertAssign(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getAssignManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllAssignStmtNum() {
-    return db->getAssignManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getAssignManager());
 }
 
 bool PKBFacade::containsAssign(int stmtNum) {
-    return db->getAssignManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getAssignManager(), stmtNum);
+}
+
+bool PKBFacade::hasAssign() {
+  return DatabaseUtils::hasEntity<int>(db->getAssignManager());
 }
 
 // Read
 void PKBFacade::insertRead(int stmtNum) {
-    db->getReadManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getReadManager(), stmtNum);
 }
 
-void PKBFacade::insertRead(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertRead(stmt);
-    }
+void PKBFacade::insertRead(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getReadManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllReadStmtNum() {
-    return db->getReadManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getReadManager());
 }
 
 bool PKBFacade::containsRead(int stmtNum) {
-    return db->getReadManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getReadManager(), stmtNum);
+}
+
+bool PKBFacade::hasRead() {
+  return DatabaseUtils::hasEntity<int>(db->getReadManager());
 }
 
 // Print
 void PKBFacade::insertPrint(int stmtNum) {
-    db->getPrintManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getPrintManager(), stmtNum);
 }
 
-void PKBFacade::insertPrint(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertPrint(stmt);
-    }
+void PKBFacade::insertPrint(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getPrintManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllPrintStmtNum() {
-    return db->getPrintManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getPrintManager());
 }
 
 bool PKBFacade::containsPrint(int stmtNum) {
-    return db->getPrintManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getPrintManager(), stmtNum);
+}
+
+bool PKBFacade::hasPrint() {
+  return DatabaseUtils::hasEntity<int>(db->getPrintManager());
 }
 
 // Call
 void PKBFacade::insertCall(int stmtNum) {
-    db->getCallManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getCallManager(), stmtNum);
 }
 
-void PKBFacade::insertCall(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertCall(stmt);
-    }
+void PKBFacade::insertCall(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getCallManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllCallStmtNum() {
-    return db->getCallManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getCallManager());
 }
 
 bool PKBFacade::containsCall(int stmtNum) {
-    return db->getCallManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getCallManager(), stmtNum);
+}
+
+bool PKBFacade::hasCall() {
+  return DatabaseUtils::hasEntity<int>(db->getCallManager());
 }
 
 // While
 void PKBFacade::insertWhile(int stmtNum) {
-    db->getWhileManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getWhileManager(), stmtNum);
 }
 
-void PKBFacade::insertWhile(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertWhile(stmt);
-    }
+void PKBFacade::insertWhile(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getWhileManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllWhileStmtNum() {
-    return db->getWhileManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getWhileManager());
 }
 
 bool PKBFacade::containsWhile(int stmtNum) {
-    return db->getWhileManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getWhileManager(), stmtNum);
+}
+
+bool PKBFacade::hasWhile() {
+  return DatabaseUtils::hasEntity<int>(db->getWhileManager());
 }
 
 // If
 void PKBFacade::insertIf(int stmtNum) {
-    db->getIfManager()->insert(stmtNum);
+  DatabaseUtils::insertEntity<int>(db->getIfManager(), stmtNum);
 }
 
-void PKBFacade::insertIf(const std::unordered_set<int>& stmtSet) {
-    for (const auto &stmt : stmtSet) {
-        insertIf(stmt);
-    }
+void PKBFacade::insertIf(const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertEntity<int>(db->getIfManager(), stmt);
+  }
 }
 
 std::vector<int> PKBFacade::getAllIfStmtNum() {
-    return db->getIfManager()->get();
+  return DatabaseUtils::getAllEntities<int>(db->getIfManager());
 }
 
 bool PKBFacade::containsIf(int stmtNum) {
-    return db->getIfManager()->contains(stmtNum);
+  return DatabaseUtils::containsEntity<int>(db->getIfManager(), stmtNum);
+}
+
+bool PKBFacade::hasIf() {
+  return DatabaseUtils::hasEntity<int>(db->getIfManager());
 }
 
 // Follows
 void PKBFacade::insertFollows(int followeeStmtNum, int followerStmtNum) {
-    db->getFollowsManager()->insert(followeeStmtNum, followerStmtNum);
+  DatabaseUtils::insertRelationship<int, int>(db->getFollowsManager(), followeeStmtNum, followerStmtNum);
 }
 
-void PKBFacade::insertFollows(int followeeStmtNum, const std::unordered_set<int>& followerStmtSet) {
-    for (const auto &follower : followerStmtSet) {
-        insertFollows(followeeStmtNum, follower);
-    }
+void PKBFacade::insertFollows(int followeeStmtNum, const std::unordered_set<int> &followerStmtSet) {
+  for (const auto &follower : followerStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getFollowsManager(), followeeStmtNum, follower);
+  }
 }
 
 bool PKBFacade::containsFollows(int followeeStmtNum) {
-    return db->getFollowsManager()->contains(followeeStmtNum);
+  return DatabaseUtils::containsKey<int, int>(db->getFollowsManager(), followeeStmtNum);
 }
 
-
 bool PKBFacade::containsFollowing(int followerStmtNum) {
-    return db->getFollowsManager()->containsReverse(followerStmtNum);
+  return DatabaseUtils::containsValue<int, int>(db->getFollowsManager(), followerStmtNum);
 }
 
 bool PKBFacade::containsFollowsRelationship(int followeeStmtNum, int followerStmtNum) {
-    return db->getFollowsManager()->containsValueInKeySet(followeeStmtNum, followerStmtNum);
+  return DatabaseUtils::containsRelationship<int, int>(db->getFollowsManager(), followeeStmtNum, followerStmtNum);
 }
 
 bool PKBFacade::hasFollowsRelationship() {
-    return db->getFollowsManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, int>(db->getFollowsManager());
 }
 
 std::vector<int> PKBFacade::getFollows(int followeeStmtNum) {
-    return db->getFollowsManager()->get(followeeStmtNum);
+  return DatabaseUtils::getRelationship<int, int>(db->getFollowsManager(), followeeStmtNum);
 }
 
 std::vector<int> PKBFacade::getFollowing(int followerStmtNum) {
-    return db->getFollowsManager()->getReverse(followerStmtNum);
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getFollowsManager(), followerStmtNum);
 }
 
 std::vector<int> PKBFacade::getFolloweeStmts() {
-    return db->getFollowsManager()->getKeys();
+  return DatabaseUtils::getKeys<int, int>(db->getFollowsManager());
 }
 
 std::vector<int> PKBFacade::getFollowerStmts() {
-    return db->getFollowsManager()->getValues();
+  return DatabaseUtils::getValues<int, int>(db->getFollowsManager());
 }
 
 // FollowsT
 void PKBFacade::insertFollowsT(int followeeStmtNum, int followerStmtNum) {
-    db->getFollowsTManager()->insert(followeeStmtNum, followerStmtNum);
+  DatabaseUtils::insertRelationship<int, int>(db->getFollowsTManager(), followeeStmtNum, followerStmtNum);
 }
 
-void PKBFacade::insertFollowsT(int followeeStmtNum, const std::unordered_set<int>& followerStmtSet) {
-    for (const auto &follower : followerStmtSet) {
-        insertFollowsT(followeeStmtNum, follower);
-    }
+void PKBFacade::insertFollowsT(int followeeStmtNum, const std::unordered_set<int> &followerStmtSet) {
+  for (const auto &follower : followerStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getFollowsTManager(), followeeStmtNum, follower);
+  }
 }
 
 bool PKBFacade::containsFollowsT(int followeeStmtNum) {
-    return db->getFollowsTManager()->contains(followeeStmtNum);
+  return DatabaseUtils::containsKey<int, int>(db->getFollowsTManager(), followeeStmtNum);
 }
 
 bool PKBFacade::containsFollowingT(int followerStmtNum) {
-    return db->getFollowsTManager()->containsReverse(followerStmtNum);
+  return DatabaseUtils::containsValue<int, int>(db->getFollowsTManager(), followerStmtNum);
 }
 
 bool PKBFacade::containsFollowsTRelationship(int followeeStmtNum, int followerStmtNum) {
-    return db->getFollowsTManager()->containsValueInKeySet(followeeStmtNum, followerStmtNum);
+  return DatabaseUtils::containsRelationship<int, int>(db->getFollowsTManager(), followeeStmtNum, followerStmtNum);
 }
 
 bool PKBFacade::hasFollowsTRelationship() {
-    return db->getFollowsTManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, int>(db->getFollowsTManager());
 }
 
 std::vector<int> PKBFacade::getFollowsT(int followeeStmtNum) {
-    return db->getFollowsTManager()->get(followeeStmtNum);
+  return DatabaseUtils::getRelationship<int, int>(db->getFollowsTManager(), followeeStmtNum);
 }
 
 std::vector<int> PKBFacade::getFollowingT(int followerStmtNum) {
-    return db->getFollowsTManager()->getReverse(followerStmtNum);
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getFollowsTManager(), followerStmtNum);
 }
 
 std::vector<int> PKBFacade::getFolloweeTStmts() {
-    return db->getFollowsTManager()->getKeys();
+  return DatabaseUtils::getKeys<int, int>(db->getFollowsTManager());
 }
 
 std::vector<int> PKBFacade::getFollowerTStmts() {
-    return db->getFollowsTManager()->getValues();
+  return DatabaseUtils::getValues<int, int>(db->getFollowsTManager());
 }
 
 // Parent
 void PKBFacade::insertParent(int parentStmtNum, int childStmtNum) {
-    db->getParentManager()->insert(parentStmtNum, childStmtNum);
+  DatabaseUtils::insertRelationship<int, int>(db->getParentManager(), parentStmtNum, childStmtNum);
 }
 
-void PKBFacade::insertParent(int parentStmtNum, const std::unordered_set<int>& childStmtSet) {
-    for (const auto &child : childStmtSet) {
-        insertParent(parentStmtNum, child);
-    }
+void PKBFacade::insertParent(int parentStmtNum, const std::unordered_set<int> &childStmtSet) {
+  for (const auto &child : childStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getParentManager(), parentStmtNum, child);
+  }
 }
 
 bool PKBFacade::containsParent(int parentStmtNum) {
-    return db->getParentManager()->contains(parentStmtNum);
+  return DatabaseUtils::containsKey<int, int>(db->getParentManager(), parentStmtNum);
 }
 
 bool PKBFacade::containsChild(int childStmtNum) {
-    return db->getParentManager()->containsReverse(childStmtNum);
+  return DatabaseUtils::containsValue<int, int>(db->getParentManager(), childStmtNum);
 }
 
 bool PKBFacade::containsParentRelationship(int parentStmtNum, int childStmtNum) {
-    return db->getParentManager()->containsValueInKeySet(parentStmtNum, childStmtNum);
+  return DatabaseUtils::containsRelationship<int, int>(db->getParentManager(), parentStmtNum, childStmtNum);
 }
 
 bool PKBFacade::hasParentRelationship() {
-    return db->getParentManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, int>(db->getParentManager());
 }
 
 // Parent: set(child) : data
 std::vector<int> PKBFacade::getChild(int parentStmtNum) {
-    return db->getParentManager()->get(parentStmtNum);
+  return DatabaseUtils::getRelationship<int, int>(db->getParentManager(), parentStmtNum);
 }
 
 // Child: set(parent) : reverseData
 std::vector<int> PKBFacade::getParent(int childStmtNum) {
-    return db->getParentManager()->getReverse(childStmtNum);
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getParentManager(), childStmtNum);
 }
 
 std::vector<int> PKBFacade::getParentStmts() {
-    return db->getParentManager()->getKeys();
+  return DatabaseUtils::getKeys<int, int>(db->getParentManager());
 }
 
 std::vector<int> PKBFacade::getChildStmts() {
-    return db->getParentManager()->getValues();
+  return DatabaseUtils::getValues<int, int>(db->getParentManager());
 }
 
 // ParentT
 void PKBFacade::insertParentT(int parentStmtNum, int childStmtNum) {
-    db->getParentTManager()->insert(parentStmtNum, childStmtNum);
+  DatabaseUtils::insertRelationship<int, int>(db->getParentTManager(), parentStmtNum, childStmtNum);
 }
 
-void PKBFacade::insertParentT(int parentStmtNum, const std::unordered_set<int>& childStmtSet) {
-    for (const auto &child : childStmtSet) {
-        insertParentT(parentStmtNum, child);
-    }
+void PKBFacade::insertParentT(int parentStmtNum, const std::unordered_set<int> &childStmtSet) {
+  for (const auto &child : childStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getParentTManager(), parentStmtNum, child);
+  }
 }
 
 bool PKBFacade::containsParentT(int parentStmtNum) {
-    return db->getParentTManager()->contains(parentStmtNum);
+  return DatabaseUtils::containsKey<int, int>(db->getParentTManager(), parentStmtNum);
 }
 
 bool PKBFacade::containsChildT(int childStmtNum) {
-    return db->getParentTManager()->containsReverse(childStmtNum);
+  return DatabaseUtils::containsValue<int, int>(db->getParentTManager(), childStmtNum);
 }
 
 bool PKBFacade::containsParentTRelationship(int parentStmtNum, int childStmtNum) {
-    return db->getParentTManager()->containsValueInKeySet(parentStmtNum, childStmtNum);
+  return DatabaseUtils::containsRelationship<int, int>(db->getParentTManager(), parentStmtNum, childStmtNum);
 }
 
 bool PKBFacade::hasParentTRelationship() {
-    return db->getParentTManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, int>(db->getParentTManager());
 }
 
 // Parent: set(child) : data
 std::vector<int> PKBFacade::getChildT(int parentStmtNum) {
-    return db->getParentTManager()->get(parentStmtNum);
+  return DatabaseUtils::getRelationship<int, int>(db->getParentTManager(), parentStmtNum);
 }
 
 // Child: set(parent) : reverseData
 std::vector<int> PKBFacade::getParentT(int childStmtNum) {
-    return db->getParentTManager()->getReverse(childStmtNum);
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getParentTManager(), childStmtNum);
 }
 
 std::vector<int> PKBFacade::getParentTStmts() {
-    return db->getParentTManager()->getKeys();
+  return DatabaseUtils::getKeys<int, int>(db->getParentTManager());
 }
 
 std::vector<int> PKBFacade::getChildTStmts() {
-    return db->getParentTManager()->getValues();
+  return DatabaseUtils::getValues<int, int>(db->getParentTManager());
 }
-
 
 // Uses
-void PKBFacade::insertUsesStmt(int stmtNum, std::string const & variable) {
-    db->getUsesStmtManager()->insert(stmtNum, variable);
+void PKBFacade::insertUsesStmt(int stmtNum, std::string const &variable) {
+  DatabaseUtils::insertRelationship<int, std::string>(db->getUsesStmtManager(), stmtNum, variable);
 }
 
-void PKBFacade::insertUsesStmt(int stmtNum, const std::unordered_set<std::string>& variableSet) {
-    for (const auto &variable: variableSet) {
-        insertUsesStmt(stmtNum, variable);
-    }
+void PKBFacade::insertUsesStmt(int stmtNum, const std::unordered_set<std::string> &variableSet) {
+  for (const auto &variable : variableSet) {
+	DatabaseUtils::insertRelationship<int, std::string>(db->getUsesStmtManager(), stmtNum, variable);
+  }
 }
 
 std::vector<std::string> PKBFacade::getUsesVariable(int stmtNum) {
-    return db->getUsesStmtManager()->get(stmtNum);
+  return DatabaseUtils::getRelationship<int, std::string>(db->getUsesStmtManager(), stmtNum);
 }
 
-std::vector<int> PKBFacade::getUsesStmt(std::string const & variable) {
-    return db->getUsesStmtManager()->getReverse(variable);
+std::vector<int> PKBFacade::getUsesStmt(std::string const &variable) {
+  return DatabaseUtils::getReverseRelationship<int, std::string>(db->getUsesStmtManager(), variable);
 }
 
 std::vector<int> PKBFacade::getUsesStmt() {
-    return db->getUsesStmtManager()->getKeys();
+  return DatabaseUtils::getKeys<int, std::string>(db->getUsesStmtManager());
 }
 
 std::vector<std::string> PKBFacade::getUsesVariable() {
-    return db->getUsesStmtManager()->getValues();
+  return DatabaseUtils::getValues<int, std::string>(db->getUsesStmtManager());
 }
 
 bool PKBFacade::containsUsesStmt(int stmtNum) {
-    return db->getUsesStmtManager()->contains(stmtNum);
+  return DatabaseUtils::containsKey<int, std::string>(db->getUsesStmtManager(), stmtNum);
 }
 
-bool PKBFacade::containsUsesVariable(std::string const & variable) {
-    return db->getUsesStmtManager()->containsReverse(variable);
+bool PKBFacade::containsUsesVariable(std::string const &variable) {
+  return DatabaseUtils::containsValue<int, std::string>(db->getUsesStmtManager(), variable);
 }
 
 bool PKBFacade::containsUsesRelationship(int stmtNum, const std::string &variable) {
-    return db->getUsesStmtManager()->containsValueInKeySet(stmtNum, variable);
+  return DatabaseUtils::containsRelationship<int, std::string>(db->getUsesStmtManager(), stmtNum, variable);
 }
 
 bool PKBFacade::hasUsesRelationship() {
-    return db->getUsesStmtManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, std::string>(db->getUsesStmtManager());
 }
 
 // Modifies
 void PKBFacade::insertModifiesStmt(int stmtNum, const std::string &variable) {
-    db->getModifiesStmtManager()->insert(stmtNum, variable);
+  DatabaseUtils::insertRelationship<int, std::string>(db->getModifiesStmtManager(), stmtNum, variable);
 }
 
-void PKBFacade::insertModifiesStmt(int stmtNum, const std::unordered_set<std::string>& variableSet) {
-    for (const auto &variable: variableSet) {
-        insertModifiesStmt(stmtNum, variable);
-    }
+void PKBFacade::insertModifiesStmt(int stmtNum, const std::unordered_set<std::string> &variableSet) {
+  for (const auto &variable : variableSet) {
+	DatabaseUtils::insertRelationship<int, std::string>(db->getModifiesStmtManager(), stmtNum, variable);
+  }
 }
 
 std::vector<std::string> PKBFacade::getModifiesVariable(int stmtNum) {
-    return db->getModifiesStmtManager()->get(stmtNum);
+  return DatabaseUtils::getRelationship<int, std::string>(db->getModifiesStmtManager(), stmtNum);
 }
 
-std::vector<int> PKBFacade::getModifiesStmt(std::string const & variable) {
-    return db->getModifiesStmtManager()->getReverse(variable);
+std::vector<int> PKBFacade::getModifiesStmt(std::string const &variable) {
+  return DatabaseUtils::getReverseRelationship<int, std::string>(db->getModifiesStmtManager(), variable);
 }
 
 std::vector<int> PKBFacade::getModifiesStmt() {
-    return db->getModifiesStmtManager()->getKeys();
+  return DatabaseUtils::getKeys<int, std::string>(db->getModifiesStmtManager());
 }
 
 std::vector<std::string> PKBFacade::getModifiesVariable() {
-    return db->getModifiesStmtManager()->getValues();
+  return DatabaseUtils::getValues<int, std::string>(db->getModifiesStmtManager());
 }
 
 bool PKBFacade::containsModifiesStmt(int stmtNum) {
-    return db->getModifiesStmtManager()->contains(stmtNum);
+  return DatabaseUtils::containsKey<int, std::string>(db->getModifiesStmtManager(), stmtNum);
 }
 
-bool PKBFacade::containsModifiesVariable(std::string const & variable) {
-    return db->getModifiesStmtManager()->containsReverse(variable);
+bool PKBFacade::containsModifiesVariable(std::string const &variable) {
+  return DatabaseUtils::containsValue<int, std::string>(db->getModifiesStmtManager(), variable);
 }
 
-bool PKBFacade::containsModifiesRelationship(int stmtNum, std::string const & variable) {
-    return db->getModifiesStmtManager()->containsValueInKeySet(stmtNum, variable);
+bool PKBFacade::containsModifiesRelationship(int stmtNum, std::string const &variable) {
+  return DatabaseUtils::containsRelationship<int, std::string>(db->getModifiesStmtManager(), stmtNum, variable);
 }
 
 bool PKBFacade::hasModifiesRelationship() {
-    return db->getModifiesStmtManager()->hasRelationship();
+  return DatabaseUtils::hasRelationship<int, std::string>(db->getModifiesStmtManager());
 }
+
+// Procedure
+// Uses Proc
+void PKBFacade::insertUsesProc(std::string const &procedureName, std::string const &variable) {
+  DatabaseUtils::insertRelationship<std::string, std::string>(db->getUsesProcManager(), procedureName, variable);
+}
+
+void PKBFacade::insertUsesProc(std::string const &procedureName, const std::unordered_set<std::string> &variableSet) {
+  for (const auto &variable : variableSet) {
+	DatabaseUtils::insertRelationship<std::string, std::string>(db->getUsesProcManager(), procedureName, variable);
+  }
+}
+
+std::vector<std::string> PKBFacade::getUsesProcVariable(std::string const &procedureName) {
+  return DatabaseUtils::getRelationship<std::string, std::string>(db->getUsesProcManager(), procedureName);
+}
+
+std::vector<std::string> PKBFacade::getUsesProcName(std::string const &variable) {
+  return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getUsesProcManager(), variable);
+}
+
+std::vector<std::string> PKBFacade::getUsesProcVariable() {
+  return DatabaseUtils::getValues<std::string, std::string>(db->getUsesProcManager());
+}
+
+std::vector<std::string> PKBFacade::getUsesProcName() {
+  return DatabaseUtils::getKeys<std::string, std::string>(db->getUsesProcManager());
+}
+
+bool PKBFacade::containsUsesProc(std::string const &procedureName) {
+  return DatabaseUtils::containsKey<std::string, std::string>(db->getUsesProcManager(), procedureName);
+}
+
+bool PKBFacade::containsUsesProcVariable(std::string const &variable) {
+  return DatabaseUtils::containsValue<std::string, std::string>(db->getUsesProcManager(), variable);
+}
+
+bool PKBFacade::containsUsesProcRelationship(std::string const &procedureName, std::string const &variable) {
+  return DatabaseUtils::containsRelationship<std::string, std::string>(db->getUsesProcManager(),
+																	   procedureName,
+																	   variable);
+}
+
+bool PKBFacade::hasUsesProcRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, std::string>(db->getUsesProcManager());
+}
+
+// Modifies Proc
+void PKBFacade::insertModifiesProc(std::string const &procedureName, std::string const &variable) {
+  DatabaseUtils::insertRelationship<std::string, std::string>(db->getModifiesProcManager(), procedureName, variable);
+}
+
+void PKBFacade::insertModifiesProc(std::string const &procedureName,
+								   const std::unordered_set<std::string> &variableSet) {
+  for (const auto &variable : variableSet) {
+	DatabaseUtils::insertRelationship<std::string, std::string>(db->getModifiesProcManager(), procedureName, variable);
+  }
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcVariable(std::string const &procedureName) {
+  return DatabaseUtils::getRelationship<std::string, std::string>(db->getModifiesProcManager(), procedureName);
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcName(std::string const &variable) {
+  return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getModifiesProcManager(), variable);
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcVariable() {
+  return DatabaseUtils::getValues<std::string, std::string>(db->getModifiesProcManager());
+}
+
+std::vector<std::string> PKBFacade::getModifiesProcName() {
+  return DatabaseUtils::getKeys<std::string, std::string>(db->getModifiesProcManager());
+}
+
+bool PKBFacade::containsModifiesProc(std::string const &procedureName) {
+  return DatabaseUtils::containsKey<std::string, std::string>(db->getModifiesProcManager(), procedureName);
+}
+
+bool PKBFacade::containsModifiesProcVariable(std::string const &variable) {
+  return DatabaseUtils::containsValue<std::string, std::string>(db->getModifiesProcManager(), variable);
+}
+
+bool PKBFacade::containsModifiesProcRelationship(std::string const &procedureName, std::string const &variable) {
+  return DatabaseUtils::containsRelationship<std::string, std::string>(db->getModifiesProcManager(),
+																	   procedureName, variable);
+}
+
+bool PKBFacade::hasModifiesProcRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, std::string>(db->getModifiesProcManager());
+}
+
+// Calls Proc
+void PKBFacade::insertCallsProc(std::string const &caller, std::string const &callee) {
+  DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+}
+
+void PKBFacade::insertCallsProc(std::string const &caller, const std::unordered_set<std::string> &calleeSet) {
+  for (const auto &callee : calleeSet) {
+	DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+  }
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCallee(std::string const &caller) {
+  return DatabaseUtils::getRelationship<std::string, std::string>(db->getCallsProcManager(), caller);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCaller(std::string const &callee) {
+  return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getCallsProcManager(), callee);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCaller() {
+  return DatabaseUtils::getKeys<std::string, std::string>(db->getCallsProcManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsProcCallee() {
+  return DatabaseUtils::getValues<std::string, std::string>(db->getCallsProcManager());
+}
+
+bool PKBFacade::containsCallsProcCaller(std::string const &caller) {
+  return DatabaseUtils::containsKey<std::string, std::string>(db->getCallsProcManager(), caller);
+}
+
+bool PKBFacade::containsCallsProcCallee(std::string const &callee) {
+  return DatabaseUtils::containsValue<std::string, std::string>(db->getCallsProcManager(), callee);
+}
+
+bool PKBFacade::containsCallsProcRelationship(std::string const &caller, std::string const &callee) {
+  return DatabaseUtils::containsRelationship<std::string, std::string>(db->getCallsProcManager(), caller, callee);
+}
+
+bool PKBFacade::hasCallsProcRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, std::string>(db->getCallsProcManager());
+}
+
+// CallsT Proc
+void PKBFacade::insertCallsTProc(std::string const &caller, std::string const &callee) {
+  DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+}
+
+void PKBFacade::insertCallsTProc(std::string const &caller, const std::unordered_set<std::string> &calleeSet) {
+  for (const auto &callee : calleeSet) {
+	DatabaseUtils::insertRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+  }
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCallee(std::string const &caller) {
+  return DatabaseUtils::getRelationship<std::string, std::string>(db->getCallsTProcManager(), caller);
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCaller(std::string const &callee) {
+  return DatabaseUtils::getReverseRelationship<std::string, std::string>(db->getCallsTProcManager(), callee);
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCaller() {
+  return DatabaseUtils::getKeys<std::string, std::string>(db->getCallsTProcManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsTProcCallee() {
+  return DatabaseUtils::getValues<std::string, std::string>(db->getCallsTProcManager());
+}
+
+bool PKBFacade::containsCallsTProcCaller(std::string const &caller) {
+  return DatabaseUtils::containsKey<std::string, std::string>(db->getCallsTProcManager(), caller);
+}
+
+bool PKBFacade::containsCallsTProcCallee(std::string const &callee) {
+  return DatabaseUtils::containsValue<std::string, std::string>(db->getCallsTProcManager(), callee);
+}
+
+bool PKBFacade::containsCallsTProcRelationship(std::string const &caller, std::string const &callee) {
+  return DatabaseUtils::containsRelationship<std::string, std::string>(db->getCallsTProcManager(), caller, callee);
+}
+
+bool PKBFacade::hasCallsTProcRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, std::string>(db->getCallsTProcManager());
+}
+
+// Next
+void PKBFacade::insertNext(int stmtNum, int nextStmtNum) {
+  DatabaseUtils::insertRelationship<int, int>(db->getNextManager(), stmtNum, nextStmtNum);
+}
+
+void PKBFacade::insertNext(int stmtNum, const std::unordered_set<int> &nextStmtSet) {
+  for (const auto &nextStmt : nextStmtSet) {
+	DatabaseUtils::insertRelationship<int, int>(db->getNextManager(), stmtNum, nextStmt);
+  }
+}
+
+bool PKBFacade::containsNext(int nextStmtNum) {
+  return DatabaseUtils::containsValue<int, int>(db->getNextManager(), nextStmtNum);
+}
+
+bool PKBFacade::containsNextReverse(int stmtNum) {
+  return DatabaseUtils::containsKey<int, int>(db->getNextManager(), stmtNum);
+}
+
+bool PKBFacade::containsNextRelationship(int stmtNum, int nextStmtNum) {
+  return DatabaseUtils::containsRelationship<int, int>(db->getNextManager(),
+													   stmtNum, nextStmtNum);
+}
+
+bool PKBFacade::hasNextRelationship() {
+  return DatabaseUtils::hasRelationship<int, int>(db->getNextManager());
+}
+
+std::vector<int> PKBFacade::getNext(int stmtNum) {
+  return DatabaseUtils::getRelationship<int, int>(db->getNextManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextReverse(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<int, int>(db->getNextManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextReverse() {
+  return DatabaseUtils::getKeys<int, int>(db->getNextManager());
+}
+
+std::vector<int> PKBFacade::getNext() {
+  return DatabaseUtils::getValues<int, int>(db->getNextManager());
+}
+
+// Print
+void PKBFacade::insertPrintVar(const std::string &variable, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getPrintVarManager(), variable, stmtNum);
+}
+
+void PKBFacade::insertPrintVar(const std::string &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getPrintVarManager(), variable, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getPrintStmtNum(std::string const &variable) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getPrintVarManager(), variable);
+}
+
+std::vector<int> PKBFacade::getPrintStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getPrintVarManager());
+}
+
+std::vector<std::string> PKBFacade::getPrintVariable(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getPrintVarManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getPrintVariable() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getPrintVarManager());
+}
+
+bool PKBFacade::containsPrintVariable(std::string const &variable) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getPrintVarManager(), variable);
+}
+
+bool PKBFacade::containsPrintStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getPrintVarManager(), stmtNum);
+}
+
+bool PKBFacade::containsPrintRelationship(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getPrintVarManager(), variable, stmtNum);
+}
+
+bool PKBFacade::hasPrintRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getPrintVarManager());
+}
+
+// Read
+void PKBFacade::insertReadVar(const std::string &variable, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getReadVarManager(), variable, stmtNum);
+}
+
+void PKBFacade::insertReadVar(const std::string &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getReadVarManager(), variable, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getReadStmtNum(std::string const &variable) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getReadVarManager(), variable);
+}
+
+std::vector<int> PKBFacade::getReadStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getReadVarManager());
+}
+
+std::vector<std::string> PKBFacade::getReadVariable(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getReadVarManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getReadVariable() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getReadVarManager());
+}
+
+bool PKBFacade::containsReadVariable(std::string const &variable) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getReadVarManager(), variable);
+}
+
+bool PKBFacade::containsReadStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getReadVarManager(), stmtNum);
+}
+
+bool PKBFacade::containsReadRelationship(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getReadVarManager(), variable, stmtNum);
+}
+
+bool PKBFacade::hasReadRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getReadVarManager());
+}
+
+// CallsProcStmt
+void PKBFacade::insertCallsProcStmt(const std::string &callsProcName, const int &stmtNum) {
+  DatabaseUtils::insertRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmtNum);
+}
+
+void PKBFacade::insertCallsProcStmt(const std::string &callsProcName, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getCallsProcStmtNum(std::string const &callsProcName) {
+  return DatabaseUtils::getRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName);
+}
+
+std::vector<int> PKBFacade::getCallsProcStmtNum() {
+  return DatabaseUtils::getValues<std::string, int>(db->getCallsProcStmtManager());
+}
+
+std::vector<std::string> PKBFacade::getCallsProcName(int stmtNum) {
+  return DatabaseUtils::getReverseRelationship<std::string, int>(db->getCallsProcStmtManager(), stmtNum);
+}
+
+std::vector<std::string> PKBFacade::getCallsProcName() {
+  return DatabaseUtils::getKeys<std::string, int>(db->getCallsProcStmtManager());
+}
+
+bool PKBFacade::containsCallsProcName(std::string const &callsProcName) {
+  return DatabaseUtils::containsKey<std::string, int>(db->getCallsProcStmtManager(), callsProcName);
+}
+
+bool PKBFacade::containsCallsProcStmt(int stmtNum) {
+  return DatabaseUtils::containsValue<std::string, int>(db->getCallsProcStmtManager(), stmtNum);
+}
+
+bool PKBFacade::containsCallsProcStmtRelationship(std::string const &callsProcName, int stmtNum) {
+  return DatabaseUtils::containsRelationship<std::string, int>(db->getCallsProcStmtManager(), callsProcName, stmtNum);
+}
+
+bool PKBFacade::hasCallsProcStmtRelationship() {
+  return DatabaseUtils::hasRelationship<std::string, int>(db->getCallsProcStmtManager());
+}
+
 
 // Assign Pattern
-void PKBFacade::insertAssignPattern(std::string const & lhsVar, const size_t& rhsExprNodeHash, const int& stmtNum,
-                                    const std::shared_ptr<ExprNode>& nodePtr) {
-    db->getAssignPatternManager()->insert(lhsVar, rhsExprNodeHash, stmtNum, nodePtr);
+void PKBFacade::insertAssignPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
+									const std::shared_ptr<ExprNode> &nodePtr) {
+  DatabaseUtils::insertPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPatternManager(),
+																			   lhsVar,
+																			   rhsExprNodeHash,
+																			   stmtNum,
+																			   nodePtr);
 }
 
-std::vector<std::string> PKBFacade::getAssignPatternLHS(size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->getLHS(rhsExprNodeHash);
+std::vector<std::string> PKBFacade::getAssignPatternLHS(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), rhsExprNodeHash);
 };
 
-std::vector<size_t> PKBFacade::getAssignPatternRHS(std::string const & variable) {
-    return db->getAssignPatternManager()->getRHS(variable);
+std::vector<size_t> PKBFacade::getAssignPatternRHS(std::string const &variable) {
+  return DatabaseUtils::getPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), variable);
 };
 
 std::vector<std::string> PKBFacade::getAssignPatternLHS() {
-    return db->getAssignPatternManager()->getLHSKeys();
+  return DatabaseUtils::getAllPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager());
 };
 
 std::vector<size_t> PKBFacade::getAssignPatternRHS() {
-    return db->getAssignPatternManager()->getRHSKeys();
+  return DatabaseUtils::getAllPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager());
 };
 
-std::vector<int> PKBFacade::getAssignPatternStmtNum(std::string const & variable, size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->getPatternStmtNum(variable, rhsExprNodeHash);
+std::vector<int> PKBFacade::getAssignPatternStmtNum(std::string const &variable, size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), variable, rhsExprNodeHash);
 };
 
-std::vector<int> PKBFacade::getAssignPatternLHSStmtNum(std::string const & variable) {
-    return db->getAssignPatternManager()->getLHSStmtNum(variable);
+std::vector<int> PKBFacade::getAssignPatternLHSStmtNum(std::string const &variable) {
+  return DatabaseUtils::getPatternLHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), variable);
 };
 
-std::vector<int> PKBFacade::getAssignPatternRHSStmtNum(size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->getRHSStmtNum(rhsExprNodeHash);
+std::vector<int> PKBFacade::getAssignPatternRHSStmtNum(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternRHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), rhsExprNodeHash);
 };
 
-std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPatternRHSExprNodePtr(size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->getRHSNodePtr(rhsExprNodeHash);
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPatternRHSExprNodePtr(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), rhsExprNodeHash);
 };
 
 std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPatternRHSExprNodePtr() {
-    return db->getAssignPatternManager()->getRHSNodePtr();
+  return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager());
 };
 
-bool PKBFacade::containsAssignPattern(std::string const & variable, size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->containsPattern(variable, rhsExprNodeHash);
+bool PKBFacade::containsAssignPattern(std::string const &variable, size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::containsPattern<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), variable, rhsExprNodeHash);
 };
 
-bool PKBFacade::containsAssignPatternLHS(std::string const & variable) {
-    return db->getAssignPatternManager()->containsLHS(variable);
+bool PKBFacade::containsAssignPatternLHS(std::string const &variable) {
+  return DatabaseUtils::containsPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), variable);
 };
 
-bool PKBFacade::containsAssignPatternRHS(size_t const & rhsExprNodeHash) {
-    return db->getAssignPatternManager()->containsRHS(rhsExprNodeHash);
+bool PKBFacade::containsAssignPatternRHS(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::containsPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPatternManager(), rhsExprNodeHash);
 };
 
 bool PKBFacade::hasAssignPattern() {
-    return db->getAssignPatternManager()->hasPattern();
+  return DatabaseUtils::hasPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPatternManager());
 };
+
+// AssignPartial Pattern
+void PKBFacade::insertAssignPartialPattern(std::string const &lhsVar, const size_t &rhsExprNodeHash, const int &stmtNum,
+										   const std::shared_ptr<ExprNode> &nodePtr) {
+  DatabaseUtils::insertPattern<std::string, size_t, std::shared_ptr<ExprNode>>(db->getAssignPartialPatternManager(),
+																			   lhsVar,
+																			   rhsExprNodeHash,
+																			   stmtNum,
+																			   nodePtr);
+}
+
+std::vector<std::string> PKBFacade::getAssignPartialPatternLHS(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<size_t> PKBFacade::getAssignPartialPatternRHS(std::string const &variable) {
+  return DatabaseUtils::getPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), variable);
+};
+
+std::vector<std::string> PKBFacade::getAssignPartialPatternLHS() {
+  return DatabaseUtils::getAllPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager());
+};
+
+std::vector<size_t> PKBFacade::getAssignPartialPatternRHS() {
+  return DatabaseUtils::getAllPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager());
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternStmtNum(std::string const &variable, size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), variable, rhsExprNodeHash);
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternLHSStmtNum(std::string const &variable) {
+  return DatabaseUtils::getPatternLHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), variable);
+};
+
+std::vector<int> PKBFacade::getAssignPartialPatternRHSStmtNum(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternRHSStmtNum<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPartialPatternRHSExprNodePtr(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+std::vector<std::shared_ptr<ExprNode>> PKBFacade::getAssignPartialPatternRHSExprNodePtr() {
+  return DatabaseUtils::getPatternRHSNodePtr<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager());
+};
+
+bool PKBFacade::containsAssignPartialPattern(std::string const &variable, size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::containsPattern<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), variable, rhsExprNodeHash);
+};
+
+bool PKBFacade::containsAssignPartialPatternLHS(std::string const &variable) {
+  return DatabaseUtils::containsPatternLHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), variable);
+};
+
+bool PKBFacade::containsAssignPartialPatternRHS(size_t const &rhsExprNodeHash) {
+  return DatabaseUtils::containsPatternRHS<std::string, size_t, std::shared_ptr<ExprNode>>(
+	  db->getAssignPartialPatternManager(), rhsExprNodeHash);
+};
+
+bool PKBFacade::hasAssignPartialPattern() {
+  return DatabaseUtils::hasPattern<std::string,
+								   size_t,
+								   std::shared_ptr<ExprNode>>(db->getAssignPartialPatternManager());
+};
+
+// If Pattern
+void PKBFacade::insertIfPattern(std::string const &variable, const int &stmtNum) {
+  DatabaseUtils::insertConditionalPattern<std::string, int>(db->getIfPatternManager(), variable, stmtNum);
+}
+
+void PKBFacade::insertIfPattern(std::string const &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertConditionalPattern<std::string, int>(db->getIfPatternManager(), variable, stmt);
+  }
+}
+
+std::vector<int> PKBFacade::getIfPatternStmtNum(std::string const &variable) {
+  return DatabaseUtils::getConditionalPatternValues<std::string, int>(
+	  db->getIfPatternManager(), variable);
+};
+
+std::vector<int> PKBFacade::getIfPatternStmtNum() {
+  return DatabaseUtils::getConditionalPatternValues<std::string, int>(
+	  db->getIfPatternManager());
+};
+
+std::vector<std::string> PKBFacade::getIfPatternVariable(int stmtNum) {
+  return DatabaseUtils::getConditionalPatternKeys<std::string, int>(
+	  db->getIfPatternManager(), stmtNum);
+};
+
+std::vector<std::string> PKBFacade::getIfPatternVariable() {
+  return DatabaseUtils::getConditionalPatternKeys<std::string, int>(db->getIfPatternManager());
+};
+
+bool PKBFacade::containsIfPattern(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsConditionalPattern<std::string, int>(
+	  db->getIfPatternManager(), variable, stmtNum);
+};
+
+bool PKBFacade::containsIfPatternStmt(int stmtNum) {
+  return DatabaseUtils::containsConditionalPatternValue<std::string, int>(
+	  db->getIfPatternManager(), stmtNum);
+};
+
+bool PKBFacade::containsIfPatternVariable(std::string const &variable) {
+  return DatabaseUtils::containsConditionalPatternKey<std::string, int>(
+	  db->getIfPatternManager(), variable);
+};
+
+bool PKBFacade::hasIfPattern() {
+  return DatabaseUtils::hasConditionalPattern<std::string, int>(
+	  db->getIfPatternManager());
+};
+
+// While Pattern
+void PKBFacade::insertWhilePattern(std::string const &variable, const int &stmtNum) {
+  DatabaseUtils::insertConditionalPattern<std::string, int>(db->getWhilePatternManager(), variable, stmtNum);
+}
+
+void PKBFacade::insertWhilePattern(std::string const &variable, const std::unordered_set<int> &stmtSet) {
+  for (const auto &stmt : stmtSet) {
+	DatabaseUtils::insertConditionalPattern<std::string, int>(db->getWhilePatternManager(), variable, stmt);
+  }
+}
+
+std::vector<std::string> PKBFacade::getWhilePatternVariable(int stmtNum) {
+  return DatabaseUtils::getConditionalPatternKeys<std::string, int>(
+	  db->getWhilePatternManager(), stmtNum);
+};
+
+std::vector<int> PKBFacade::getWhilePatternStmtNum(std::string const &variable) {
+  return DatabaseUtils::getConditionalPatternValues<std::string, int>(
+	  db->getWhilePatternManager(), variable);
+};
+
+std::vector<std::string> PKBFacade::getWhilePatternVariable() {
+  return DatabaseUtils::getConditionalPatternKeys<std::string, int>(db->getWhilePatternManager());
+};
+
+std::vector<int> PKBFacade::getWhilePatternStmtNum() {
+  return DatabaseUtils::getConditionalPatternValues<std::string, int>(
+	  db->getWhilePatternManager());
+};
+
+bool PKBFacade::containsWhilePattern(std::string const &variable, int stmtNum) {
+  return DatabaseUtils::containsConditionalPattern<std::string, int>(
+	  db->getWhilePatternManager(), variable, stmtNum);
+};
+
+bool PKBFacade::containsWhilePatternStmt(int stmtNum) {
+  return DatabaseUtils::containsConditionalPatternValue<std::string, int>(
+	  db->getWhilePatternManager(), stmtNum);
+};
+
+bool PKBFacade::containsWhilePatternVariable(std::string const &variable) {
+  return DatabaseUtils::containsConditionalPatternKey<std::string, int>(
+	  db->getWhilePatternManager(), variable);
+};
+
+bool PKBFacade::hasWhilePattern() {
+  return DatabaseUtils::hasConditionalPattern<std::string, int>(
+	  db->getWhilePatternManager());
+};
+

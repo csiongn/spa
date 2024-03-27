@@ -13,6 +13,11 @@ C++ Standard | C++17
 
 No additional instructions required.
 
+### Running Cpplint Locally
+
+- Run and execute `./cpplint_local.h` in /Team20 directory in terminal.
+- Cpplint errors will be displayed in the terminal.
+
 # Team Members
 
 Name | Email              | Development OS/Toolchain

@@ -1,0 +1,76 @@
+procedure complexNumberManipulation {
+    read num;
+    maxVal = 100;
+    minVal = 0;
+    evenSum = 0;
+    oddSum = 0;
+    primeCount = 0;
+    i = 2;
+
+    while (i <= num) {
+        isPrime = 1;
+        j = 2;
+        while (j < i) {
+            if (i % j == 0) then {
+                isPrime = 0;
+            } else {
+                read ignore;
+            }
+            j = j + 1;
+        }
+        if (isPrime == 1) then {
+            primeCount = primeCount + 1;
+        } else {
+            read ignore;
+        }
+
+        if (i % 2 == 0) then {
+            evenSum = evenSum + i;
+            if (evenSum >= maxVal) then {
+                evenSum = evenSum - maxVal;
+            } else {
+                read ignore;
+            }
+        } else {
+            oddSum = oddSum + i;
+            if (oddSum <= minVal) then {
+                oddSum = oddSum + maxVal;
+            } else {
+                read ignore;
+            }
+        }
+        i = i + 1;
+    }
+
+    print primeCount;
+    print evenSum;
+    print oddSum;
+
+    if (primeCount > evenSum) then {
+        if (primeCount > oddSum) then {
+            maxType = 1;
+        } else {
+            maxType = 2;
+        }
+    } else {
+        if (evenSum > oddSum) then {
+            maxType = 3;
+        } else {
+            maxType = 4;
+        }
+    }
+
+    if (maxType == 1) then {
+        print prime;
+    } else {
+        if (maxType == 2) then {
+            print odd;
+        } else {
+            if (maxType == 3) then {
+                print even;
+            } else {
+                print mixed;
+            }
+        }
+    }
+}

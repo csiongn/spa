@@ -1,0 +1,125 @@
+1 - uses pattern assign
+assign a; variable v; constant c;
+Select a such that Uses (a, c) pattern a ("8", _)
+SyntaxError
+5000
+2 - followsT
+variable v; stmt s;
+Select s such that Follows* (s, v)
+SemanticError
+5000
+3 - procedure is parent
+procedure pr; stmt s;
+Select s such that Parent (pr, s)
+SemanticError
+5000
+4 - modifies with print
+print s; variable v;
+Select s such that Modifies (s, v)
+none
+5000
+5 - assign with followsT
+stmt s; assign a; variable v;
+Select a such that Follows* (a, v) pattern s (v, _)
+SemanticError
+5000
+6 - uses and pattern
+constant c; assign a; variable v;
+Select c such that Uses (a, v) pattern a (_, c)
+SyntaxError
+5000
+7 - no declaration
+none
+Select 1v
+SyntaxError
+5000
+8 - ident test
+assign s;
+Select s pattern s ("7", _)
+SyntaxError
+5000
+9 - test parentT with space
+stmt s, s1;
+Select s such that Parent * (s, s1)
+SyntaxError
+5000
+10 - test followsT with space
+stmt s, s1;
+Select s such that Follows * (s, s1)
+SyntaxError
+5000
+11 - test follow with statement declarations
+stmt s, s1;
+Select s such that Follows* (s, "s1")
+SyntaxError
+5000
+12 - reverse test follow with statement declaration
+stmt s, s1;
+Select s1 such that Follows ("s", s1)
+SyntaxError
+5000
+13 - test select as name
+assign Select;
+Select Select pattern Select(_,_)
+2,3,4,5,9,11
+5000
+14 - test parent pattern
+print rd; variable v; stmt s; assign a;
+Select s such that Parent (s, rd) pattern a(v,_)
+8,12
+5000
+15 - test 2 assign
+assign a1, a2; variable v;
+Select a1 such that Uses (a2, v) pattern a2 (v, _)
+2,3,4,5,9,11
+5000
+16 - test same ident
+assign a;
+Select a pattern a ("temp", _"temp "_)
+3
+5000
+17 - test spaces
+assign a;
+Select a pattern a (_, _"quota   "_)
+4
+5000
+18 - test ident with integer 
+assign a;
+Select a pattern a (_, _"1 "_)
+3
+5000
+19 - test same ident in pattern and use
+assign a;
+Select a such that Uses (a, "x") pattern a ("x", _" x"_)
+none
+5000
+20 - test parentT and pattern assign
+assign a, a1;
+Select a such that Parent* (7, a) pattern a1 (_, _"x"_)
+9,11
+5000
+21 - test parentT
+assign a, a1;
+Select a such that Parent* (28, a) pattern a1 ("left", _)
+none
+5000
+22 - test modifies
+assign a, a1; variable v, v1;
+Select v1 such that Modifies (a, v) pattern a1 (v1, _)
+left,temp,x,z
+5000
+23 - test uses pattern assign
+assign a, a1; variable v, v1;
+Select v such that Uses (a, v) pattern a1 (v, _)
+temp,x
+5000
+24 - test modifies pattern assign
+assign a,a1; variable v;
+Select v such that Modifies (a, v) pattern a1 (v, _)
+left,temp,x,z
+5000
+25 - test assign parentT
+assign a, a1;
+Select a such that Parent* (7, a) pattern a (_, _"x"_)
+9
+5000

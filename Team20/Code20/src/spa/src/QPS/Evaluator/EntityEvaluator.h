@@ -1,41 +1,53 @@
 #pragma once
 
-#include "ClauseEvaluator.h"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "RelationshipEvaluator.h"
 
 namespace QueryEvaluator {
-    class EntityEvaluator : private ClauseEvaluator {
-    public:
-        EntityEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore1)
-                : ClauseEvaluator(r, cl, resultStore1) {};
+class EntityEvaluator : private RelationshipEvaluator {
+ public:
+  EntityEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
+	  : RelationshipEvaluator(r, cl, resultStore) {};
 
-        bool evaluate() override;
+  bool evaluate() override;
 
-    private:
-        bool isAlwaysFalse() override;
+ private:
+  bool isAlwaysFalse() override;
 
-        bool hasRelationship() override;
+  bool hasRelationship() override;
 
-        bool
-        hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int stmtNum, const std::string &ident);
+  bool
+  hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int stmtNum, const std::string &ident);
 
-        bool hasAtLeastOneRelationship() override;
+  bool
+  hasRelationship(const SimpleProgram::DesignAbstraction &relationship, const std::string &lIdent,
+				  const std::string &rIdent);
 
-        bool getForwardRelationship() override;
+  bool hasAtLeastOneRelationship() override;
 
-        bool getReversedRelationship() override;
+  bool getForwardRelationship() override;
 
-        bool getLeftResults() override;
+  bool getReversedRelationship() override;
 
-        bool getSynonymWildcard() override;
+  bool getLeftResults() override;
 
-        bool getRightResults() override;
+  bool getSynonymWildcard() override;
 
-        bool getWildcardSynonym() override;
+  bool getRightResults() override;
 
-        bool getDoubleSynonym() override;
+  bool getWildcardSynonym() override;
 
-        std::vector<int> getUniqueKeys(const PQL::Synonym &syn);
+  bool getDoubleSynonym() override;
 
-        std::vector<std::string> getUniqueValues();
-    };
+  std::vector<int> getUniqueStmtNums(const PQL::Synonym &syn);
+
+  std::vector<std::string> getUniqueLeftProcNames();
+
+  std::vector<std::string> getUniqueLeftProcNames(const std::string &ident);
+
+  std::vector<std::string> getUniqueValues();
+};
 }

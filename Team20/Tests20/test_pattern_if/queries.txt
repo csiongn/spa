@@ -1,0 +1,85 @@
+1 - pattern if with 3 wildcards
+if ifs;
+Select ifs pattern ifs(_,_,_)
+4
+5000
+2.1 - pattern if with variable synonym, synonym matches variable found
+if ifs; variable x;
+Select ifs pattern ifs(x,_,_)
+4
+5000
+2.2 - pattern if with variable synonym, synonym does not match variable found
+if ifs; variable v;
+Select ifs pattern ifs(v,_,_)
+4
+5000
+3.1 - pattern if with quoted synonym, synonym does not match variable found
+if ifs;
+Select ifs pattern ifs("v",_,_)
+none
+5000
+3.2 - pattern if with quoted synonym, synonym name matches variable found
+if ifs;
+Select ifs pattern ifs("x",_,_)
+4
+5000
+3.3 - pattern if with quoted synonym, variable declared same as quoted variable
+if ifs; variable x;
+Select ifs pattern ifs("x",_,_)
+4
+5000
+4.1 - pattern if with constant, SyntaxError
+if ifs; while w; constant c;
+Select ifs pattern ifs(c,_,_)
+SemanticError
+5000
+4.2.1 - pattern if with non-underscore as second and third arguments - second constant
+if ifs; while w; constant c;
+Select ifs pattern ifs(_,c,_)
+SyntaxError
+5000
+4.2.2 - pattern if with non-underscore as second and third arguments - third constant
+if ifs; while w; constant c;
+Select ifs pattern ifs(_,_,c)
+SyntaxError
+5000
+4.2.3 - pattern if with non-underscore as second and third arguments - second variable synonym
+if ifs; while w; variable v;
+Select ifs pattern ifs(_,v,_)
+SyntaxError
+5000
+4.2.4 - pattern if with non-underscore as second and third arguments - third variable synonym
+if ifs; while w; variable v;
+Select ifs pattern ifs(_,_,v)
+SyntaxError
+5000
+4.2.5 - pattern if with non-underscore as second and third arguments - second variable quoted
+if ifs; while w;
+Select ifs pattern ifs(_,"x",_)
+SyntaxError
+5000
+4.2.6 - pattern if with non-underscore as second and third arguments - third variable quoted
+if ifs; while w;
+Select ifs pattern ifs(_,_,"x")
+SyntaxError
+5000
+5.1.1 - pattern if with such that follows is true
+if ifs;
+Select ifs pattern ifs(_,_,_) such that Parent(1, 2)
+4
+5000
+5.1.2 - pattern if with such that follows is false
+if ifs;
+Select ifs pattern ifs(_,_,_) such that Follows(2, 1)
+none
+5000
+5.2.1 - pattern if with such that if is not parent
+if ifs;
+Select ifs pattern ifs(_,_,_) such that Parent(ifs, 6)
+none
+5000
+5.2.2 - pattern if with such that if is parent
+if ifs;
+Select ifs pattern ifs(_,_,_) such that Parent(ifs, 5)
+4
+5000

@@ -10,20 +10,24 @@
 #include "ResultStore.h"
 
 namespace QueryEvaluator {
-    class QueryEvaluator {
-    public:
-        std::shared_ptr<ResultStore> resultStore;
-        std::shared_ptr<IPKBReader> reader;
+class QueryEvaluator {
+ public:
+  std::shared_ptr<ResultStore> resultStore;
+  std::shared_ptr<IPKBReader> reader;
 
-        QueryEvaluator(std::shared_ptr<IPKBReader> r);
+  explicit QueryEvaluator(std::shared_ptr<IPKBReader> r);
 
-        std::vector<std::string> evaluateQuery(const PQL::Query &q);
+  std::vector<std::string> evaluateQuery(const PQL::Query &q);
 
-    private:
-        bool evaluateClause(const PQL::Clause &clause);
+ private:
+  bool evaluateClause(const PQL::Clause &clause);
 
-        void initialiseDeclaration(const PQL::Query &q);
+  void initialiseDeclaration(const PQL::Query &q);
 
-        void addSynonymToStore(const PQL::Synonym &syn);
-    };
+  void addSynonymToStore(const PQL::Synonym &syn);
+
+  std::vector<std::string> getStringResults(const PQL::Synonym &syn) const;
+
+  std::vector<int> getIntResults(const PQL::Synonym &syn) const;
+};
 }

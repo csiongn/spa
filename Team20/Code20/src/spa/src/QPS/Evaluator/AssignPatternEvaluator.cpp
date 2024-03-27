@@ -1,342 +1,299 @@
 #include <unordered_set>
+#include <tuple>
+#include <vector>
+#include <string>
+#include <memory>
+#include <unordered_map>
 
 #include "AssignPatternEvaluator.h"
 #include "../Utils/ParseUtils.h"
 
 namespace QueryEvaluator {
 
-    bool AssignPatternEvaluator::evaluate() {
-        PQL::Synonym lArg = clause.arguments[1];
-        PQL::Synonym rArg = clause.arguments[2];
+bool AssignPatternEvaluator::evaluate() {
+  PQL::Synonym lArg = clause.arguments[1];
+  PQL::Synonym rArg = clause.arguments[2];
 
-        if (lArg.entityType == rArg.entityType && lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            // handles (_, _)
-            return hasAtLeastOneRelationship();
-        }
+  if (lArg.entityType == rArg.entityType && lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	// handles (_, _)
+	return hasAtLeastOneRelationship();
+  }
 
-        if (lArg.entityType == SimpleProgram::DesignEntity::VARIABLE) {
-            // Handles (VAR, EXPR), (VAR, PARTIAL_EXPR), (VAR, _)
-            return getForwardRelationship();
-        }
+  if (lArg.entityType == SimpleProgram::DesignEntity::VARIABLE) {
+	// Handles (VAR, EXPR), (VAR, PARTIAL_EXPR), (VAR, _)
+	return getForwardRelationship();
+  }
 
-        if (lArg.entityType == SimpleProgram::DesignEntity::IDENT) {
-            if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-                // (IDENT, _)
-                return hasAtLeastOneRelationship();
-            }
+  if (lArg.entityType == SimpleProgram::DesignEntity::IDENT) {
+	if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  // (IDENT, _)
+	  return hasAtLeastOneRelationship();
+	}
 
-            // Handles (IDENT, EXPR), (IDENT, PARTIAL_EXPR)
-            return hasRelationship();
-        }
+	// Handles (IDENT, EXPR), (IDENT, PARTIAL_EXPR)
+	return hasRelationship();
+  }
 
-        if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            // handles (_, EXPR), (_, PARTIAL_EXPR)
-            return hasAtLeastOneRelationship();
-        }
+  if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	// handles (_, EXPR), (_, PARTIAL_EXPR)
+	return hasAtLeastOneRelationship();
+  }
 
-        return false;
-    }
+  return false;
+}
 
-    bool AssignPatternEvaluator::isAlwaysFalse() {
-        // No always false case for assign pattern
-        return false;
-    }
+bool AssignPatternEvaluator::hasRelationship() {
+  // handles (IDENT, EXPR) & (IDENT, PARTIAL_EXPR)
+  PQL::Synonym assignSyn = clause.arguments[0];
+  PQL::Synonym lArg = clause.arguments[1];
+  PQL::Synonym rArg = clause.arguments[2];
 
-    bool AssignPatternEvaluator::hasRelationship() {
-        // handles (IDENT, EXPR) & (IDENT, PARTIAL_EXPR)
-        PQL::Synonym assignSyn = clause.arguments[0];
-        PQL::Synonym lArg = clause.arguments[1];
-        PQL::Synonym rArg = clause.arguments[2];
+  if (rArg.entityType == SimpleProgram::DesignEntity::EXPR) {
+	// (IDENT, EXPR)
+	return hasRelationship(lArg.identity, rArg.identity);
+  } else {
+	// (IDENT, PARTIAL_EXPR)
+	std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
+	std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
 
-        if (rArg.entityType == SimpleProgram::DesignEntity::EXPR) {
-            // (IDENT, EXPR)
-            return hasRelationship(lArg.identity, rArg.identity);
-        } else {
-            // (IDENT, PARTIAL_EXPR)
-            std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-            std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+	// get all partial expr nodes
+	std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
 
-            // get all partial expr nodes
-            std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
+	// use IDENT and partial expr nodes to get the related assign stmt nums
+	std::vector<int> assignSynResults = getAssignSynResults({lArg.identity}, partialExprNodes);
+	if (assignSynResults.empty()) {
+	  return false;
+	}
+	resultStore->createColumn(assignSyn, assignSynResults);
+	return true;
+  }
+}
 
-            // use IDENT and partial expr nodes to get the related assign stmt nums
-            std::vector<int> assignSynResults = getAssignSynResults({lArg.identity}, partialExprNodes);
-            if (assignSynResults.empty()) {
-                return false;
-            }
-            resultStore->createColumn(assignSyn, assignSynResults);
-            return true;
-        }
-    }
+bool AssignPatternEvaluator::hasRelationship(const std::string &ident, const std::string &expr) {
+  std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(expr);
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
+  std::vector<int> assignStmtNums = reader->getAssignPatternStmtNum(ident, exprNode->getHashValue());
 
-    bool AssignPatternEvaluator::hasRelationship(const std::string &ident, const std::string &expr) {
-        std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(expr);
-        std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
-        std::vector<int> assignStmtNums = reader->getAssignPatternStmtNum(ident, exprNode->getHashValue());
+  if (assignStmtNums.empty()) {
+	return false;
+  }
 
-        if (assignStmtNums.empty()) {
-            return false;
-        }
+  // add ASSIGN_SYN to result store
+  resultStore->createColumn(clause.arguments[0], assignStmtNums);
+  return true;
+}
 
-        // add ASSIGN_SYN to result store
-        resultStore->createColumn(clause.arguments[0], assignStmtNums);
-        return true;
-    }
+bool AssignPatternEvaluator::hasAtLeastOneRelationship() {
+  // handles (_, _) and (IDENT, _), (_, EXPR), (_, PARTIAL_EXPR)
+  PQL::Synonym assignSyn = clause.arguments[0];
+  PQL::Synonym lArg = clause.arguments[1];
+  PQL::Synonym rArg = clause.arguments[2];
 
-    bool AssignPatternEvaluator::hasAtLeastOneRelationship() {
-        // handles (_, _) and (IDENT, _), (_, EXPR), (_, PARTIAL_EXPR)
-        PQL::Synonym assignSyn = clause.arguments[0];
-        PQL::Synonym lArg = clause.arguments[1];
-        PQL::Synonym rArg = clause.arguments[2];
+  if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
+	std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
+	if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  // not adding ASSIGN_SYN to result store, result same as all assign statements
+	  // already added during initialise SYN in QueryEvaluator
+	  return reader->hasAssignPattern();
+	} else if (rArg.entityType == SimpleProgram::DesignEntity::EXPR) {
+	  // (_, EXPR)
+	  std::vector<int> assignStmtNums = reader->getAssignPatternRHSStmtNum(exprNode->getHashValue());
+	  if (assignStmtNums.empty()) {
+		return false;
+	  }
 
-        if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-            std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
-            if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-                // not adding ASSIGN_SYN to result store, result same as all assign statements
-                // already added during initialise SYN in QueryEvaluator
-                return !reader->getAllAssignStmtNum().empty();
-            } else if (rArg.entityType == SimpleProgram::DesignEntity::EXPR) {
-                // (_, EXPR)
-                std::vector<int> assignStmtNums = reader->getAssignPatternRHSStmtNum(exprNode->getHashValue());
-                if (assignStmtNums.empty()) {
-                    return false;
-                }
+	  resultStore->createColumn(assignSyn, assignStmtNums);
+	  return true;
+	} else {
+	  // (_, PARTIAL_EXPR)
+	  std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
 
-                resultStore->createColumn(assignSyn, assignStmtNums);
-                return true;
-            } else {
-                // (_, PARTIAL_EXPR)
-                std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
+	  std::unordered_set<int> assignStmtNumsSet;
+	  for (auto const &partialExprNode : partialExprNodes) {
+		std::vector<int> stmtNums = reader->getAssignPatternRHSStmtNum(partialExprNode->getHashValue());
+		assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
+	  }
 
-                std::unordered_set<int> assignStmtNumsSet;
-                for (auto const &partialExprNode: partialExprNodes) {
-                    std::vector<int> stmtNums = reader->getAssignPatternRHSStmtNum(partialExprNode->getHashValue());
-                    assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
-                }
+	  if (assignStmtNumsSet.empty()) {
+		return false;
+	  }
 
-                if (assignStmtNumsSet.empty()) {
-                    return false;
-                }
+	  std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
+	  resultStore->createColumn(assignSyn, assignSynResults);
+	  return true;
+	}
+  } else {
+	// (IDENT, _)
+	std::vector<int> assignStmtNums = reader->getAssignPatternLHSStmtNum(lArg.identity);
 
-                std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
-                resultStore->createColumn(assignSyn, assignSynResults);
-                return true;
-            }
-        } else {
-            // (IDENT, _)
-            std::vector<int> assignStmtNums = reader->getAssignPatternLHSStmtNum(lArg.identity);
+	if (assignStmtNums.empty()) {
+	  return false;
+	}
 
-            if (assignStmtNums.empty()) {
-                return false;
-            }
+	// add ASSIGN_SYN to result store
+	resultStore->createColumn(assignSyn, assignStmtNums);
+	return true;
+  }
+}
 
-            // add ASSIGN_SYN to result store
-            resultStore->createColumn(assignSyn, assignStmtNums);
-            return true;
-        }
-    }
+bool AssignPatternEvaluator::getForwardRelationship() {
+  // Handles (VAR, EXPR), (VAR, PARTIAL_EXPR), (VAR, _)
+  PQL::Synonym assignSyn = clause.arguments[0];
+  PQL::Synonym lArg = clause.arguments[1];
+  PQL::Synonym rArg = clause.arguments[2];
 
-    bool AssignPatternEvaluator::getForwardRelationship() {
-        // Handles (VAR, EXPR), (VAR, PARTIAL_EXPR), (VAR, _)
-        PQL::Synonym assignSyn = clause.arguments[0];
-        PQL::Synonym lArg = clause.arguments[1];
-        PQL::Synonym rArg = clause.arguments[2];
+  std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));;
+  if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	// (VAR, _)
+	return getSynonymWildcard();
+  } else {
+	// (VAR, EXPR), (VAR, PARTIAL_EXPR)
+	return getLeftResults();
+  }
+}
 
-        std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-        std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
-        if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-            // (VAR, _)
-            return getSynonymWildcard();
-        } else {
-            // (VAR, EXPR), (VAR, PARTIAL_EXPR)
-            return getLeftResults();
-        }
-    }
+bool AssignPatternEvaluator::getLeftResults() {
+  // (VAR, EXPR), (VAR, PARTIAL_EXPR)
+  PQL::Synonym assignSyn = clause.arguments[0];
+  PQL::Synonym lArg = clause.arguments[1];
+  PQL::Synonym rArg = clause.arguments[2];
 
-    bool AssignPatternEvaluator::getReversedRelationship() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
+  std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
+  std::shared_ptr<ExprNode> exprNode = ParseUtils::getExprNode(std::get<0>(tup));
 
-    bool AssignPatternEvaluator::getLeftResults() {
-        // (VAR, EXPR), (VAR, PARTIAL_EXPR)
-        PQL::Synonym assignSyn = clause.arguments[0];
-        PQL::Synonym lArg = clause.arguments[1];
-        PQL::Synonym rArg = clause.arguments[2];
+  if (std::get<1>(tup) && std::get<2>(tup)) {
+	// (VAR, PARTIAL_EXPR)
+	std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
 
-        std::tuple<std::string, bool, bool> tup = ParseUtils::parsePattern(rArg.identity);
-        std::shared_ptr<ExprNode> exprNode = std::make_shared<VariableNode>(std::get<0>(tup));
+	// use the partialExprNodes to get all VAR
+	std::vector<std::string> lResults = getAllAssignVar(partialExprNodes);
 
-        if (std::get<1>(tup) && std::get<2>(tup)) {
-            // (VAR, PARTIAL_EXPR)
-            std::vector<std::shared_ptr<ExprNode>> partialExprNodes = getAllPartialNodes(exprNode);
+	if (lResults.empty()) {
+	  return false;
+	}
 
-            // use the partialExprNodes to get all VAR
-            std::vector<std::string> lResults = getAllAssignVar(partialExprNodes);
+	std::vector<std::vector<std::string>> table = {{}, {}};
+	std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
+	std::unordered_map<std::string, size_t> colNameToIndex;
+	for (size_t i = 0; i < colNames.size(); i++) {
+	  colNameToIndex[colNames[i]] = i;
+	}
+	Result newResult{table, colNames, colNameToIndex};
 
-            if (lResults.empty()) {
-                return false;
-            }
+	std::unordered_set<int> assignStmtNumsSet;
+	for (auto const &var : lResults) {
+	  for (auto const &node : partialExprNodes) {
+		std::vector<int> stmtNums = reader->getAssignPatternStmtNum(var, node->getHashValue());
+		for (int stmtNum : stmtNums) {
+		  newResult.addRow({std::to_string(stmtNum), var});
+		}
+	  }
+	}
 
-            std::vector<std::vector<std::string>> table = {{}, {}};
-            std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
-            std::unordered_map<std::string, size_t> colNameToIndex;
-            for (size_t i = 0; i < colNames.size(); i++) {
-                colNameToIndex[colNames[i]] = i;
-            }
-            Result newResult{table, colNames, colNameToIndex};
+	resultStore->insertResult(std::make_shared<Result>(newResult));
+	return true;
+  } else {
+	// (VAR, EXPR)
+	std::vector<std::string> lResults = reader->getAssignPatternLHS(exprNode->getHashValue());
+	if (lResults.empty()) {
+	  return false;
+	}
 
+	// add VAR_SYN to result store
+	resultStore->createColumn(lArg, lResults);
 
-            std::unordered_set<int> assignStmtNumsSet;
-            for (auto const &var: lResults) {
-                for (auto const &node: partialExprNodes) {
-                    std::vector<int> stmtNums = reader->getAssignPatternStmtNum(var, node->getHashValue());
-                    for (int stmtNum: stmtNums) {
-                        newResult.addRow({std::to_string(stmtNum), var});
-                    }
-                }
-            }
+	// add ASSIGN_SYN to result store
+	std::vector<int> assignSynResults = getAssignSynResults(lResults, {exprNode});
+	resultStore->createColumn(assignSyn, assignSynResults);
+	return true;
+  }
+}
 
-            resultStore->insertResult(std::make_shared<Result>(newResult));
-            return true;
-        } else {
-            // (VAR, EXPR)
-            std::vector<std::string> lResults = reader->getAssignPatternLHS(exprNode->getHashValue());
-            if (lResults.empty()) {
-                return false;
-            }
+bool AssignPatternEvaluator::getSynonymWildcard() {
+  // Handles (VAR, _)
+  PQL::Synonym assignSyn = clause.arguments[0];
+  PQL::Synonym lArg = clause.arguments[1];
 
-            // add VAR_SYN to result store
-            resultStore->createColumn(lArg, lResults);
+  std::vector<std::string> lResults = reader->getAssignPatternLHS();
+  if (lResults.empty()) {
+	return false;
+  }
 
-            // add ASSIGN_SYN to result store
-            std::vector<int> assignSynResults = getAssignSynResults(lResults, {exprNode});
-            resultStore->createColumn(assignSyn, assignSynResults);
-            return true;
-        }
-    }
+  std::vector<std::vector<std::string>> table = {{}, {}};
+  std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
+  std::unordered_map<std::string, size_t> colNameToIndex;
+  for (size_t i = 0; i < colNames.size(); i++) {
+	colNameToIndex[colNames[i]] = i;
+  }
+  Result newResult{table, colNames, colNameToIndex};
 
-    bool AssignPatternEvaluator::getSynonymWildcard() {
-        // Handles (VAR, _)
-        PQL::Synonym assignSyn = clause.arguments[0];
-        PQL::Synonym lArg = clause.arguments[1];
+  for (auto const &var : lResults) {
+	std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
+	for (int stmtNum : stmtNums) {
+	  newResult.addRow({std::to_string(stmtNum), var});
+	}
+  }
 
-        std::vector<std::string> lResults = reader->getAssignPatternLHS();
-        if (lResults.empty()) {
-            return false;
-        }
+  resultStore->insertResult(std::make_shared<Result>(newResult));
+  return true;
+}
 
-        std::vector<std::vector<std::string>> table = {{}, {}};
-        std::vector<std::string> colNames = {assignSyn.identity, lArg.identity};
-        std::unordered_map<std::string, size_t> colNameToIndex;
-        for (size_t i = 0; i < colNames.size(); i++) {
-            colNameToIndex[colNames[i]] = i;
-        }
-        Result newResult{table, colNames, colNameToIndex};
+std::vector<std::shared_ptr<ExprNode>> AssignPatternEvaluator::getAllPartialNodes(const std::shared_ptr<ExprNode> &exprNode) {
+  // get all RHS
+  std::vector<size_t> allHashes = reader->getAssignPatternRHS();
 
-        std::unordered_set<int> assignStmtNumsSet;
-        for (auto const &var: lResults) {
-            std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
-            for (int stmtNum: stmtNums) {
-                newResult.addRow({std::to_string(stmtNum), var});
-            }
-        }
+  // use all RHS to get all nodes
+  std::vector<std::shared_ptr<ExprNode>> allNodes;
+  for (auto const &hash : allHashes) {
+	std::vector<std::shared_ptr<ExprNode>> nodes = reader->getAssignPatternRHSExprNodePtr(hash);
+	allNodes.reserve(allNodes.size() + nodes.size());
+	allNodes.insert(allNodes.end(), nodes.begin(), nodes.end());
+  }
 
-        resultStore->insertResult(std::make_shared<Result>(newResult));
-        return true;
+  // filter nodes to only those that contains the partial expr
+  std::vector<std::shared_ptr<ExprNode>> filteredNodes;
+  filteredNodes.reserve(allNodes.size());
+  for (auto const &node : allNodes) {
+	if (node->containsSubtree(*(exprNode))) {
+	  filteredNodes.push_back(node);
+	}
+  }
 
-//        PQL::Synonym assignSyn = clause.arguments[0];
-//        PQL::Synonym lArg = clause.arguments[1];
-//
-//        std::vector<std::string> lResults = reader->getAssignPatternLHS();
-//        if (lResults.empty()) {
-//            return false;
-//        }
-//
-//        // add all variable syn to result store
-//        resultStore->createColumn(lArg, lResults);
-//
-//        // add ASSIGN_SYN to result store
-//        std::unordered_set<int> assignStmtNumsSet;
-//        for (auto const &var: lResults) {
-//            std::vector<int> stmtNums = reader->getAssignPatternLHSStmtNum(var);
-//            assignStmtNumsSet.insert(stmtNums.begin(), stmtNums.end());
-//        }
-//
-//        std::vector<int> assignSynResults{assignStmtNumsSet.begin(), assignStmtNumsSet.end()};
-//        resultStore->createColumn(assignSyn, assignSynResults);
-//        return true;
-    }
+  return filteredNodes;
+}
 
-    bool AssignPatternEvaluator::getRightResults() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
+std::vector<std::string> AssignPatternEvaluator::getAllAssignVar(const std::vector<std::shared_ptr<ExprNode>> &nodes) {
+  std::unordered_set<std::string> varSet;
+  for (auto const &node : nodes) {
+	std::vector<std::string> leftVars = reader->getAssignPatternLHS(node->getHashValue());
+	varSet.reserve(varSet.size() + leftVars.size());
+	varSet.insert(leftVars.begin(), leftVars.end());
+  }
 
-    bool AssignPatternEvaluator::getWildcardSynonym() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
+  std::vector<std::string> vars;
+  vars.reserve(varSet.size());
+  vars.insert(vars.end(), varSet.begin(), varSet.end());
+  return vars;
+}
 
-    bool AssignPatternEvaluator::getDoubleSynonym() {
-        // No RIGHT SYN for assign pattern
-        return false;
-    }
+std::vector<int> AssignPatternEvaluator::getAssignSynResults(const std::vector<std::string> &vars,
+															 const std::vector<std::shared_ptr<ExprNode>> &exprNodes) {
+  std::unordered_set<int> assignSynResultsSet;
+  for (auto const &var : vars) {
+	for (auto const &exprNode : exprNodes) {
+	  std::vector<int> assignStmtNums = reader->getAssignPatternStmtNum(var, exprNode->getHashValue());
+	  assignSynResultsSet.reserve(assignSynResultsSet.size() + assignStmtNums.size());
+	  assignSynResultsSet.insert(assignStmtNums.begin(), assignStmtNums.end());
+	}
+  }
 
-    std::vector<std::shared_ptr<ExprNode>> AssignPatternEvaluator::getAllPartialNodes(const std::shared_ptr<ExprNode> &exprNode) {
-        // get all RHS
-        std::vector<size_t> allHashes = reader->getAssignPatternRHS();
+  // add ASSIGN_SYN to result store
+  std::vector<int> assignSynResults;
+  assignSynResults.reserve(assignSynResultsSet.size());
+  assignSynResults.insert(assignSynResults.end(), assignSynResultsSet.begin(), assignSynResultsSet.end());
 
-        // use all RHS to get all nodes
-        std::vector<std::shared_ptr<ExprNode>> allNodes;
-        for (auto const &hash: allHashes) {
-            std::vector<std::shared_ptr<ExprNode>> nodes = reader->getAssignPatternRHSExprNodePtr(hash);
-            allNodes.reserve(allNodes.size() + nodes.size());
-            allNodes.insert(allNodes.end(), nodes.begin(), nodes.end());
-        }
-
-        // filter nodes to only those that contains the partial expr
-        std::vector<std::shared_ptr<ExprNode>> filteredNodes;
-        filteredNodes.reserve(allNodes.size());
-        for (auto const &node: allNodes) {
-            if (node->containsSubtree(*(exprNode))) {
-                filteredNodes.push_back(node);
-            }
-        }
-
-        return filteredNodes;
-    }
-
-    std::vector<std::string> AssignPatternEvaluator::getAllAssignVar(const std::vector<std::shared_ptr<ExprNode>> &nodes) {
-        std::unordered_set<std::string> varSet;
-        for (auto const &node: nodes) {
-            std::vector<std::string> leftVars = reader->getAssignPatternLHS(node->getHashValue());
-            varSet.reserve(varSet.size() + leftVars.size());
-            varSet.insert(leftVars.begin(), leftVars.end());
-        }
-
-        std::vector<std::string> vars;
-        vars.reserve(varSet.size());
-        vars.insert(vars.end(), varSet.begin(), varSet.end());
-        return vars;
-    }
-
-    std::vector<int> AssignPatternEvaluator::getAssignSynResults(const std::vector<std::string>& vars, const std::vector<std::shared_ptr<ExprNode>>& exprNodes) {
-        std::unordered_set<int> assignSynResultsSet;
-        for (auto const &var: vars) {
-            for (auto const &exprNode: exprNodes) {
-                std::vector<int> assignStmtNums = reader->getAssignPatternStmtNum(var, exprNode->getHashValue());
-                assignSynResultsSet.reserve(assignSynResultsSet.size() + assignStmtNums.size());
-                assignSynResultsSet.insert(assignStmtNums.begin(), assignStmtNums.end());
-            }
-        }
-
-        // add ASSIGN_SYN to result store
-        std::vector<int> assignSynResults;
-        assignSynResults.reserve(assignSynResultsSet.size());
-        assignSynResults.insert(assignSynResults.end(), assignSynResultsSet.begin(), assignSynResultsSet.end());
-
-        return assignSynResults;
-    }
+  return assignSynResults;
+}
 }

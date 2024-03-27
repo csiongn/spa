@@ -1,187 +1,301 @@
-#include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include <memory>
+#include <unordered_map>
+
 #include "QueryTokenizer.h"
 #include "QueryToken.h"
 #include "QuerySyntaxError.h"
+#include "../Models/Constants.h"
 
 // tokenize using each character in string
 std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::string &query) {
-    std::vector<std::shared_ptr<QueryToken>> queryTokens;
-    auto iss = std::istringstream(query);
-    // read from stream directly instead of line by line splitted by whitespace
-    // peek and get returns int, so we need to cast to char
-    char nextChar = static_cast<char>(iss.peek());
-    bool isApostropheOpen = false;
-    std::string currentStr;
-    bool hasSpaceinApostrophe = false;
-    while (nextChar != EOF) {
-        // while nextChar is still a character, continue to get NAME type
-        if (!currentStr.empty()) {
-            // check if invalid string, throw error
-            if (isAlpha(currentStr) && isCharNumeric(currentStr[0])) {
-                throw QuerySyntaxError("Syntax Error for the following token: " + currentStr);
-            }
-        }
-        // isWhitespace, currenStr is alnum, and nextChar is char invalid token
-        // if nextChar is whitespace, skip
-        if (nextChar == ' ' || nextChar == '\n' || nextChar == '\t') {
-            // if current string is non empty, follows NAME rule, add to tokens, and apostrophe must not be open
-            // Add currentStr as NAME token and clear
-            if (!isApostropheOpen) {
-
-                if (!currentStr.empty()) {
-                    queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr));
-                    currentStr.clear();
-                }
-            } else {
-                hasSpaceinApostrophe = true;
-            }
-            // continue on, currentStr may continue to be added
-            iss.get(); // remove from stream
-            nextChar = static_cast<char>(iss.peek());
-            continue;
-        } else if (nextChar == '"' && isApostropheOpen) {
-            isApostropheOpen = !isApostropheOpen;
-
-            if (!currentStr.empty()) {
-                // check if want to do constant_string or expression tokens
-                if (containsFactorSpecialChar(currentStr)) {
-                    // use currentStr and iterate through each character to store
-                    for (char c : currentStr) {
-                        if (isCharFactorSpecialChar(c)) {
-                            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::SPECIAL_CHARACTER, std::string(1, c)));
-                        } else {
-                            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, std::string(1, c)));
-                        }
-                    }
-                    currentStr.clear();
-                    hasSpaceinApostrophe = false;
-                } else if (hasSpaceinApostrophe) {
-                    throw QuerySyntaxError("Syntax Error for the following token: " + currentStr);
-                } else {
-                    queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::CONSTANT_STRING, currentStr));
-                    currentStr.clear();
-                }
-            }
-            // move on
-            iss.get(); // remove from stream
-            nextChar = static_cast<char>(iss.peek());
-
-        } else if (nextChar == '"' && !isApostropheOpen) {
-            isApostropheOpen = !isApostropheOpen;
-            iss.get(); // remove from stream
-            nextChar = static_cast<char>(iss.peek());
-        } else if (isApostropheOpen) {
-            // check if character in string is invalid, throw error
-            currentStr += nextChar;
-            iss.get();
-            nextChar = static_cast<char>(iss.peek());
-            continue;
-        } else if (isCharStar(nextChar)) {
-            // Follows*
-            if (!currentStr.empty()) {
-                currentStr += nextChar;
-                queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr));
-                currentStr.clear();
-            }
-            iss.get();
-            nextChar = static_cast<char>(iss.peek());
-            continue;
-        } else if (nextChar == '_') {
-            // shouldnt need to care about string before and after, will be handled
-            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::WILDCARD, "_"));
-            iss.get();
-            nextChar = static_cast<char>(iss.peek());
-            continue;
-        } else if (isCharSpecialChar(nextChar)) {
-            // if current string is non empty, follow NAME rule, add to tokens, and apostrophe must not be open
-            if (!currentStr.empty() && isNum(currentStr)) {
-                queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::INTEGER, currentStr)); // string or name
-                currentStr.clear();
-            } else if (!currentStr.empty() && !isCharNumeric(currentStr[0]) && (isAlphanumeric(currentStr) || isAlpha(currentStr))) {
-                queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr)); // string or name
-                currentStr.clear();
-            }
-            queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::SPECIAL_CHARACTER, std::string(1, nextChar)));
-            iss.get();
-            nextChar = static_cast<char>(iss.peek());
-            continue;
-        } else if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
-            currentStr += nextChar;
-            iss.get();
-            nextChar = static_cast<char>(iss.peek());
-        } else {
-            throw QuerySyntaxError("Syntax Error for the following token: " + nextChar);
-        }
-    }
-
-    // if current char is EOF, add remaining string if any
-    if (!currentStr.empty()) {
-        queryTokens.emplace_back(std::make_shared<QueryToken>(TokenType::NAME, currentStr));
-    }
-
-    return queryTokens;
+  iss = std::make_shared<std::istringstream>(query);
+  auto nextChar = peekChar();
+  std::string currentStr;
+  // Condition remains the same as long as nextChar is not EOF
+  while (nextChar != EOF) {
+	// while nextChar is still a character, continue to get NAME type
+	if (!currentStr.empty() && !isValidIDENT(currentStr)) {
+	  // check if invalid string, throw error
+	  throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
+	}
+	// Process string within apostrophe
+	if (nextChar == Constants::SpecialCharacters::QUOTE) {
+	  processApostrophe(); // until apostrophe is closed
+	} else if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
+	  processAttribute(currentStr);
+	  currentStr.clear();
+	} else if (nextChar == Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
+	  processTuple();
+	} else if (isCharWhitespace(nextChar)) {
+	  if (!currentStr.empty()) {
+		processString(currentStr);
+		currentStr.clear();
+	  }
+	} else if (isCharStar(nextChar)) {
+	  processStar(currentStr);
+	  currentStr.clear();
+	} else if (nextChar == Constants::SpecialCharacters::UNDERSCORE) {
+	  processWildcard();
+	} else if (isCharSeparator(nextChar)) {
+	  // Process Separator character
+	  processSeparator(currentStr, nextChar);
+	  currentStr.clear();
+	} else if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
+	  currentStr += nextChar;
+	} else {
+	  throw QuerySyntaxError("Syntax Error for the Invalid token: " + std::string(1, nextChar));
+	}
+	removeChar();
+	nextChar = peekChar();
+  }
+  // Reach EOF
+  // if current char is EOF, add remaining string if any
+  if (!currentStr.empty()) {
+	processString(currentStr);
+	currentStr.clear();
+  }
+  return queryTokens;
 }
 
-
-bool QueryTokenizer::startsWithLetter(const std::string& str) const {
-    if (str.empty()) {
-        return false;
-    }
-    return std::isalpha(str[0]) != 0;
+bool QueryTokenizer::isAlpha(const std::string &str) const {
+  return std::all_of(str.begin(), str.end(), [](char c) { return std::isalpha(static_cast<unsigned char>(c)); });
 }
 
-bool QueryTokenizer::isAlpha(const std::string& str) const {
-    return std::all_of(str.begin(), str.end(), [](char c){ return std::isalpha(static_cast<unsigned char>(c)); });
+bool QueryTokenizer::isNum(const std::string &str) const {
+  return std::all_of(str.begin(), str.end(), [](char c) { return std::isdigit(static_cast<unsigned char>(c)); });
 }
 
-bool QueryTokenizer::isNum(const std::string& str) const {
-    return std::all_of(str.begin(), str.end(), [](char c){ return std::isdigit(static_cast<unsigned char>(c)); });
+bool QueryTokenizer::isAlphanumeric(const std::string &str) const {
+  bool hasAlpha = std::any_of(str.begin(), str.end(), ::isalpha);
+  bool hasDigit = std::any_of(str.begin(), str.end(), ::isdigit);
+  return hasAlpha && hasDigit;
 }
 
-bool QueryTokenizer::isAlphanumeric(const std::string& str) const {
-    bool hasAlpha = std::any_of(str.begin(), str.end(), ::isalpha);
-    bool hasDigit = std::any_of(str.begin(), str.end(), ::isdigit);
-    return hasAlpha && hasDigit;
+bool QueryTokenizer::isNotAlphanumeric(const std::string &str) const {
+  bool hasNonAlphaNonDigit = std::any_of(str.begin(), str.end(), [](char c) {
+	return !std::isalpha(static_cast<unsigned char>(c)) && !std::isdigit(static_cast<unsigned char>(c));
+  });
+  return hasNonAlphaNonDigit;
 }
 
-bool QueryTokenizer::isCharNumeric(char& c) const {
-    return std::isdigit(static_cast<unsigned char>(c)) != 0;
+bool QueryTokenizer::isCharNumeric(char &c) const {
+  return std::isdigit(static_cast<unsigned char>(c)) != 0;
 }
 
-bool QueryTokenizer::isCharAlpha(char& c) const {
-    return std::isalpha(static_cast<unsigned char>(c)) != 0;
+bool QueryTokenizer::isCharAlpha(char &c) const {
+  return std::isalpha(static_cast<unsigned char>(c)) != 0;
 }
 
-bool QueryTokenizer::isCharSpecialChar(char& c) const {
-    return c == '_' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')' || c == '*' || c == ',' || c == ';';
+bool QueryTokenizer::isCharSeparator(char &c) const {
+  return Constants::SpecialCharacters::SEPARATOR_CHARACTERS.find(c)
+	  != Constants::SpecialCharacters::SEPARATOR_CHARACTERS.end();
 }
 
-bool QueryTokenizer::isCharFactorSpecialChar(char& c) const {
-    return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
+bool QueryTokenizer::isCharFactor(char &c) const {
+  return Constants::SpecialCharacters::FACTOR_CHARACTERS.find(c)
+	  != Constants::SpecialCharacters::FACTOR_CHARACTERS.end();
 }
 
-bool QueryTokenizer::isCharStar(char& c) const {
-    return c == '*';
+bool QueryTokenizer::isCharStar(char &c) const {
+  return c == Constants::SpecialCharacters::STAR;
 }
 
-bool QueryTokenizer::isCharWhitespace(char& c) const {
-    return c == ' ';
+bool QueryTokenizer::isCharWhitespace(char &c) const {
+  return Constants::SpecialCharacters::WHITESPACE_CHARACTERS.find(c)
+	  != Constants::SpecialCharacters::FACTOR_CHARACTERS.end();
 }
 
-bool QueryTokenizer::containsSpecialChar(const std::string &str) const {
-    // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
-    return std::any_of(str.begin(), str.end(), [](char c) {
-        return c == '_' || c == '*' || c == '/' || c == '%' || c == '-' || c == '+' || c == '(' || c == ')' || c == ',' || c == ';';
-    });
+bool QueryTokenizer::containsFactor(const std::string &str) const {
+  // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
+  return std::any_of(str.begin(), str.end(), [this](char c) {
+	return isCharFactor(c);
+  });
 }
 
-bool QueryTokenizer::containsFactorSpecialChar(const std::string &str) const {
-    // check if str contain special character like \n, ' ', '_', '*', '/', '%', '-', '+', '(' , ')', ','
-    return std::any_of(str.begin(), str.end(), [](char c) {
-        return c == '*' || c == '/' || c == '%' || c == '-' || c == '+';
-    });
+// Cannot start with number
+bool QueryTokenizer::isValidIDENT(std::string &str) const {
+  if (isAlphanumeric(str) && isCharNumeric(str[0])) {
+	return false;
+  }
+  // IDENT cannot contain special characters, return that only contains digits or letters
+  if (isNotAlphanumeric(str)) {
+	return false;
+  }
+  return true;
+}
+
+char QueryTokenizer::isStreamEmpty() const {
+  return iss->peek() == EOF;
+}
+
+char QueryTokenizer::peekChar() const {
+  if (isStreamEmpty()) {
+	return EOF;
+  }
+  return static_cast<char>(iss->peek());
+}
+
+void QueryTokenizer::removeChar() const {
+  if (isStreamEmpty()) {
+	return;
+  }
+  iss->get();
+}
+
+void QueryTokenizer::addToken(const std::shared_ptr<QueryToken> &queryToken) {
+  queryTokens.push_back(queryToken);
+}
+
+// Called when apostrophe is open, and will continue to read until apostrophe is closed
+void QueryTokenizer::processApostrophe() {
+  // Remove opening apostrophe
+  removeChar();
+  char nextChar = peekChar();
+  std::string currentStr;
+  while (nextChar != '"') {
+	if (isCharWhitespace(nextChar)) {
+	  removeChar();
+	  nextChar = peekChar();
+
+	  if (!currentStr.empty() && !containsFactor(currentStr)) {
+		// after space is not factor special characters, throw error
+		if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
+		  throw QuerySyntaxError(
+			  "Syntax Error: Invalid space within apostrophe expression: " + std::string(1, nextChar));
+		}
+	  }
+	} else {
+	  currentStr += nextChar;
+	  removeChar();
+	  nextChar = peekChar();
+	}
+  }
+
+  if (!currentStr.empty()) {
+	// check if want to do constant_string or expression tokens
+	// Need to check for invalid expression special character
+	if (isNotAlphanumeric(currentStr)) {
+	  // Means this is an expression most likely
+	  std::string currExprStr = "";
+	  for (char c : currentStr) {
+		if (isCharNumeric(c) || isCharAlpha(c) || isCharFactor(c)) {
+		  currExprStr += c;
+		} else {
+		  // Unsupported char within apostrophe for expression
+		  throw QuerySyntaxError(
+			  "Syntax Error: Invalid character within apostrophe expression: " + std::string(1, c));
+		}
+	  }
+	  addToken(std::make_shared<QueryToken>(QPS::TokenType::EXPRESSION, currExprStr));
+	  currentStr.clear();
+	} else {
+	  // Not an expression but a single token, cant check if valid IDENT or NAME or INTEGER here(valid var_name, const_value)
+	  if (isValidIDENT(currentStr) || isNum(currentStr) || isAlpha(currentStr)) {
+		addToken(std::make_shared<QueryToken>(QPS::TokenType::CONSTANT_STRING, currentStr));
+		currentStr.clear();
+	  } else {
+		throw QuerySyntaxError("Syntax Error: Invalid IDENT within apostrophe: " + currentStr);
+	  }
+	}
+  }
+}
+
+void QueryTokenizer::processStar(std::string currentStr) {
+  // if current string is non empty, follows NAME rule, add to tokens, and apostrophe must not be open
+  if (!currentStr.empty()) {
+	currentStr += Constants::SpecialCharacters::STAR;
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
+	currentStr.clear();
+  } else if (currentStr.empty()) {
+	throw QuerySyntaxError("Syntax Error for the following star token after empty string: *");
+  }
+}
+
+void QueryTokenizer::processWildcard() {
+  addToken(std::make_shared<QueryToken>(QPS::TokenType::WILDCARD, "_"));
+}
+
+void QueryTokenizer::processSeparator(std::string currentStr, char separatorChar) {
+
+  if (!currentStr.empty() && isNum(currentStr)) {
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr)); // string or name
+	// isValidIDENT
+  } else if (!currentStr.empty() && isValidIDENT(currentStr)) {
+	// Cannot start with number, must adhere to IDENT
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr)); // string or name
+  }
+  addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+}
+
+void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std::string attributeType) {
+  std::unordered_map<std::string, QPS::TokenType> attributeValueMap = {
+	  {"stmt#", QPS::TokenType::ATTRIBUTE_VALUE},
+	  {"procName", QPS::TokenType::ATTRIBUTE_NAME},
+	  {"varName", QPS::TokenType::ATTRIBUTE_NAME},
+	  {"value", QPS::TokenType::ATTRIBUTE_CONSTANT}
+  };
+  std::string attributeTokenValue = currentAttributeStr + attributeType;
+  if (attributeValueMap.find(attributeType) == attributeValueMap.end()) {
+	throw QuerySyntaxError("Syntax Error: Invalid attribute type: " + attributeType);
+  }
+  addToken(std::make_shared<QueryToken>(attributeValueMap[attributeType], attributeTokenValue));
+}
+
+void QueryTokenizer::processAttribute(std::string currentStr) {
+  std::string currAttributeString = currentStr;
+  std::string currAttributeValue = "";
+  // Process until whitespace
+  auto nextChar = peekChar();
+  if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
+	currAttributeString += nextChar;
+	removeChar();
+  }
+
+  nextChar = peekChar();
+  // Getting attribute field value, unable to validate syntax
+  while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF) {
+	currAttributeValue += nextChar;
+	removeChar();
+	nextChar = peekChar();
+  }
+  processAttributeToken(currAttributeString, currAttributeValue);
+  return;
+}
+
+void QueryTokenizer::processTuple() {
+  // Process from < to >
+  std::string currentStr;
+  // start from <
+  auto nextChar = peekChar();
+  currentStr += nextChar;
+  removeChar();
+  nextChar = peekChar();
+  while (nextChar != Constants::SpecialCharacters::RIGHT_ANGLE_BRACKET) {
+	// Not whitespace
+	if (Constants::SpecialCharacters::WHITESPACE_CHARACTERS.find(nextChar)
+		== Constants::SpecialCharacters::WHITESPACE_CHARACTERS.end()) {
+	  currentStr += nextChar;
+	}
+	removeChar();
+	nextChar = peekChar();
+  }
+  // Add right angle bracket
+  currentStr += nextChar;
+  addToken(std::make_shared<QueryToken>(QPS::TokenType::TUPLE, currentStr));
+  return;
+}
+
+void QueryTokenizer::processString(std::string currentStr) {
+  if (isNum(currentStr) && !currentStr.empty()) {
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr));
+  } else if (isValidIDENT(currentStr)) {
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
+  } else {
+	throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
+  }
+  return;
 }

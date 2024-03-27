@@ -2,5 +2,5 @@
 
 #include "RelationshipManager.h"
 
-class FollowsTManager: public RelationshipManager<int, int> {
+class FollowsTManager : public RelationshipManager<int, int> {
 };

@@ -3,5 +3,5 @@
 #include "EntityManager.h"
 
 // stmtRef
-class PrintManager: public EntityManager<int> {
+class PrintManager : public EntityManager<int> {
 };

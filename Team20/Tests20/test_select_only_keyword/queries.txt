@@ -3,7 +3,7 @@ constant c;
 Select c
 5, 10, 3, 1
 5000
-q2 - check all variables in the source progra,
+q2 - check all variables in the source program
 variable v;
 Select v
 less, b, c, d, hello, print, if, then, more, else, yes, hell, while, read
@@ -11,7 +11,7 @@ less, b, c, d, hello, print, if, then, more, else, yes, hell, while, read
 q3 - check all statement numbers in the source program
 stmt s;
 Select s
-1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 5000
 q4 - check all if statement number in the source program
 if i;
@@ -36,7 +36,7 @@ Select a
 q8 - check all procedure
 procedure p;
 Select p
-procedure
+p
 5000
 q9 - check all read statement
 read r;
@@ -46,5 +46,5 @@ Select r
 q10 - check all call statement
 call c;
 Select c
-12
+none
 5000

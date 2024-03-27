@@ -1,0 +1,101 @@
+1.1 - Modifies (stmt, v)
+variable v;
+Select v such that Modifies(7, v)
+east, x, y
+5000
+1.2.1 - Modifies (read, IDENT)
+read re;
+Select re such that Modifies(re, "y")
+none
+5000
+1.2.2 - Modifies (read, IDENT)
+read re;
+Select re such that Modifies(re, "x")
+16
+5000
+1.3.1 - Modifies (s, IDENT)
+stmt s;
+Select s such that Modifies(s, "y")
+3, 7, 9, 12
+5000
+1.3.2 - Modifies (s, _)
+stmt s;
+Select s such that Modifies(s, _)
+2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16
+5000
+1.4 - Modifies (a, IDENT)
+assign a;
+Select a such that Modifies(a, "y")
+3, 12
+5000
+1.5.1 - Modifies (w, IDENT) - while first arg type
+while w;
+Select w such that Modifies(w, "east")
+7
+5000
+1.5.2 - Modifies (w, v) - while first arg type
+while w; variable v;
+Select w such that Modifies(w, v)
+7
+5000
+1.5.3 - Modifies (w, _) - while first arg type
+while w;
+Select w such that Modifies(w, _)
+7
+5000
+1.6.1 - Modifies (if, IDENT) - if first arg type
+if if;
+Select if such that Modifies(if, "east")
+9
+5000
+1.6.2 - Modifies (if, v)
+if if; variable v;
+Select if such that Modifies(if, v)
+9
+5000
+1.6.3 - Modifies (if, _)
+if if; variable v;
+Select if such that Modifies(if, v)
+9
+5000
+1.7.1 - Modifies (c, _)
+call c;
+Select c such that Modifies(c, _)
+none
+5000
+1.7.2 - Modifies (c, IDENT)
+call c;
+Select c such that Modifies(c, "east")
+none
+5000
+1.7.3 - Modifies (c, v)
+call c; variable v;
+Select c such that Modifies(c, v)
+none
+5000
+2.1 - Modifies (v, v) - incorrect first arg type
+variable v;
+Select v such that Modifies(v, "east")
+SemanticError
+5000
+2.2 - Modifies (pn, v) - incorrect first arg type
+print pn; assign a;
+Select a such that Modifies(pn, "east")
+none
+5000
+2.3 - Modifies (_, _)
+stmt s;
+Select s such that Modifies(_, _)
+none
+5000
+2.4 - Modifies (_, v)
+stmt s; variable v;
+Select s such that Modifies(_, v)
+none
+5000
+2.5 - Modifies with undeclared synonym
+stmt s;
+Select s such that Modifies(s2, _)
+none
+5000
+
