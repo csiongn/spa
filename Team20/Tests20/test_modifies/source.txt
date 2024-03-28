@@ -1,0 +1,19 @@
+procedure Bedok {
+    print east;  
+    west = 9 + east; 
+    y = east - 4; 
+    v = west + 2; 
+    print Yishun; 
+    west = 9 + x * y * v + west; 
+    while (east < 0) { 
+        x = v - east; 
+        if (east > x) then { 
+            x = x + 1;  
+            east = v - 9 + (x * y) * v; } 
+          else { 
+           y = east * y * v; 
+           print Yishun; }} 
+   west = 9 + v * x * y + west; 
+   print west; 
+   read x;
+   } 

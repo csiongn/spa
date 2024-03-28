@@ -103,8 +103,8 @@ class DesignExtractor {
   std::unordered_set<int> stmts;
   std::unordered_set<int> assignStmts;
   std::unordered_map<int, std::string> callStmts;
-  std::unordered_set<int> readStmts;
-  std::unordered_set<int> printStmts;
+  std::unordered_map<int, std::string> readStmts;
+  std::unordered_map<int, std::string> printStmts;
   std::unordered_map<int, std::unordered_set<std::string>> ifStmts;
   std::unordered_map<int, std::unordered_set<std::string>> whileStmts;
 
@@ -137,8 +137,8 @@ class DesignExtractor {
   void insertAssign(const int stmtNum);
   void insertCall(const int stmtNum);
   void insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables);
-  void insertRead(const int stmtNum);
-  void insertPrint(const int stmtNum);
+  void insertRead(const int stmtNum, const std::string& variable);
+  void insertPrint(const int stmtNum, const std::string& variable);
   void insertWhile(const int stmtNum, std::unordered_set<std::string> controlVariables);
 
   void pushToPKB();
