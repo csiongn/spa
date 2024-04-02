@@ -106,7 +106,7 @@ bool QueryTokenizer::isCharStar(char &c) const {
 
 bool QueryTokenizer::isCharWhitespace(char &c) const {
   return Constants::SpecialCharacters::WHITESPACE_CHARACTERS.find(c)
-	  != Constants::SpecialCharacters::FACTOR_CHARACTERS.end();
+	  != Constants::SpecialCharacters::WHITESPACE_CHARACTERS.end();
 }
 
 bool QueryTokenizer::containsFactor(const std::string &str) const {
