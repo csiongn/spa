@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 #include <string>
 #include <memory>
 
@@ -278,4 +279,29 @@ class IPKBReader {
   virtual bool containsWhilePatternStmt(int stmtNum) = 0;
   virtual bool containsWhilePatternVariable(std::string const &variable) = 0;
   virtual bool hasWhilePattern() = 0;
+
+  // Runtime
+
+  // NextT
+  virtual std::vector<int> getNextT(int stmtNum) = 0;
+  virtual std::vector<int> getNextTReverse(int stmtNum) = 0;
+  virtual std::vector<int> getNextT() = 0;
+  virtual std::vector<int> getNextTReverse() = 0;
+  virtual std::vector<std::pair<int, int>> getNextTRelationships() = 0;
+  virtual bool containsNextT(int stmtNum) = 0;
+  virtual bool containsNextTReverse(int stmtNum) = 0;
+  virtual bool containsNextTRelationship(int stmtNum, int nextStmtNum) = 0;
+  virtual bool hasNextTRelationship() = 0;
+
+  // Affects
+  virtual std::vector<int> getAffects(int stmtNum) = 0;
+  virtual std::vector<int> getAffectsReverse(int stmtNum) = 0;
+  virtual std::vector<int> getAffects() = 0;
+  virtual std::vector<int> getAffectsReverse() = 0;
+  virtual std::vector<std::pair<int, int>> getAffectsRelationships() = 0;
+  virtual bool containsAffects(int stmtNum) = 0;
+  virtual bool containsAffectsReverse(int stmtNum) = 0;
+  virtual bool containsAffectsRelationship(int stmtNum, int stmtNumTo) = 0;
+  virtual bool hasAffectsRelationship() = 0;
+
 };

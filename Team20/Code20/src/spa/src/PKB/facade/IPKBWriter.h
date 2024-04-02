@@ -5,6 +5,7 @@
 #include <unordered_set>
 
 #include "SP/AST.h"
+#include "SP/RuntimeExtractor.h"
 
 class IPKBWriter {
 
@@ -141,4 +142,7 @@ class IPKBWriter {
   // While
   virtual void insertWhilePattern(std::string const &variable, const int &stmtNum) = 0;
   virtual void insertWhilePattern(std::string const &variable, const std::unordered_set<int> &stmtSet) = 0;
+
+  // Runtime, insert extractor
+  virtual void insertRuntimeExtractor(std::shared_ptr<RuntimeExtractor> runtimeExtractor) = 0;
 };

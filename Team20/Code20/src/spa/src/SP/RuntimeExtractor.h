@@ -1,46 +1,99 @@
 #pragma once
 
-#include <pair>
-#include <unordered_set>
+#include <vector>
 #include <utility>
 
 class RuntimeExtractor {
 
-    // Checks whether any NextT relatoinship exists
-    bool isNextT();
+ public:
+  // Checks whether any NextT relationship exists
+  bool hasNextT() {
+	return false;
+  };
     // Checks whether the relationship NextT(stmtNoFrom, stmtNoTo) exists
-    bool isNextT(int stmtNoFrom, int stmtNoTo);
+	bool containsNextT(int stmtNoFrom, int stmtNoTo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Checks whether there is any NextT relationship such that NextT(stmtNo, _)
-    bool isNextTFrom(int stmtNo);
+	bool containsNextTFrom(int stmtNo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Checks whether there is any NextT relationship such that NextT(_, stmtNo)
-    bool isNextTTo(int stmtNo);
+	bool containsNextTTo(int stmtNo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Returns all statement with number i such that NextT(stmtNo, i)
-    std::unordered_set<int> getStatementsNextTFrom(int stmtNo);
+	std::vector<int> getStatementsNextTFrom(int stmtNo) {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statement with number i such that NextT(i, stmtNo);
-    std::unordered_set<int> getStatementsNextTTo(int stmtNo);
+	std::vector<int> getStatementsNextTTo(int stmtNo) {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statements with number i where there exists NextT(i, _);
-    std::unordered_set<int> getStatementsNextTFrom();
+	std::vector<int> getStatementsNextTFrom() {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statements with number i where there exists NextT(_, i);
-    std::unordered_set<int> getStatementsNextTTo();
+	std::vector<int> getStatementsNextTTo() {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all NextT relationships
-    std::unordered_set<std::pair<int, int> > getNextT();
+	std::vector<std::pair<int, int> > getNextT() {
+	  // TODO: To be implemented
+	  return std::vector<std::pair<int, int>>();
+	};
 
     // Checks whether any Affects relatoinship exists
-    bool isAffects();
+	bool hasAffects() {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Checks whether the relationship Affects(stmtNoFrom, stmtNoTo) exists
-    bool isAffects(int stmtNoFrom, int stmtNoTo);
+	bool containsAffects(int stmtNoFrom, int stmtNoTo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Checks whether there is any Affects relationship such that Affects(stmtNo, _)
-    bool isAffectsFrom(int stmtNo);
+	bool containsAffectsFrom(int stmtNo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Checks whether there is any Affects relationship such that Affects(_, stmtNo)
-    bool isAffectsTo(int stmtNo);
+	bool containsAffectsTo(int stmtNo) {
+	  // TODO: To be implemented
+	  return false;
+	};
     // Returns all statement with number i such that Affects(stmtNo, i)
-    std::unordered_set<int> getStatementsAffectsFrom(int stmtNo);
+	std::vector<int> getStatementsAffectsFrom(int stmtNo) {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statement with number i such that Affects(i, stmtNo);
-    std::unordered_set<int> getStatementsAffectsTo(int stmtNo);
+	std::vector<int> getStatementsAffectsTo(int stmtNo) {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statements with number i where there exists Affects(i, _);
-    std::unordered_set<int> getStatementsAffectsFrom();
+	std::vector<int> getStatementsAffectsFrom() {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all statements with number i where there exists Affects(_, i);
-    std::unordered_set<int> getStatementsAffectsTo();
+	std::vector<int> getStatementsAffectsTo() {
+	  // TODO: To be implemented
+	  return std::vector<int>();
+	};
     // Returns all NextT relationships
-    std::unordered_set<std::pair<int, int> > getAffects();
-}
+	std::vector<std::pair<int, int> > getAffects() {
+	  // TODO: To be implemented
+	  return std::vector<std::pair<int, int>>();
+	};
+};

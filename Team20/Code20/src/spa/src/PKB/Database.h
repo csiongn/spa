@@ -32,6 +32,7 @@
 #include "PKB/manager/relationship/PrintVarManager.h"
 #include "PKB/manager/relationship/ReadVarManager.h"
 #include "PKB/manager/relationship/CallsProcStmtManager.h"
+#include "PKB/manager/runtime/RuntimeManager.h"
 
 // Database class contains all our tables/repositories
 class Database {
@@ -90,6 +91,9 @@ class Database {
 
   std::shared_ptr<WhilePatternManager> whilePatternManager = std::make_shared<WhilePatternManager>();
 
+  // Runtime manager
+  std::shared_ptr<RuntimeManager> runtimeManager = std::make_shared<RuntimeManager>();
+
  public:
   std::shared_ptr<ProcedureManager> getProcedureManager();
   std::shared_ptr<VariableManager> getVariableManager();
@@ -122,4 +126,6 @@ class Database {
   std::shared_ptr<AssignPartialPatternManager> getAssignPartialPatternManager();
   std::shared_ptr<IfPatternManager> getIfPatternManager();
   std::shared_ptr<WhilePatternManager> getWhilePatternManager();
+
+  std::shared_ptr<RuntimeManager> getRuntimeManager();
 };

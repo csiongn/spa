@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "PKB/facade/IPKBWriter.h"
+#include "SP/RuntimeExtractor.h"
 
 class TestException final : public std::exception {
 	// https://www.geeksforgeeks.org/how-to-throw-custom-exception-in-cpp/
@@ -52,6 +53,7 @@ class MockPKBWriter : public IPKBWriter {
   std::vector<std::tuple<std::string, size_t, int, std::shared_ptr<ExprNode>>> assignPartialPatterns;
   std::vector<std::pair<const std::string, const int>> ifPatterns;
   std::vector<std::pair<const std::string, const int>> whilePatterns;
+  std::shared_ptr<RuntimeExtractor> runtimeExtractor;
 
   void insertProcedure(std::string const &procedureName) override {
 	insertedProcedures.insert(procedureName);
@@ -282,5 +284,9 @@ class MockPKBWriter : public IPKBWriter {
 								  const int &stmtNum,
 								  const std::shared_ptr<ExprNode> &nodePtr) override {
 	assignPartialPatterns.emplace_back(lhsVar, rhsExprNodeHash, stmtNum, nodePtr);
+  }
+
+  void insertRuntimeExtractor(std::shared_ptr<RuntimeExtractor> runtimeExtractor) {
+	this->runtimeExtractor = runtimeExtractor;
   }
 };

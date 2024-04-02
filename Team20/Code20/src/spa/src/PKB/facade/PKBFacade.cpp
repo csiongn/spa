@@ -1102,3 +1102,85 @@ bool PKBFacade::hasWhilePattern() {
 	  db->getWhilePatternManager());
 };
 
+// Runtime
+
+// insert
+void PKBFacade::insertRuntimeExtractor(std::shared_ptr<RuntimeExtractor> runtimeExtractor) {
+  DatabaseUtils::insertRuntimeExtractor(db->getRuntimeManager(), runtimeExtractor);
+}
+
+// NexT
+bool PKBFacade::containsNextT(int nextStmtNum) {
+  return DatabaseUtils::containsNextT(db->getRuntimeManager(), nextStmtNum);
+}
+
+bool PKBFacade::containsNextTReverse(int stmtNum) {
+  return DatabaseUtils::containsNextTReverse(db->getRuntimeManager(), stmtNum);
+}
+
+bool PKBFacade::containsNextTRelationship(int stmtNum, int nextStmtNum) {
+  return DatabaseUtils::containsNextTRelationship(db->getRuntimeManager(),
+												  stmtNum, nextStmtNum);
+}
+
+bool PKBFacade::hasNextTRelationship() {
+  return DatabaseUtils::hasNextTRelationship(db->getRuntimeManager());
+}
+
+std::vector<int> PKBFacade::getNextT(int stmtNum) {
+  return DatabaseUtils::getNextT(db->getRuntimeManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextTReverse(int stmtNum) {
+  return DatabaseUtils::getNextTReverse(db->getRuntimeManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getNextTReverse() {
+  return DatabaseUtils::getNextTReverse(db->getRuntimeManager());
+}
+
+std::vector<int> PKBFacade::getNextT() {
+  return DatabaseUtils::getNextT(db->getRuntimeManager());
+}
+
+std::vector<std::pair<int, int>> PKBFacade::getNextTRelationships() {
+  return DatabaseUtils::getNextTRelationships(db->getRuntimeManager());
+}
+
+// Affects
+bool PKBFacade::containsAffects(int stmtNum) {
+  return DatabaseUtils::containsAffects(db->getRuntimeManager(), stmtNum);
+}
+
+bool PKBFacade::containsAffectsReverse(int stmtNum) {
+  return DatabaseUtils::containsAffectsReverse(db->getRuntimeManager(), stmtNum);
+}
+
+bool PKBFacade::containsAffectsRelationship(int stmtNum, int stmtNumTo) {
+  return DatabaseUtils::containsAffectsRelationship(db->getRuntimeManager(),
+													stmtNum, stmtNumTo);
+}
+
+bool PKBFacade::hasAffectsRelationship() {
+  return DatabaseUtils::hasAffectsRelationship(db->getRuntimeManager());
+}
+
+std::vector<int> PKBFacade::getAffects(int stmtNum) {
+  return DatabaseUtils::getAffects(db->getRuntimeManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getAffectsReverse(int stmtNum) {
+  return DatabaseUtils::getAffectsReverse(db->getRuntimeManager(), stmtNum);
+}
+
+std::vector<int> PKBFacade::getAffectsReverse() {
+  return DatabaseUtils::getAffectsReverse(db->getRuntimeManager());
+}
+
+std::vector<int> PKBFacade::getAffects() {
+  return DatabaseUtils::getAffects(db->getRuntimeManager());
+}
+
+std::vector<std::pair<int, int>> PKBFacade::getAffectsRelationships() {
+  return DatabaseUtils::getAffectsRelationships(db->getRuntimeManager());
+}
