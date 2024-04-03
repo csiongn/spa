@@ -85,6 +85,10 @@ bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction 
 												 rightStmtNum);
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  return reader->containsNextRelationship(leftStmtNum, rightStmtNum);
+	case SimpleProgram::DesignAbstraction::NEXTT:
+	  return reader->containsNextTRelationship(leftStmtNum, rightStmtNum);
+	case SimpleProgram::DesignAbstraction::AFFECTS:
+	  return reader->containsAffectsRelationship(leftStmtNum, rightStmtNum);
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
 	  return false;
@@ -104,6 +108,10 @@ bool StatementEvaluator::hasAtLeastOneRelationship() {
 	  return reader->hasParentTRelationship();
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  return reader->hasNextRelationship();
+	case SimpleProgram::DesignAbstraction::NEXTT:
+	  return reader->hasNextTRelationship();
+	case SimpleProgram::DesignAbstraction::AFFECTS:
+	  return reader->hasAffectsRelationship();
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
 	  return false;
@@ -134,6 +142,12 @@ bool StatementEvaluator::getForwardRelationship() {
 		break;
 	  case SimpleProgram::DesignAbstraction::NEXT:
 		rResults = reader->getNext(leftStmtNum);
+		break;
+	  case SimpleProgram::DesignAbstraction::NEXTT:
+		rResults = reader->getNextT(leftStmtNum);
+		break;
+	  case SimpleProgram::DesignAbstraction::AFFECTS:
+		rResults = reader->getAffects(leftStmtNum);
 		break;
 	  default:
 		// TODO: throw illegal argument, not allowed relationship type for statement only queries
@@ -209,6 +223,12 @@ bool StatementEvaluator::getReversedRelationship() {
 	  case SimpleProgram::DesignAbstraction::NEXT:
 		lResults = reader->getNextReverse(rightStmtNum);
 		break;
+	  case SimpleProgram::DesignAbstraction::NEXTT:
+		lResults = reader->getNextTReverse(rightStmtNum);
+		break;
+	  case SimpleProgram::DesignAbstraction::AFFECTS:
+		lResults = reader->getAffectsReverse(rightStmtNum);
+		break;
 	  default:
 		// TODO: throw illegal argument, not allowed relationship type for statement only queries
 		lResults = {};
@@ -277,6 +297,12 @@ std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  keyStmtNums = reader->getNextReverse();
 	  break;
+	case SimpleProgram::DesignAbstraction::NEXTT:
+	  keyStmtNums = reader->getNextTReverse();
+	  break;
+	case SimpleProgram::DesignAbstraction::AFFECTS:
+	  keyStmtNums = reader->getAffects();
+	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
 	  return {};
@@ -308,6 +334,12 @@ std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
 	  break;
 	case SimpleProgram::DesignAbstraction::NEXT:
 	  valueStmtNums = reader->getNext();
+	  break;
+	case SimpleProgram::DesignAbstraction::NEXTT:
+	  valueStmtNums = reader->getNextT();
+	  break;
+	case SimpleProgram::DesignAbstraction::AFFECTS:
+	  valueStmtNums = reader->getAffects();
 	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
