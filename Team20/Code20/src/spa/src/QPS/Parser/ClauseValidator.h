@@ -74,4 +74,7 @@ class ClauseValidator {
 
   void validateFollowsParentsArgs(
 	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
+
+  void validateCallsArgs(
+	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
 };

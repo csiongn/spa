@@ -87,7 +87,8 @@ bool ClauseValidator::isStmtOrEntRef(std::shared_ptr<QueryToken> token) {
 
 void ClauseValidator::validateStmtOrEntRef(std::shared_ptr<QueryToken> token) {
   if (!isStmtOrEntRef(token)) {
-	throw QuerySyntaxError("Syntax Error: Neither statement or entity reference");
+	throw QuerySyntaxError(
+		"Syntax Error: Neither statement or entity reference");
   }
 }
 
@@ -201,6 +202,11 @@ void ClauseValidator::validatePatternIf(
 	  validateEntRef(currToken);
 
 	  if (isSynonym(currToken)) {
+		auto argEntityType =
+			QueryEvaluator::ParseUtils::getEntityType(currToken, declarations);
+		if (argEntityType != SimpleProgram::DesignEntity::VARIABLE) {
+		  setSemanticError();
+		}
 		validateDeclarationExists(currToken);
 	  }
 	} else if (count == 1 || count == 2) {
@@ -224,6 +230,11 @@ void ClauseValidator::validatePatternWhile(
 	  validateEntRef(currToken);
 
 	  if (isSynonym(currToken)) {
+		auto argEntityType =
+			QueryEvaluator::ParseUtils::getEntityType(currToken, declarations);
+		if (argEntityType != SimpleProgram::DesignEntity::VARIABLE) {
+		  setSemanticError();
+		}
 		validateDeclarationExists(currToken);
 	  }
 	} else if (count == 1) {
@@ -308,6 +319,39 @@ void ClauseValidator::validateFollowsParentsArgs(
   validateStmtRef(rArgToken);
 
   if (isSynonym(rArgToken)) {
+	validateDeclarationExists(rArgToken);
+  }
+}
+
+void ClauseValidator::validateCallsArgs(
+	std::vector<std::shared_ptr<QueryToken>> &relationshipArgs) {
+  if (relationshipArgs.size() != 2) {
+	throw QuerySyntaxError(
+		"Syntax Error: Calls/Calls* clause should have two arguments");
+  }
+
+  auto lArgToken = relationshipArgs[0];
+  auto rArgToken = relationshipArgs[1];
+
+  validateEntRef(lArgToken);
+
+  if (isSynonym(lArgToken)) {
+	auto lArgEntityType =
+		QueryEvaluator::ParseUtils::getEntityType(lArgToken, declarations);
+	if (lArgEntityType != SimpleProgram::DesignEntity::PROCEDURE) {
+	  setSemanticError();
+	}
+	validateDeclarationExists(lArgToken);
+  }
+
+  validateEntRef(rArgToken);
+
+  if (isSynonym(rArgToken)) {
+	auto rArgEntityType =
+		QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations);
+	if (rArgEntityType != SimpleProgram::DesignEntity::PROCEDURE) {
+	  setSemanticError();
+	}
 	validateDeclarationExists(rArgToken);
   }
 }

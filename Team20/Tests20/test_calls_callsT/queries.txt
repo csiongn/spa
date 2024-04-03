@@ -49,17 +49,17 @@ Select p1 such that Calls(_, s1)
 SemanticError
 5000
 2.4 - calls with procedure, read
-procedure p1, read r1;
+procedure p1; read r1;
 Select p1 such that Calls(p1, read)
 SemanticError
 5000
 2.5 - calls with procedure, while
-procedure p1, while w;
+procedure p1; while w;
 Select p1 such that Calls(w, p1)
 SemanticError
 5000
 2.6 - calls with procedure, ifs
-procedure p2, if ifs;
+procedure p2; if ifs;
 Select p2 such that Calls(p2, ifs)
 SemanticError
 5000
@@ -69,7 +69,7 @@ Select p2 such that Calls(p2, a)
 SemanticError
 5000
 2.8 - calls with procedure, constant
-procedure p2, constant c;
+procedure p2; constant c;
 Select p2 such that Calls(p2, c)
 SemanticError
 5000
@@ -139,17 +139,17 @@ Select p1 such that Calls*(_, s1)
 SemanticError
 5000
 4.4 - calls* with procedure, read
-procedure p1, read r1;
+procedure p1; read r1;
 Select p1 such that Calls*(p1, read)
 SemanticError
 5000
 4.5 - calls* with procedure, while
-procedure p1, while w;
+procedure p1; while w;
 Select p1 such that Calls*(w, p1)
 SemanticError
 5000
 4.6 - calls* with procedure, ifs
-procedure p2, if ifs;
+procedure p2; if ifs;
 Select p2 such that Calls*(p2, ifs)
 SemanticError
 5000
@@ -159,7 +159,7 @@ Select p2 such that Calls*(p2, a)
 SemanticError
 5000
 4.8 - calls* with procedure, constant
-procedure p2, constant c;
+procedure p2; constant c;
 Select p2 such that Calls*(p2, c)
 SemanticError
 5000

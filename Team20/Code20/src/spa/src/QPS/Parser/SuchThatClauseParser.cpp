@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "QPS/QuerySyntaxError.h"
 #include "QPS/Utils/ParseUtils.h"
 
 SuchThatClauseParser::SuchThatClauseParser(
@@ -126,10 +127,17 @@ PQL::Clause SuchThatClauseParser::parse(
 
 	args.push_back(lArg);
 	args.push_back(rArg);
-  } else if (suchThatClauseType == SimpleProgram::DesignAbstraction::PARENT
-	  || suchThatClauseType == SimpleProgram::DesignAbstraction::PARENTT ||
-	  suchThatClauseType == SimpleProgram::DesignAbstraction::FOLLOWS
-	  || suchThatClauseType == SimpleProgram::DesignAbstraction::FOLLOWST) {
+  } else if (suchThatClauseType == SimpleProgram::DesignAbstraction::PARENT ||
+	  suchThatClauseType ==
+		  SimpleProgram::DesignAbstraction::PARENTT ||
+	  suchThatClauseType ==
+		  SimpleProgram::DesignAbstraction::FOLLOWS ||
+	  suchThatClauseType ==
+		  SimpleProgram::DesignAbstraction::FOLLOWST ||
+	  suchThatClauseType == SimpleProgram::DesignAbstraction::NEXT ||
+	  suchThatClauseType == SimpleProgram::DesignAbstraction::NEXTT ||
+	  suchThatClauseType ==
+		  SimpleProgram::DesignAbstraction::AFFECTS) {
 	auto lArgToken = suchThatArgsTokens[0];
 	auto rArgToken = suchThatArgsTokens[1];
 
@@ -139,7 +147,8 @@ PQL::Clause SuchThatClauseParser::parse(
 	SimpleProgram::DesignEntity rArgEntityType;
 
 	if (validator->isSynonym(lArgToken)) {
-	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(lArgToken, declarations);
+	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  lArgToken, declarations);
 	} else {
 	  if (lArgToken->getType() == QPS::TokenType::INTEGER) {
 		lArgEntityType = SimpleProgram::DesignEntity::STMT_NO;
@@ -148,7 +157,8 @@ PQL::Clause SuchThatClauseParser::parse(
 	  }
 	}
 	if (validator->isSynonym(rArgToken)) {
-	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(rArgToken, declarations);
+	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  rArgToken, declarations);
 	} else {
 	  if (rArgToken->getType() == QPS::TokenType::INTEGER) {
 		rArgEntityType = SimpleProgram::DesignEntity::STMT_NO;
@@ -156,12 +166,54 @@ PQL::Clause SuchThatClauseParser::parse(
 		rArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
 	  }
 	}
-	auto lArg = QueryEvaluator::ParseUtils::createSynonym(lArgEntityType, lArgToken);
-	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType, rArgToken);
+	auto lArg = QueryEvaluator::ParseUtils::createSynonym(lArgEntityType,
+														  lArgToken);
+	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType,
+														  rArgToken);
+
+	args.push_back(lArg);
+	args.push_back(rArg);
+  } else if (suchThatClauseType == SimpleProgram::DesignAbstraction::CALLS ||
+	  suchThatClauseType == SimpleProgram::DesignAbstraction::CALLST) {
+	auto lArgToken = suchThatArgsTokens[0];
+	auto rArgToken = suchThatArgsTokens[1];
+
+	validator->validateCallsArgs(suchThatArgsTokens);
+
+	SimpleProgram::DesignEntity lArgEntityType;
+	SimpleProgram::DesignEntity rArgEntityType;
+
+	if (validator->isSynonym(lArgToken)) {
+	  lArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  lArgToken, declarations);
+	} else {
+	  if (lArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
+		lArgEntityType = SimpleProgram::DesignEntity::IDENT;
+	  } else {
+		lArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
+	  }
+	}
+
+	if (validator->isSynonym(rArgToken)) {
+	  rArgEntityType = QueryEvaluator::ParseUtils::getEntityType(
+		  rArgToken, declarations);
+	} else {
+	  if (rArgToken->getType() == QPS::TokenType::CONSTANT_STRING) {
+		rArgEntityType = SimpleProgram::DesignEntity::IDENT;
+	  } else {
+		rArgEntityType = SimpleProgram::DesignEntity::WILDCARD;
+	  }
+	}
+
+	auto lArg = QueryEvaluator::ParseUtils::createSynonym(lArgEntityType,
+														  lArgToken);
+	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType,
+														  rArgToken);
 
 	args.push_back(lArg);
 	args.push_back(rArg);
   } else {
+	throw QuerySyntaxError("Syntax Error: Invalid such that clause");
   }
   return {suchThatClauseType, args};
 }
