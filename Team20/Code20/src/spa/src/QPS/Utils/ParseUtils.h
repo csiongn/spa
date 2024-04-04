@@ -28,6 +28,10 @@ class ParseUtils {
 
   static PQL::Synonym createSynonym(SimpleProgram::DesignEntity entityType, std::string synonymIdentity);
 
+  static PQL::Synonym createSynonym(SimpleProgram::DesignEntity entityType,
+									std::string synonymIdentity,
+									SimpleProgram::AttributeRef attrRef);
+
   static std::vector<std::string> splitTuple(std::shared_ptr<QueryToken> &tupleToken);
 
   static std::vector<std::shared_ptr<QueryToken>> splitTokens(std::vector<std::shared_ptr<QueryToken>> &tokens,
@@ -37,6 +41,9 @@ class ParseUtils {
   static SimpleProgram::DesignEntity getEntityType(std::shared_ptr<QueryToken> &token,
 												   std::vector<PQL::Synonym> &declarations);
 
+  static SimpleProgram::DesignEntity getEntityType(std::string synonymIdentity,
+												   std::vector<PQL::Synonym> &declarations);
+
   static std::vector<std::shared_ptr<QueryToken>> removeBracketsAndCommas(std::vector<std::shared_ptr<QueryToken>> &tokens);
 
   static bool isLetter(char c);
@@ -44,5 +51,9 @@ class ParseUtils {
   static bool isDigit(char c);
 
   static bool isName(const std::string &str);
+
+  static std::vector<std::shared_ptr<QueryToken>> getClause(std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>> &relationshipClauseTokens);
+
+  static std::vector<std::string> splitAttrToken(std::shared_ptr<QueryToken> attrToken);
 };
 };

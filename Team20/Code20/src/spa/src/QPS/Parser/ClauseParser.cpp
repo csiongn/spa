@@ -9,6 +9,7 @@
 #include "QPS/QueryToken.h"
 #include "QPS/Utils/ParseUtils.h"
 #include "SuchThatClauseParser.h"
+#include "WithClauseParser.h"
 
 ClauseParser::ClauseParser(
 	std::vector<std::shared_ptr<QueryToken>> &clauseTokens,
@@ -75,31 +76,41 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
 	  PatternClauseParser(relationshipClauseTokens, validator, declarations);
   SuchThatClauseParser suchThatClauseParser =
 	  SuchThatClauseParser(relationshipClauseTokens, validator, declarations);
+  WithClauseParser withClauseParser = WithClauseParser(relationshipClauseTokens, validator, declarations);
 
-  SimpleProgram::DesignAbstraction prevRelationship;
+  std::string prevClauseToken;
+  bool isAnd = false;
 
   while (!relationshipClauseTokens->empty()) {
 	std::shared_ptr<QueryToken> currToken = relationshipClauseTokens->at(0);
 	std::string tokenValue = currToken->getValue();
 
+	if (tokenValue == "and") {
+	  isAnd = true;
+	  tokenValue = prevClauseToken;
+	}
+
+	prevClauseToken = tokenValue;
+
 	if (tokenValue == "pattern") {
-	  auto patternClauseTokens = patternClauseParser.getPatternClause(0);
+	  auto patternClauseTokens = patternClauseParser.getPatternClause();
 	  PQL::Clause patternClause =
 		  patternClauseParser.parse(patternClauseTokens);
-	  auto patternType = patternClause.clauseType;
 	  clauses.push_back(patternClause);
-	  prevRelationship = patternType;
 	} else if (tokenValue == "such") {
 	  auto suchThatClauseTokens =
-		  suchThatClauseParser.getSuchThatClause(0);
+		  suchThatClauseParser.getSuchThatClause();
 	  PQL::Clause suchThatClause =
-		  suchThatClauseParser.parse(suchThatClauseTokens);
-	  auto suchThatType = suchThatClause.clauseType;
+		  suchThatClauseParser.parse(suchThatClauseTokens, isAnd);
 	  clauses.push_back(suchThatClause);
-	  prevRelationship = suchThatType;
+	} else if (tokenValue == "with") {
+	  auto withClauseTokens = withClauseParser.getWithClause();
+	  PQL::Clause withClause = withClauseParser.parse(withClauseTokens);
+	  clauses.push_back(withClause);
 	} else {
 	  throw QuerySyntaxError("Syntax Error: Invalid relationship clause");
 	}
+	isAnd = false;
   }
 
   return clauses;

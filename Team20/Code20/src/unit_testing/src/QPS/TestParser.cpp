@@ -1433,4 +1433,149 @@ TEST_CASE("Parse") {
 
 	REQUIRE(results == expectedQuery);
   }
+
+  SECTION("Next and Next") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = R"(stmt s1; Select s1 such that Next(2, 3) and Next(4, 3))";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::STMT, "s1");
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(
+		SimpleProgram::DesignEntity::STMT, "s1");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "2");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "3");
+	std::vector<PQL::Synonym> args1;
+	args1.emplace_back(arg1);
+	args1.emplace_back(arg2);
+
+	PQL::Clause clause1 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, args1);
+	expectedClauses.emplace_back(clause1);
+
+	PQL::Synonym arg3(SimpleProgram::DesignEntity::STMT_NO, "4");
+	PQL::Synonym arg4(SimpleProgram::DesignEntity::STMT_NO, "3");
+	std::vector<PQL::Synonym> args2;
+	args2.emplace_back(arg3);
+	args2.emplace_back(arg4);
+
+	PQL::Clause clause2 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::NEXT, args2);
+	expectedClauses.emplace_back(clause2);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+
+	REQUIRE(results == expectedQuery);
+  }
+
+  SECTION("With clause") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = R"(procedure p, q; Select p with q.procName = "Third")";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::PROCEDURE, "q");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::PROCEDURE, "q", SimpleProgram::AttributeRef::NAME);
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::IDENT, "Third");
+	std::vector<PQL::Synonym> args;
+	args.emplace_back(arg1);
+	args.emplace_back(arg2);
+
+	PQL::Clause clause =
+		PQL::Clause(SimpleProgram::DesignAbstraction::WITH, args);
+	expectedClauses.emplace_back(clause);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+
+	REQUIRE(results == expectedQuery);
+  }
+
+  SECTION("Multi-clause AND, and WITH clause") {
+	QueryTokenizer queryTokenizer{};
+	std::string query =
+		R"(procedure p; call c; while w; Select p such that Calls ("Second", p) and Parent (w, c) with c.procName = p.procName)";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::CALL, "c");
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::WHILE, "w");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "Second");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::PROCEDURE, "p");
+	std::vector<PQL::Synonym> args1;
+	args1.emplace_back(arg1);
+	args1.emplace_back(arg2);
+
+	PQL::Clause clause1 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, args1);
+	expectedClauses.emplace_back(clause1);
+
+	PQL::Synonym arg3(SimpleProgram::DesignEntity::WHILE, "w");
+	PQL::Synonym arg4(SimpleProgram::DesignEntity::CALL, "c");
+	std::vector<PQL::Synonym> args2;
+	args2.emplace_back(arg3);
+	args2.emplace_back(arg4);
+
+	PQL::Clause clause2 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, args2);
+	expectedClauses.emplace_back(clause2);
+
+	PQL::Synonym arg5(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NAME);
+	PQL::Synonym arg6(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	std::vector<PQL::Synonym> args3;
+	args3.emplace_back(arg5);
+	args3.emplace_back(arg6);
+
+	PQL::Clause clause3 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::WITH, args3);
+	expectedClauses.emplace_back(clause3);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+
+	REQUIRE(results == expectedQuery);
+  }
+
+  SECTION("Invalid synonym type for procName attrName in WITH clause") {
+	QueryTokenizer queryTokenizer{};
+	std::string query =
+		R"(procedure p; variable v; Select p such that Calls ("Second", p) with c.procName = v.procName)";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	REQUIRE_THROWS_AS(queryParser.parse(), QuerySemanticError);
+  }
 }

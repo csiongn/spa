@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 
 #include "QPS/QuerySyntaxError.h"
@@ -40,8 +41,6 @@ void ClauseValidator::validateStmtRef(std::shared_ptr<QueryToken> token) {
 	   SimpleProgram::DesignEntity::PRINT, SimpleProgram::DesignEntity::READ,
 	   SimpleProgram::DesignEntity::WHILE});
 
-  auto entRefSynonymType =
-	  QueryEvaluator::ParseUtils::getEntityType(token, declarations);
   bool isValidSynonymType =
 	  stmtTypes.find(QueryEvaluator::ParseUtils::getEntityType(
 		  token, declarations)) != stmtTypes.end();
@@ -70,8 +69,6 @@ void ClauseValidator::validateEntRef(std::shared_ptr<QueryToken> token) {
 	   SimpleProgram::DesignEntity::VARIABLE,
 	   SimpleProgram::DesignEntity::CONSTANT});
 
-  auto entRefSynonymType =
-	  QueryEvaluator::ParseUtils::getEntityType(token, declarations);
   bool isValidSynonymType =
 	  entTypes.find(QueryEvaluator::ParseUtils::getEntityType(
 		  token, declarations)) != entTypes.end();
@@ -113,6 +110,103 @@ bool ClauseValidator::isExpressionSpec(
 	return token1->getType() == QPS::TokenType::WILDCARD &&
 		token3->getType() == QPS::TokenType::WILDCARD &&
 		isExpression(token2);
+  }
+}
+
+bool ClauseValidator::isAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens) {
+  if (attrTokens.size() != 3) {
+	return false;
+  }
+
+  if (attrTokens[1]->getValue() != "=") {
+	return false;
+  }
+
+  std::unordered_set<QPS::TokenType> allowedLeftOperandTypes({
+																 QPS::TokenType::ATTRIBUTE_CONSTANT,
+																 QPS::TokenType::ATTRIBUTE_NAME,
+																 QPS::TokenType::ATTRIBUTE_VALUE
+															 });
+
+  bool isValidLeftOperandType = allowedLeftOperandTypes.find(attrTokens[0]->getType()) != allowedLeftOperandTypes.end();
+
+  if (!isValidLeftOperandType) {
+	return false;
+  }
+
+  std::unordered_map<QPS::TokenType, std::vector<QPS::TokenType>> withOperandMap = {
+	  {QPS::TokenType::ATTRIBUTE_CONSTANT,
+	   std::vector{QPS::TokenType::INTEGER, QPS::TokenType::ATTRIBUTE_CONSTANT, QPS::TokenType::ATTRIBUTE_VALUE}},
+	  {QPS::TokenType::ATTRIBUTE_VALUE,
+	   std::vector{QPS::TokenType::INTEGER, QPS::TokenType::ATTRIBUTE_CONSTANT, QPS::TokenType::ATTRIBUTE_VALUE}},
+	  {QPS::TokenType::ATTRIBUTE_NAME, std::vector{QPS::TokenType::CONSTANT_STRING, QPS::TokenType::ATTRIBUTE_NAME}}
+  };
+
+  auto allowedRightOperandTypes = withOperandMap.at(attrTokens[0]->getType());
+
+  bool isValidRightOperandType =
+	  std::find(allowedRightOperandTypes.begin(), allowedRightOperandTypes.end(), attrTokens[2]->getType())
+		  != allowedRightOperandTypes.end();
+
+  if (!isValidRightOperandType) {
+	return false;
+  }
+
+  return true;
+}
+
+void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
+  std::vector<std::string> splittedAttr = QueryEvaluator::ParseUtils::splitAttrToken(attrToken);
+  auto synonymValue = splittedAttr[0];
+  auto attrRef = splittedAttr[1];
+
+  validateDeclarationExists(synonymValue);
+
+  std::unordered_map<std::string, std::vector<SimpleProgram::DesignEntity>> withAttrNameToEntityListMap = {
+	  {"procName", std::vector{SimpleProgram::DesignEntity::PROCEDURE, SimpleProgram::DesignEntity::CALL}},
+	  {"varName", std::vector{SimpleProgram::DesignEntity::VARIABLE, SimpleProgram::DesignEntity::READ,
+							  SimpleProgram::DesignEntity::PRINT}},
+	  {"value", std::vector{SimpleProgram::DesignEntity::CONSTANT}},
+	  {"stmt#", std::vector{SimpleProgram::DesignEntity::STMT, SimpleProgram::DesignEntity::READ,
+							SimpleProgram::DesignEntity::PRINT, SimpleProgram::DesignEntity::CALL,
+							SimpleProgram::DesignEntity::WHILE, SimpleProgram::DesignEntity::IF,
+							SimpleProgram::DesignEntity::ASSIGN}}
+  };
+
+  auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
+
+  std::vector<SimpleProgram::DesignEntity> allowedEntityTypes = withAttrNameToEntityListMap.at(attrRef);
+
+  bool isValidSynForEntityType =
+	  std::find(allowedEntityTypes.begin(),
+				allowedEntityTypes.end(),
+				entityType) != allowedEntityTypes.end();
+
+  if (!isValidSynForEntityType) {
+	setSemanticError();
+  }
+}
+
+void ClauseValidator::validateAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens) {
+  if (!isAttrCompare(attrTokens)) {
+	throw QuerySyntaxError("Syntax Error: Invalid attribute comparison");
+  }
+
+  std::unordered_set<QPS::TokenType> attrTokenMap({
+													  QPS::TokenType::ATTRIBUTE_VALUE,
+													  QPS::TokenType::ATTRIBUTE_CONSTANT,
+													  QPS::TokenType::ATTRIBUTE_NAME
+												  });
+
+  auto lOperandToken = attrTokens[0];
+
+  validateAttrRef(lOperandToken);
+
+  auto rOperandToken = attrTokens[2];
+  bool isROperandAttrToken = attrTokenMap.find(rOperandToken->getType()) != attrTokenMap.end();
+
+  if (isROperandAttrToken) {
+	validateAttrRef(rOperandToken);
   }
 }
 
@@ -354,4 +448,13 @@ void ClauseValidator::validateCallsArgs(
 	}
 	validateDeclarationExists(rArgToken);
   }
+}
+
+void ClauseValidator::validateWith(std::vector<std::shared_ptr<QueryToken>> &relationshipArgs) {
+  if (relationshipArgs.size() != 3) {
+	throw QuerySyntaxError(
+		"Syntax Error: With clause should have two arguments");
+  }
+
+  validateAttrCompare(relationshipArgs);
 }

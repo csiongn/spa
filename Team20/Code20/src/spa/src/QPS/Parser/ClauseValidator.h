@@ -26,6 +26,10 @@ class ClauseValidator {
 
   bool isExpressionSpec(std::vector<std::shared_ptr<QueryToken>> &tokens);
 
+  bool isAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens);
+
+  void validateAttrRef(std::shared_ptr<QueryToken> attrToken);
+
  public:
   explicit ClauseValidator(std::vector<PQL::Synonym> &declarations);
 
@@ -43,6 +47,8 @@ class ClauseValidator {
 
   void validateStmtOrEntRef(std::shared_ptr<QueryToken> token);
 
+  void validateAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens);
+
   void validateDeclarationExists(std::shared_ptr<QueryToken> synonymToken);
 
   void validateDeclarationExists(std::string synonymIdentity);
@@ -51,8 +57,6 @@ class ClauseValidator {
 
   static void validateHasSelectSynonym(
 	  std::vector<std::shared_ptr<QueryToken>> &clauseTokens);
-
-  void validateSuchThatClause();
 
   void validatePatternSynonym(std::shared_ptr<QueryToken> &patternToken);
 
@@ -77,4 +81,6 @@ class ClauseValidator {
 
   void validateCallsArgs(
 	  std::vector<std::shared_ptr<QueryToken>> &suchThatArgs);
+
+  void validateWith(std::vector<std::shared_ptr<QueryToken>> &withArgs);
 };

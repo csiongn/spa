@@ -17,28 +17,8 @@ SuchThatClauseParser::SuchThatClauseParser(
 	  declarations(declarations) {}
 
 std::vector<std::shared_ptr<QueryToken>>
-SuchThatClauseParser::getSuchThatClause(const int start) {
-  std::vector<std::shared_ptr<QueryToken>> suchThatClauseTokens;
-  int curr = start;
-  while (curr < relationshipClauseTokens->size()) {
-	auto token = relationshipClauseTokens->at(curr);
-
-	auto tokenValue = token->getValue();
-	if (tokenValue == ")") {
-	  curr++;
-	  break;
-	}
-	curr++;
-  }
-
-  suchThatClauseTokens = QueryEvaluator::ParseUtils::splitTokens(
-	  *relationshipClauseTokens, start, curr);
-  relationshipClauseTokens =
-	  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(
-		  QueryEvaluator::ParseUtils::splitTokens(
-			  *relationshipClauseTokens, curr,
-			  relationshipClauseTokens->size()));
-  return suchThatClauseTokens;
+SuchThatClauseParser::getSuchThatClause() {
+  return QueryEvaluator::ParseUtils::getClause(relationshipClauseTokens);
 }
 
 SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(
@@ -62,17 +42,17 @@ SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(
 }
 
 PQL::Clause SuchThatClauseParser::parse(
-	std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens) {
+	std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens, bool isAnd) {
   std::vector<PQL::Synonym> args;
 
-  auto suchThatClauseToken = suchThatClauseTokens[2];
+  auto suchThatClauseToken = suchThatClauseTokens[isAnd ? 1 : 2];
   auto suchThatClauseType = getSuchThatClauseType(suchThatClauseToken);
 
   std::vector<std::shared_ptr<QueryToken>> cleanedSuchThatTokens =
 	  QueryEvaluator::ParseUtils::removeBracketsAndCommas(
 		  suchThatClauseTokens);
   std::vector<std::shared_ptr<QueryToken>> suchThatArgsTokens =
-	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, 3,
+	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, isAnd ? 2 : 3,
 											  cleanedSuchThatTokens.size());
 
   if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS ||

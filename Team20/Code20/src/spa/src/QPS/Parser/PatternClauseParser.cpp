@@ -8,26 +8,8 @@ PatternClauseParser::PatternClauseParser(std::shared_ptr<std::vector<std::shared
 										 std::vector<PQL::Synonym> &declarations)
 	: relationshipClauseTokens(relationshipClauseTokens), validator(validator), declarations(declarations) {}
 
-std::vector<std::shared_ptr<QueryToken>> PatternClauseParser::getPatternClause(const int start) {
-  std::vector<std::shared_ptr<QueryToken>> patternClauseTokens;
-  int curr = start;
-  while (curr < relationshipClauseTokens->size()) {
-	auto token = relationshipClauseTokens->at(curr);
-
-	auto tokenValue = token->getValue();
-	if (tokenValue == ")") {
-	  curr++;
-	  break;
-	}
-	curr++;
-  }
-
-  patternClauseTokens = QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens, start, curr);
-  relationshipClauseTokens =
-	  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens,
-																										 curr,
-																										 relationshipClauseTokens->size()));
-  return patternClauseTokens;
+std::vector<std::shared_ptr<QueryToken>> PatternClauseParser::getPatternClause() {
+  return QueryEvaluator::ParseUtils::getClause(relationshipClauseTokens);
 }
 
 SimpleProgram::DesignAbstraction PatternClauseParser::getPatternClauseType(std::shared_ptr<QueryToken> &patternClauseToken) {
