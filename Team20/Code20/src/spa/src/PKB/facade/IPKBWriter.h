@@ -5,7 +5,8 @@
 #include <unordered_set>
 
 #include "SP/AST.h"
-#include "SP/RuntimeExtractor.h"
+
+class RuntimeExtractor;
 
 class IPKBWriter {
 
