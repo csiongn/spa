@@ -41,6 +41,28 @@ SimpleProgram::AttributeRef WithClauseParser::getAttrRef(std::string attrRefStr)
   return strToAttrRef.at(attrRefStr);
 }
 
+PQL::Synonym WithClauseParser::createWithClauseSynonym(std::shared_ptr<QueryToken> operandToken) {
+  PQL::Synonym operandSynonym = PQL::Synonym::createInvalidSynonym();
+  QPS::TokenType operandTokenType = operandToken->getType();
+  if (operandTokenType == QPS::TokenType::ATTRIBUTE_NAME || operandTokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
+	  || operandTokenType == QPS::TokenType::ATTRIBUTE_VALUE) {
+	operandSynonym = createSynonymFromAttrToken(operandToken);
+  } else {
+	SimpleProgram::DesignEntity operandEntity = SimpleProgram::DesignEntity::INVALID;
+
+	if (operandTokenType == QPS::TokenType::INTEGER) {
+	  operandEntity = SimpleProgram::DesignEntity::INTEGER;
+	} else if (operandTokenType == QPS::TokenType::CONSTANT_STRING) {
+	  operandEntity = SimpleProgram::DesignEntity::IDENT;
+	} else {
+	  throw QuerySyntaxError("Syntax Error: Invalid with clause");
+	}
+
+	operandSynonym = QueryEvaluator::ParseUtils::createSynonym(operandEntity, operandToken->getValue());
+  }
+  return operandSynonym;
+}
+
 PQL::Clause WithClauseParser::parse(
 	std::vector<std::shared_ptr<QueryToken>> &withClauseTokens) {
   std::vector<PQL::Synonym> args;
@@ -52,28 +74,8 @@ PQL::Clause WithClauseParser::parse(
   auto lOperandToken = withOperandTokens[0];
   auto rOperandToken = withOperandTokens[2];
 
-  PQL::Synonym lOperandSynonym = createSynonymFromAttrToken(lOperandToken);
-
-  auto rOperandTokenType = rOperandToken->getType();
-  PQL::Synonym rOperandSynonym = PQL::Synonym::createInvalidSynonym();
-
-  if (rOperandTokenType == QPS::TokenType::ATTRIBUTE_NAME || rOperandTokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
-	  || rOperandTokenType == QPS::TokenType::ATTRIBUTE_VALUE) {
-	rOperandSynonym = createSynonymFromAttrToken(rOperandToken);
-  } else {
-	SimpleProgram::DesignEntity rOperandEntity = SimpleProgram::DesignEntity::INVALID;
-	SimpleProgram::AttributeRef rOperandAttrRef = SimpleProgram::AttributeRef::NO_REF;
-
-	if (rOperandTokenType == QPS::TokenType::INTEGER) {
-	  rOperandEntity = SimpleProgram::DesignEntity::INTEGER;
-	} else if (rOperandTokenType == QPS::TokenType::CONSTANT_STRING) {
-	  rOperandEntity = SimpleProgram::DesignEntity::IDENT;
-	} else {
-	  throw QuerySyntaxError("Syntax Error: Invalid with clause");
-	}
-
-	rOperandSynonym = QueryEvaluator::ParseUtils::createSynonym(rOperandEntity, rOperandToken->getValue());
-  }
+  PQL::Synonym lOperandSynonym = createWithClauseSynonym(lOperandToken);
+  PQL::Synonym rOperandSynonym = createWithClauseSynonym(rOperandToken);
 
   args.push_back(lOperandSynonym);
   args.push_back(rOperandSynonym);

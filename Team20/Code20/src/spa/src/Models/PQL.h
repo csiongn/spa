@@ -31,8 +31,11 @@ struct Synonym {
 struct Clause {
   SimpleProgram::DesignAbstraction clauseType;
   std::vector<Synonym> arguments;
+  bool isNegated = false;
 
   Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args);
+
+  void setNotClause();
 
   bool operator==(const Clause &other) const {
 	return clauseType == other.clauseType && arguments == other.arguments;

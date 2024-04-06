@@ -19,6 +19,15 @@ ClauseParser::ClauseParser(
 	  declarations(declarations),
 	  validator(validator) {}
 
+bool ClauseParser::doesDeclarationExist(std::shared_ptr<QueryToken> token) {
+  for (auto &d : declarations) {
+	if (d.identity == token->getValue()) {
+	  return true;
+	}
+  }
+  return false;
+}
+
 PQL::Synonym ClauseParser::getDeclarationUsed(
 	std::shared_ptr<QueryToken> synonymToken) {
   std::string id = synonymToken->getValue();
@@ -51,9 +60,14 @@ std::vector<PQL::Synonym> ClauseParser::parseSelectClause() {
 	  selectSynonyms.push_back(synonym);
 	}
   } else {
-	// DO FOR BOOLEAN HERE
-	// BOOLEAN SHOULD CHECK IF A DECLARATION EXIST, NOT VALIDATE. IF EXIST
-	// THEN VALIDATE? IF NOT EXIST THEN CALL BOOLEAN QUERY
+	if (nextToken->getValue() == "BOOLEAN") {
+	  if (!doesDeclarationExist(nextToken)) {
+		auto boolSynonym = QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::BOOLEAN, "BOOLEAN");
+		selectSynonyms.push_back(boolSynonym);
+		return selectSynonyms;
+	  }
+	}
+
 	validator->validateDeclarationExists(nextToken);
 	auto declarationUsed = getDeclarationUsed(nextToken);
 	SimpleProgram::DesignEntity entityType = declarationUsed.entityType;
@@ -80,6 +94,7 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
 
   std::string prevClauseToken;
   bool isAnd = false;
+  bool isNot = false;
 
   while (!relationshipClauseTokens->empty()) {
 	std::shared_ptr<QueryToken> currToken = relationshipClauseTokens->at(0);
@@ -107,10 +122,24 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
 	  auto withClauseTokens = withClauseParser.getWithClause();
 	  PQL::Clause withClause = withClauseParser.parse(withClauseTokens);
 	  clauses.push_back(withClause);
+	} else if (tokenValue == "not") {
+	  isNot = true;
+	  relationshipClauseTokens =
+		  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens,
+																											 1,
+																											 relationshipClauseTokens->size()));
+	  continue;
 	} else {
 	  throw QuerySyntaxError("Syntax Error: Invalid relationship clause");
 	}
+
+	if (isNot) {
+	  auto lastClause = clauses.back();
+	  lastClause.setNotClause();
+	}
+
 	isAnd = false;
+	isNot = false;
   }
 
   return clauses;

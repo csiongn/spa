@@ -113,6 +113,19 @@ bool ClauseValidator::isExpressionSpec(
   }
 }
 
+bool ClauseValidator::isSuitableRef(std::shared_ptr<QueryToken> lRefToken, std::shared_ptr<QueryToken> rRefToken) {
+  std::vector<QPS::TokenType>
+	  numTypes{QPS::TokenType::INTEGER, QPS::TokenType::ATTRIBUTE_CONSTANT, QPS::TokenType::ATTRIBUTE_VALUE};
+  std::vector<QPS::TokenType> nameTypes{QPS::TokenType::CONSTANT_STRING, QPS::TokenType::ATTRIBUTE_NAME};
+
+  bool bothNumTypes = std::find(numTypes.begin(), numTypes.end(), lRefToken->getType()) != numTypes.end()
+	  && std::find(numTypes.begin(), numTypes.end(), rRefToken->getType()) != numTypes.end();
+  bool bothNameTypes = std::find(nameTypes.begin(), nameTypes.end(), lRefToken->getType()) != nameTypes.end()
+	  && std::find(nameTypes.begin(), nameTypes.end(), rRefToken->getType()) != nameTypes.end();
+
+  return bothNumTypes || bothNameTypes;
+}
+
 bool ClauseValidator::isAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens) {
   if (attrTokens.size() != 3) {
 	return false;
@@ -122,37 +135,23 @@ bool ClauseValidator::isAttrCompare(std::vector<std::shared_ptr<QueryToken>> att
 	return false;
   }
 
-  std::unordered_set<QPS::TokenType> allowedLeftOperandTypes({
-																 QPS::TokenType::ATTRIBUTE_CONSTANT,
-																 QPS::TokenType::ATTRIBUTE_NAME,
-																 QPS::TokenType::ATTRIBUTE_VALUE
-															 });
-
-  bool isValidLeftOperandType = allowedLeftOperandTypes.find(attrTokens[0]->getType()) != allowedLeftOperandTypes.end();
-
-  if (!isValidLeftOperandType) {
-	return false;
-  }
-
-  std::unordered_map<QPS::TokenType, std::vector<QPS::TokenType>> withOperandMap = {
-	  {QPS::TokenType::ATTRIBUTE_CONSTANT,
-	   std::vector{QPS::TokenType::INTEGER, QPS::TokenType::ATTRIBUTE_CONSTANT, QPS::TokenType::ATTRIBUTE_VALUE}},
-	  {QPS::TokenType::ATTRIBUTE_VALUE,
-	   std::vector{QPS::TokenType::INTEGER, QPS::TokenType::ATTRIBUTE_CONSTANT, QPS::TokenType::ATTRIBUTE_VALUE}},
-	  {QPS::TokenType::ATTRIBUTE_NAME, std::vector{QPS::TokenType::CONSTANT_STRING, QPS::TokenType::ATTRIBUTE_NAME}}
-  };
-
-  auto allowedRightOperandTypes = withOperandMap.at(attrTokens[0]->getType());
-
-  bool isValidRightOperandType =
-	  std::find(allowedRightOperandTypes.begin(), allowedRightOperandTypes.end(), attrTokens[2]->getType())
-		  != allowedRightOperandTypes.end();
-
-  if (!isValidRightOperandType) {
+  if (!isRef(attrTokens[0]) || !isRef(attrTokens[2])) {
 	return false;
   }
 
   return true;
+}
+
+bool ClauseValidator::isAttrRef(std::shared_ptr<QueryToken> token) {
+  auto tokenType = token->getType();
+  return tokenType == QPS::TokenType::ATTRIBUTE_VALUE || tokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
+	  || tokenType == QPS::TokenType::ATTRIBUTE_NAME;
+}
+
+bool ClauseValidator::isRef(std::shared_ptr<QueryToken> token) {
+  auto tokenType = token->getType();
+  return tokenType == QPS::TokenType::CONSTANT_STRING || tokenType == QPS::TokenType::INTEGER
+	  || isAttrRef(token);
 }
 
 void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
@@ -192,20 +191,19 @@ void ClauseValidator::validateAttrCompare(std::vector<std::shared_ptr<QueryToken
 	throw QuerySyntaxError("Syntax Error: Invalid attribute comparison");
   }
 
-  std::unordered_set<QPS::TokenType> attrTokenMap({
-													  QPS::TokenType::ATTRIBUTE_VALUE,
-													  QPS::TokenType::ATTRIBUTE_CONSTANT,
-													  QPS::TokenType::ATTRIBUTE_NAME
-												  });
-
   auto lOperandToken = attrTokens[0];
-
-  validateAttrRef(lOperandToken);
-
   auto rOperandToken = attrTokens[2];
-  bool isROperandAttrToken = attrTokenMap.find(rOperandToken->getType()) != attrTokenMap.end();
 
-  if (isROperandAttrToken) {
+  if (!isSuitableRef(lOperandToken, rOperandToken)) {
+	setSemanticError();
+	return;
+  }
+
+  if (isAttrRef(lOperandToken)) {
+	validateAttrRef(lOperandToken);
+  }
+
+  if (isAttrRef(rOperandToken)) {
 	validateAttrRef(rOperandToken);
   }
 }

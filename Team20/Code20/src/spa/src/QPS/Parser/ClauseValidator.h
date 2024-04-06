@@ -26,6 +26,12 @@ class ClauseValidator {
 
   bool isExpressionSpec(std::vector<std::shared_ptr<QueryToken>> &tokens);
 
+  bool isAttrRef(std::shared_ptr<QueryToken> token);
+
+  bool isRef(std::shared_ptr<QueryToken> token);
+
+  bool isSuitableRef(std::shared_ptr<QueryToken> lRefToken, std::shared_ptr<QueryToken> rRefToken);
+
   bool isAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens);
 
   void validateAttrRef(std::shared_ptr<QueryToken> attrToken);

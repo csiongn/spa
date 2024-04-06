@@ -23,4 +23,5 @@ class WithClauseParser {
  private:
   SimpleProgram::AttributeRef getAttrRef(std::string attrRefStr);
   PQL::Synonym createSynonymFromAttrToken(std::shared_ptr<QueryToken> attrToken);
+  PQL::Synonym createWithClauseSynonym(std::shared_ptr<QueryToken> operandToken);
 };

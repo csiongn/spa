@@ -21,6 +21,10 @@ Synonym::Synonym(const SimpleProgram::DesignEntity &entity,
 Clause::Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args)
 	: clauseType(abstraction), arguments(args) {}
 
+void Clause::setNotClause() {
+  isNegated = true;
+}
+
 Query::Query(const std::vector<Synonym> &dec, const std::vector<Clause> &cls, const std::vector<PQL::Synonym> &selects)
 	: declarations(dec), clauses(cls), selectSynonyms(selects) {}
 }
