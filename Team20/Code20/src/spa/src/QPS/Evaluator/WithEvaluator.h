@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 #include "ClauseEvaluator.h"
 
 namespace QueryEvaluator {
@@ -33,12 +32,16 @@ class WithEvaluator : private ClauseEvaluator {
 
   static bool canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rArg);
 
+  std::vector<int> getIntValues(const PQL::Synonym &syn);
+
   std::vector<std::string> getIdentValues(const PQL::Synonym &syn);
 
   template<typename T>
   bool createDoubleColumnResult(const PQL::Synonym &lArg,
 								const PQL::Synonym &rArg,
 								std::vector<T> &lValues,
-								const std::vector<T> &rValues);
+								std::vector<T> &rValues);
+
+  std::vector<std::string> getStringIntersection(std::vector<std::string> &v1, std::vector<std::string> &v2);
 };
 }

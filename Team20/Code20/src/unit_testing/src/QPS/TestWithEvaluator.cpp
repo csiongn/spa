@@ -7,7 +7,7 @@
 #include "../TestUtils.h"
 
 TEST_CASE("With Evaluator") {
-  SECTION("Single WITH clause only") {
+  SECTION("Single attribute ref") {
 	SECTION("procedure.procName") {
 	  auto pkb = std::make_shared<PKB>();
 	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
@@ -299,6 +299,382 @@ TEST_CASE("With Evaluator") {
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"3"};
+	  REQUIRE(res == expectedRes);
+	}
+  }
+
+  SECTION("Double attribute ref") {
+	SECTION("procedure.procName and call.procName") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: procedure p; call c; Select p with p.procName = c.procName;" << std::endl;
+
+	  writer->insertProcedure("testProc1");
+	  writer->insertProcedure("testProc2");
+	  writer->insertCallsProcStmt("testProc1", 1);
+
+	  auto procedureSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	  auto callSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {procedureSyn, callSyn});
+	  auto q = PQL::Query({procedureSyn, callSyn}, {withClause}, {procedureSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"testProc1"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("procedure.procName and var.procName") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: procedure p; variable v; Select p with p.procName = v.procName;" << std::endl;
+
+	  writer->insertProcedure("testIdent");
+	  writer->insertProcedure("testProc2");
+	  writer->insertVariable("testIdent");
+
+	  auto procedureSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	  auto varSyn = PQL::Synonym(SimpleProgram::DesignEntity::VARIABLE, "v", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {procedureSyn, varSyn});
+	  auto q = PQL::Query({procedureSyn, varSyn}, {withClause}, {procedureSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"testIdent"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("procedure.procName and read.varName") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: procedure p; read r; Select p with p.procName = r.varName;" << std::endl;
+
+	  writer->insertProcedure("testIdent");
+	  writer->insertProcedure("testProc2");
+	  writer->insertReadVar("testIdent", 1);
+
+	  auto procedureSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	  auto readSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {procedureSyn, readSyn});
+	  auto q = PQL::Query({procedureSyn, readSyn}, {withClause}, {procedureSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"testIdent"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("procedure.procName and print.varName") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: procedure p; print pn; Select p with p.procName = pn.varName;" << std::endl;
+
+	  writer->insertProcedure("testIdent");
+	  writer->insertProcedure("testProc2");
+	  writer->insertPrintVar("testIdent", 1);
+
+	  auto procedureSyn = PQL::Synonym(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	  auto printSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {procedureSyn, printSyn});
+	  auto q = PQL::Query({procedureSyn, printSyn}, {withClause}, {procedureSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"testIdent"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("constant.value and stmt.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; stmt s; Select c with c.value = s.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertStatement({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto stmtSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, stmtSyn});
+	  auto q = PQL::Query({constSyn, stmtSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and read.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; read r; Select c with c.value = r.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertRead({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto readSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, readSyn});
+	  auto q = PQL::Query({constSyn, readSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and print.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; print pn; Select c with c.value = pn.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertPrint({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, rSyn});
+	  auto q = PQL::Query({constSyn, rSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and print.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; call call; Select c with c.value = call.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertCall({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "call", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, rSyn});
+	  auto q = PQL::Query({constSyn, rSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and while.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; while w; Select c with c.value = w.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertWhile({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::WHILE, "w", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, rSyn});
+	  auto q = PQL::Query({constSyn, rSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and if.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; if if; Select c with c.value = if.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertIf({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::IF, "if", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, rSyn});
+	  auto q = PQL::Query({constSyn, rSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("constant.value and assign.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: constant c; assign a; Select c with c.value = a.stmt;" << std::endl;
+
+	  writer->insertConstant({1, 2, 3, 4, 5});
+	  writer->insertAssign({1, 3, 5, 7, 9});
+
+	  auto constSyn = PQL::Synonym(SimpleProgram::DesignEntity::CONSTANT, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {constSyn, rSyn});
+	  auto q = PQL::Query({constSyn, rSyn}, {withClause}, {constSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+
+	SECTION("stmt.stmt and assign.stmt") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: stmt s; assign a; Select s with s.stmt = a.stmt;" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+	  writer->insertAssign({1, 3, 5, 7, 9});
+
+	  auto lSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::ASSIGN, "a", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {lSyn, rSyn});
+	  auto q = PQL::Query({lSyn, rSyn}, {withClause}, {lSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "3", "5"};
+	  REQUIRE(checkVecValuesEqual(res, expectedRes));
+	}
+  }
+
+  SECTION("No attribute ref") {
+	SECTION("Integer empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: stmt s; Select s with 50 = 10;" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+
+	  auto stmtSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
+	  auto lSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "50", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "10", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {lSyn, rSyn});
+	  auto q = PQL::Query({stmtSyn}, {withClause}, {stmtSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("Integer non-empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << "Testing query: stmt s; Select s with 50 = 50;" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+
+	  auto stmtSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
+	  auto lSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "50", SimpleProgram::AttributeRef::INTEGER);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "50", SimpleProgram::AttributeRef::INTEGER);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {lSyn, rSyn});
+	  auto q = PQL::Query({stmtSyn}, {withClause}, {stmtSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("NAME empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << R"(Testing query: stmt s; Select s with "IDENT1" = "IDENT2")" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+
+	  auto stmtSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
+	  auto lSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "IDENT1", SimpleProgram::AttributeRef::NAME);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "IDENT2", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {lSyn, rSyn});
+	  auto q = PQL::Query({stmtSyn}, {withClause}, {stmtSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {};
+	  REQUIRE(res == expectedRes);
+	}
+
+	SECTION("NAME non-empty") {
+	  auto pkb = std::make_shared<PKB>();
+	  std::shared_ptr<IPKBReader> reader = pkb->pkbFacade;
+	  std::shared_ptr<IPKBWriter> writer = pkb->pkbFacade;
+	  QueryEvaluator::QueryEvaluator evaluator = QueryEvaluator::QueryEvaluator(reader);
+
+	  std::cout << "============ Start testing ============" << std::endl;
+	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
+	  std::cout << R"(Testing query: stmt s; Select s with "IDENT1" = "IDENT1")" << std::endl;
+
+	  writer->insertStatement({1, 2, 3, 4, 5});
+
+	  auto stmtSyn = PQL::Synonym(SimpleProgram::DesignEntity::STMT, "s");
+	  auto lSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "IDENT1", SimpleProgram::AttributeRef::NAME);
+	  auto rSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "IDENT1", SimpleProgram::AttributeRef::NAME);
+	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {lSyn, rSyn});
+	  auto q = PQL::Query({stmtSyn}, {withClause}, {stmtSyn});
+
+	  auto res = evaluator.evaluateQuery(q);
+	  std::vector<std::string> expectedRes = {"1", "2", "3", "4", "5"};
 	  REQUIRE(res == expectedRes);
 	}
   }

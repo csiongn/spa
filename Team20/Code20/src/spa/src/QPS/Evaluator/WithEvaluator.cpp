@@ -1,4 +1,5 @@
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "WithEvaluator.h"
@@ -114,8 +115,9 @@ bool WithEvaluator::handleDoubleAttrRef() {
   }
 
   if (lArg.attribute == SimpleProgram::AttributeRef::INTEGER) {
-	std::vector<int> lValues = ClauseEvaluator::getStmtNums(lArg);
-	std::vector<int> rValues = ClauseEvaluator::getStmtNums(rArg);
+	std::vector<int> lValues = getIntValues(lArg);
+	std::vector<int> rValues = getIntValues(rArg);
+
 	return createDoubleColumnResult(lArg, rArg, lValues, rValues);
   } else if (lArg.attribute == SimpleProgram::AttributeRef::NAME) {
 	std::vector<std::string> lValues = getIdentValues(lArg);
@@ -167,6 +169,13 @@ bool WithEvaluator::canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rAr
   return lArg.attribute == rArg.attribute;
 }
 
+std::vector<int> WithEvaluator::getIntValues(const PQL::Synonym &syn) {
+  if (syn.entityType == SimpleProgram::DesignEntity::CONSTANT) {
+	return reader->getAllConstants();
+  }
+  return ClauseEvaluator::getStmtNums(syn);
+}
+
 std::vector<std::string> WithEvaluator::getIdentValues(const PQL::Synonym &syn) {
   switch (syn.entityType) {
 	case SimpleProgram::DesignEntity::PROCEDURE:
@@ -188,20 +197,36 @@ template<typename T>
 bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 											 const PQL::Synonym &rArg,
 											 std::vector<T> &lValues,
-											 const std::vector<T> &rValues) {
+											 std::vector<T> &rValues) {
   if (lValues.empty() || rValues.empty()) {
 	return false;
   }
 
-  // use the smaller result in hope of shorter join time
-  if (rValues.size() < lValues.size()) {
-	// lValue will always be the smaller size one
-	lValues = rValues;
+  std::vector<T> intersection;
+  if constexpr (std::is_same_v<T, int>) {
+	intersection = ClauseEvaluator::getIntersection(lValues, rValues);
+  } else if constexpr (std::is_same_v<T, std::string>) {
+	intersection = getStringIntersection(lValues, rValues);
+  } else {
+	return false;
   }
 
-  resultStore->createColumn(lArg, lValues);
-  resultStore->createColumn(rArg, lValues);
+  resultStore->createColumn(lArg, intersection);
+  resultStore->createColumn(rArg, intersection);
 
   return true;
+}
+
+std::vector<std::string> WithEvaluator::getStringIntersection(std::vector<std::string> &v1,
+															  std::vector<std::string> &v2) {
+  std::unordered_set<std::string> stringSet = std::unordered_set<std::string>(v1.begin(), v1.end());
+  std::vector<std::string> res;
+
+  for (auto &v : v2) {
+	if (stringSet.find(v) != stringSet.end()) {
+	  res.push_back(v);
+	}
+  }
+  return res;
 }
 }
