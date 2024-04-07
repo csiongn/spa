@@ -1,6 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <utility>
+#include <string>
+#include <vector>
 
 #include "PatternEvaluator.h"
 
@@ -23,5 +26,16 @@ class IfAndWhilePatternEvaluator : private PatternEvaluator {
   bool getLeftResults() override;
 
   bool getSynonymWildcard() override;
+
+  std::vector<int> getAllStmts();
+
+  std::vector<int> getAllStmts(const std::string &var);
+
+  std::vector<std::string> getAllVariables();
+
+  std::vector<std::pair<std::string, std::string>> getDoubleSynResult() override;
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected) override;
 };
 }

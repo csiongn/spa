@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "ClauseEvaluator.h"
@@ -14,6 +15,8 @@ class PatternEvaluator : protected ClauseEvaluator {
 
   bool evaluate() override = 0;
 
+  void insertDoubleColumnResult(const std::vector<std::pair<std::string, std::string>> &result);
+
  private:
   virtual bool hasRelationship() = 0;
 
@@ -24,5 +27,10 @@ class PatternEvaluator : protected ClauseEvaluator {
   virtual bool getLeftResults() = 0;
 
   virtual bool getSynonymWildcard() = 0;
+
+  virtual std::vector<std::pair<std::string, std::string>> getDoubleSynResult() = 0;
+
+  virtual std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																									   std::string>> &selected) = 0;
 };
 }

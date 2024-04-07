@@ -32,8 +32,6 @@ class WithEvaluator : private ClauseEvaluator {
 
   static bool canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rArg);
 
-  std::vector<int> getIntValues(const PQL::Synonym &syn);
-
   std::vector<std::string> getIdentValues(const PQL::Synonym &syn);
 
   template<typename T>
@@ -43,5 +41,10 @@ class WithEvaluator : private ClauseEvaluator {
 								std::vector<T> &rValues);
 
   std::vector<std::string> getStringIntersection(std::vector<std::string> &v1, std::vector<std::string> &v2);
+
+  std::vector<std::string> negateStringResults(const PQL::Synonym &syn, const std::vector<std::string> &selected);
+
+  template<typename T>
+  std::vector<T> negateResults(const PQL::Synonym &syn, const std::vector<T> &selected);
 };
 }

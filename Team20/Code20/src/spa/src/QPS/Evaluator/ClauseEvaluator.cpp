@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <unordered_set>
+
 #include "ClauseEvaluator.h"
 
 namespace QueryEvaluator {
@@ -12,9 +14,10 @@ std::vector<int> ClauseEvaluator::getIntersection(std::vector<int> &v1, std::vec
   return intersection;
 }
 
-std::vector<int> ClauseEvaluator::getStmtNums(const PQL::Synonym &syn) {
+std::vector<int> ClauseEvaluator::getAllIntResults(const PQL::Synonym &syn) {
   switch (syn.entityType) {
 	case SimpleProgram::DesignEntity::STMT:
+	case SimpleProgram::DesignEntity::WILDCARD:
 	  return reader->getAllStatementNum();
 	case SimpleProgram::DesignEntity::READ:
 	  return reader->getAllReadStmtNum();
@@ -28,9 +31,25 @@ std::vector<int> ClauseEvaluator::getStmtNums(const PQL::Synonym &syn) {
 	  return reader->getAllWhileStmtNum();
 	case SimpleProgram::DesignEntity::IF:
 	  return reader->getAllIfStmtNum();
+	case SimpleProgram::DesignEntity::CONSTANT:
+	  return reader->getAllConstants();
 	default:
 	  // TODO: throw illegal argument, not allowed entity type for statement reference
 	  return {};
   }
+}
+
+std::vector<int> ClauseEvaluator::negateIntResults(const PQL::Synonym &syn, const std::vector<int> &selected) {
+  std::vector<int> intResults = getAllIntResults(syn);
+  std::vector<int> negatedResults;
+  std::unordered_set<int> selectedSet(selected.begin(), selected.end());
+
+  for (auto const &val : intResults) {
+	if (selectedSet.find(val) == selectedSet.end()) {
+	  negatedResults.push_back(val);
+	}
+  }
+
+  return negatedResults;
 }
 }

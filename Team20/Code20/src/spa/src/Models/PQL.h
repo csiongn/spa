@@ -38,11 +38,11 @@ struct Clause {
   void setNotClause();
 
   bool operator==(const Clause &other) const {
-	return clauseType == other.clauseType && arguments == other.arguments;
+	return clauseType == other.clauseType && arguments == other.arguments && isNegated == other.isNegated;
   };
 
   bool operator!=(const Clause &other) const {
-	return clauseType != other.clauseType || arguments != other.arguments;
+	return clauseType != other.clauseType || arguments != other.arguments || isNegated != other.isNegated;
   };
 };
 

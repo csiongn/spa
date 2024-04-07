@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "PatternEvaluator.h"
@@ -34,5 +35,10 @@ class AssignPatternEvaluator : private PatternEvaluator {
 
   std::vector<int>
   getAssignSynResults(const std::vector<std::string> &vars, const std::vector<std::shared_ptr<ExprNode>> &exprNodes);
+
+  std::vector<std::pair<std::string, std::string>> getDoubleSynResult() override;
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected) override;
 };
 }

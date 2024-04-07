@@ -49,5 +49,11 @@ class EntityEvaluator : private RelationshipEvaluator {
   std::vector<std::string> getUniqueLeftProcNames(const std::string &ident);
 
   std::vector<std::string> getUniqueValues();
+
+  std::vector<std::string> getUniqueValues(const PQL::Synonym lArg);
+
+  std::vector<std::string> negateStringResults(const PQL::Synonym &syn, const std::vector<std::string> &selected);
+
+  std::vector<std::string> getUniqueIdent(const PQL::Synonym &syn);
 };
 }

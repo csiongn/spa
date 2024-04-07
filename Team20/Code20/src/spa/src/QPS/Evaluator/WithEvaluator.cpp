@@ -8,11 +8,13 @@ namespace QueryEvaluator {
 
 bool WithEvaluator::evaluate() {
   if (isAlwaysTrue()) {
-	return true;
+	// return true if not isNegated, false if isNegated, opposite of isNegated
+	return !clause.isNegated;
   }
 
   if (isAlwaysFalse()) {
-	return false;
+	// return false if not isNegated, true if isNegated, same as value of isNegated
+	return clause.isNegated;
   }
 
   // the two on top should have already handled both non-AttrRef
@@ -27,7 +29,6 @@ bool WithEvaluator::evaluate() {
 	return handleSingleAttrRef();
   }
 
-  // uncaught cases
   return false;
 }
 
@@ -89,6 +90,9 @@ bool WithEvaluator::handleSingleAttrRef() {
 		stmtNums = {};
 	}
 
+	if (clause.isNegated) {
+	  stmtNums = negateIntResults(lArg, stmtNums);
+	}
 	if (stmtNums.empty()) {
 	  return false;
 	}
@@ -97,9 +101,28 @@ bool WithEvaluator::handleSingleAttrRef() {
 	return true;
   }
 
-  if ((hasIntegerAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::INTEGER)
-	  || (hasNameAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT)) {
+  if (hasIntegerAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::INTEGER) {
+	std::vector<int> values = {stoi(rArg.identity)};
+	if (clause.isNegated) {
+	  values = negateIntResults(lArg, values);
+	}
+
+	if (values.empty()) {
+	  return false;
+	}
+	resultStore->createColumn(lArg, values);
+	return true;
+  }
+
+  if (hasNameAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
 	std::vector<std::string> values = {rArg.identity};
+	if (clause.isNegated) {
+	  values = negateStringResults(lArg, values);
+	}
+
+	if (values.empty()) {
+	  return false;
+	}
 	resultStore->createColumn(lArg, values);
 	return true;
   }
@@ -115,9 +138,8 @@ bool WithEvaluator::handleDoubleAttrRef() {
   }
 
   if (lArg.attribute == SimpleProgram::AttributeRef::INTEGER) {
-	std::vector<int> lValues = getIntValues(lArg);
-	std::vector<int> rValues = getIntValues(rArg);
-
+	std::vector<int> lValues = ClauseEvaluator::getAllIntResults(lArg);
+	std::vector<int> rValues = ClauseEvaluator::getAllIntResults(rArg);
 	return createDoubleColumnResult(lArg, rArg, lValues, rValues);
   } else if (lArg.attribute == SimpleProgram::AttributeRef::NAME) {
 	std::vector<std::string> lValues = getIdentValues(lArg);
@@ -169,13 +191,6 @@ bool WithEvaluator::canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rAr
   return lArg.attribute == rArg.attribute;
 }
 
-std::vector<int> WithEvaluator::getIntValues(const PQL::Synonym &syn) {
-  if (syn.entityType == SimpleProgram::DesignEntity::CONSTANT) {
-	return reader->getAllConstants();
-  }
-  return ClauseEvaluator::getStmtNums(syn);
-}
-
 std::vector<std::string> WithEvaluator::getIdentValues(const PQL::Synonym &syn) {
   switch (syn.entityType) {
 	case SimpleProgram::DesignEntity::PROCEDURE:
@@ -211,9 +226,20 @@ bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 	return false;
   }
 
-  resultStore->createColumn(lArg, intersection);
-  resultStore->createColumn(rArg, intersection);
+  if (clause.isNegated) {
+	lValues = negateResults(lArg, intersection);
+	rValues = negateResults(rArg, intersection);
+  } else {
+	lValues = intersection;
+	rValues = intersection;
+  }
 
+  if (lValues.empty() || rValues.empty()) {
+	return false;
+  }
+
+  resultStore->createColumn(lArg, lValues);
+  resultStore->createColumn(rArg, rValues);
   return true;
 }
 
@@ -228,5 +254,31 @@ std::vector<std::string> WithEvaluator::getStringIntersection(std::vector<std::s
 	}
   }
   return res;
+}
+
+std::vector<std::string> WithEvaluator::negateStringResults(const PQL::Synonym &syn,
+															const std::vector<std::string> &selected) {
+  std::vector<std::string> stringResults = getIdentValues(syn);
+  std::vector<std::string> isNegatedResults;
+  std::unordered_set<std::string> selectedSet = std::unordered_set<std::string>(selected.begin(), selected.end());
+
+  for (auto const &val : stringResults) {
+	if (selectedSet.find(val) == selectedSet.end()) {
+	  isNegatedResults.push_back(val);
+	}
+  }
+
+  return isNegatedResults;
+}
+
+template<typename T>
+std::vector<T> WithEvaluator::negateResults(const PQL::Synonym &syn, const std::vector<T> &selected) {
+  if constexpr (std::is_same_v<T, int>) {
+	return negateIntResults(syn, selected);
+  } else if constexpr (std::is_same_v<T, std::string>) {
+	return negateStringResults(syn, selected);
+  }
+
+  return {};
 }
 }

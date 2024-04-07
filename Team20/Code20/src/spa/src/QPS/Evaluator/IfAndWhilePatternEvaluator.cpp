@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 #include <unordered_map>
 
 namespace QueryEvaluator {
@@ -26,11 +27,10 @@ bool IfAndWhilePatternEvaluator::hasRelationship() {
   PQL::Synonym patternSyn = clause.arguments[0];
   PQL::Synonym lArg = clause.arguments[1];
 
-  std::vector<int> stmtNums;
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	stmtNums = reader->getIfPatternStmtNum(lArg.identity);
-  } else {
-	stmtNums = reader->getWhilePatternStmtNum(lArg.identity);
+  std::vector<int> stmtNums = getAllStmts(lArg.identity);
+
+  if (clause.isNegated) {
+	stmtNums = negateIntResults(lArg, stmtNums);
   }
 
   if (stmtNums.empty()) {
@@ -47,11 +47,18 @@ bool IfAndWhilePatternEvaluator::hasAtLeastOneRelationship() {
   // not adding IF_SYN/WHILE_SYN to result store, result same as all if/while statements
   // already added during initialise SYN in QueryEvaluator
   PQL::Synonym patternSyn = clause.arguments[0];
+  bool isNotEmpty = false;
   if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	return reader->hasIfPattern();
+	isNotEmpty = reader->hasIfPattern();
+  } else if (patternSyn.entityType == SimpleProgram::DesignEntity::WHILE) {
+	isNotEmpty = reader->hasWhilePattern();
   }
 
-  return reader->hasWhilePattern();
+  if (clause.isNegated) {
+	isNotEmpty = !isNotEmpty;
+  }
+
+  return isNotEmpty;
 }
 
 bool IfAndWhilePatternEvaluator::getForwardRelationship() {
@@ -61,46 +68,83 @@ bool IfAndWhilePatternEvaluator::getForwardRelationship() {
 
 bool IfAndWhilePatternEvaluator::getSynonymWildcard() {
   // Handles (VAR, _) / (VAR, _, _)
-	return getLeftResults();
+  return getLeftResults();
 }
 
 bool IfAndWhilePatternEvaluator::getLeftResults() {
   // Handles (VAR, _) / (VAR, _, _)
-  PQL::Synonym patternSyn = clause.arguments[0];
-  PQL::Synonym lArg = clause.arguments[1];
-  std::vector<std::string> vars;
-  std::vector<int> stmtNums;
+  std::vector<std::pair<std::string, std::string>> res = getDoubleSynResult();
 
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	vars = reader->getIfPatternVariable();
-  } else {
-	vars = reader->getWhilePatternVariable();
+  if (clause.isNegated) {
+	res = negateDoubleSyn(res);
   }
 
-  if (vars.empty()) {
+  if (res.empty()) {
 	return false;
   }
 
-  std::vector<std::vector<std::string>> table = {{}, {}};
-  std::vector<std::string> colNames = {patternSyn.identity, lArg.identity};
-  std::unordered_map<std::string, size_t> colNameToIndex;
-  for (size_t i = 0; i < colNames.size(); i++) {
-	colNameToIndex[colNames[i]] = i;
-  }
-  Result newResult{table, colNames, colNameToIndex};
-
-  for (auto const &var : vars) {
-	if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	  stmtNums = reader->getIfPatternStmtNum(var);
-	} else {
-	  stmtNums = reader->getWhilePatternStmtNum(var);
-	}
-	for (int stmtNum : stmtNums) {
-	  newResult.addRow({std::to_string(stmtNum), var});
-	}
-  }
-
-  resultStore->insertResult(std::make_shared<Result>(newResult));
+  insertDoubleColumnResult(res);
   return true;
+}
+
+std::vector<int> IfAndWhilePatternEvaluator::getAllStmts() {
+  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
+	return reader->getIfPatternStmtNum();
+  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
+	return reader->getWhilePatternStmtNum();
+  }
+
+  return {};
+}
+
+std::vector<int> IfAndWhilePatternEvaluator::getAllStmts(const std::string &var) {
+  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
+	return reader->getIfPatternStmtNum(var);
+  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
+	return reader->getWhilePatternStmtNum(var);
+  }
+
+  return {};
+}
+
+std::vector<std::string> IfAndWhilePatternEvaluator::getAllVariables() {
+  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
+	return reader->getIfPatternVariable();
+  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
+	return reader->getWhilePatternVariable();
+  }
+
+  return {};
+}
+
+std::vector<std::pair<std::string, std::string>> IfAndWhilePatternEvaluator::getDoubleSynResult() {
+  std::vector<std::string> vars = getAllVariables();
+  std::vector<int> stmtNums;
+  std::vector<std::pair<std::string, std::string>> res;
+  for (auto const &var : vars) {
+	stmtNums = getAllStmts(var);
+	for (int stmtNum : stmtNums) {
+	  res.emplace_back(std::to_string(stmtNum), var);
+	}
+  }
+
+  return res;
+}
+
+std::vector<std::pair<std::string, std::string>>
+IfAndWhilePatternEvaluator::negateDoubleSyn(const std::vector<std::pair<std::string, std::string>> &selected) {
+  std::vector<int> stmtNums = getAllStmts();
+  std::vector<std::string> vars = reader->getAllVariables();
+  std::vector<std::pair<std::string, std::string>> negatedRes;
+  for (auto const &stmt : stmtNums) {
+	for (auto const &v : vars) {
+	  std::pair<std::string, std::string> pair(std::to_string(stmt), v);
+	  if (std::find(selected.begin(), selected.end(), pair) == selected.end()) {
+		negatedRes.push_back(pair);
+	  }
+	}
+  }
+
+  return negatedRes;
 }
 }

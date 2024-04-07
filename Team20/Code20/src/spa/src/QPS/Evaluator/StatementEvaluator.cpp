@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace QueryEvaluator {
 
@@ -65,8 +66,13 @@ bool StatementEvaluator::hasRelationship() {
   // handles XXX(STMT_NO, STMT_NO)
   int leftStmtNum = stoi(clause.arguments[0].identity);
   int rightStmtNum = stoi(clause.arguments[1].identity);
+  bool isNotEmpty = hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum);
 
-  return hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum);
+  if (clause.isNegated) {
+	return !isNotEmpty;
+  } else {
+	return isNotEmpty;
+  }
 }
 
 bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int leftStmtNum,
@@ -97,25 +103,39 @@ bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction 
 
 bool StatementEvaluator::hasAtLeastOneRelationship() {
   // handles XXX(_, _)
+  bool isNotEmpty = false;
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	  return reader->hasFollowsRelationship();
+	  isNotEmpty = reader->hasFollowsRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::FOLLOWST:
-	  return reader->hasFollowsTRelationship();
+	  isNotEmpty = reader->hasFollowsTRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::PARENT:
-	  return reader->hasParentRelationship();
+	  isNotEmpty = reader->hasParentRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::PARENTT:
-	  return reader->hasParentTRelationship();
+	  isNotEmpty = reader->hasParentTRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::NEXT:
-	  return reader->hasNextRelationship();
+	  isNotEmpty = reader->hasNextRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::NEXTT:
-	  return reader->hasNextTRelationship();
+	  isNotEmpty = reader->hasNextTRelationship();
+	  break;
 	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  return reader->hasAffectsRelationship();
+	  isNotEmpty = reader->hasAffectsRelationship();
+	  break;
 	default:
 	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  return false;
+	  isNotEmpty = false;
   }
+
+  if (clause.isNegated) {
+	return !isNotEmpty;
+  }
+
+  return isNotEmpty;
 }
 
 bool StatementEvaluator::getForwardRelationship() {
@@ -154,12 +174,19 @@ bool StatementEvaluator::getForwardRelationship() {
 		rResults = {};
 	}
 
-	if (rArg.entityType == SimpleProgram::DesignEntity::STMT && !rResults.empty()) {
+	if (clause.isNegated) {
+	  rResults = negateIntResults(rArg, rResults);
+	}
+
+	bool isNotEmpty = !rResults.empty();
+	if (rArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty) {
 	  resultStore->createColumn(rArg, rResults);
 	}
-	return !rResults.empty();
+
+	return isNotEmpty;
   }
 
+  // rArg = stmtRef synonyms excluding STMT
   return getRightResults();
 }
 
@@ -168,27 +195,34 @@ bool StatementEvaluator::getRightResults() {
   PQL::Synonym rArg = clause.arguments[1];
   int leftStmtNum = stoi(clause.arguments[0].identity);
 
-  std::vector<std::string> rResults = {};
-  std::vector<int> rightStmtNums = ClauseEvaluator::getStmtNums(rArg);
+  std::vector<int> rResults = {};
+  std::vector<int> rightStmtNums = ClauseEvaluator::getAllIntResults(rArg);
 
   for (auto rightStmtNum : rightStmtNums) {
 	if (hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum)) {
-	  rResults.push_back(std::to_string(rightStmtNum));
+	  rResults.push_back(rightStmtNum);
 	}
   }
 
-  if (rResults.empty()) {
-	return false;
+  if (clause.isNegated) {
+	rResults = negateIntResults(rArg, rResults);
+  }
+  bool isNotEmpty = !rResults.empty();
+  if (isNotEmpty) {
+	resultStore->createColumn(rArg, rResults);
   }
 
-  resultStore->createColumn(rArg, rResults);
-  return true;
+  return isNotEmpty;
 }
 
 bool StatementEvaluator::getWildcardSynonym() {
   // handles (_, SYN)
   PQL::Synonym rArg = clause.arguments[1];
   std::vector<int> rResults = getUniqueValues(rArg);
+
+  if (clause.isNegated) {
+	rResults = negateIntResults(rArg, rResults);
+  }
 
   if (rResults.empty()) {
 	return false;
@@ -234,10 +268,15 @@ bool StatementEvaluator::getReversedRelationship() {
 		lResults = {};
 	}
 
-	if (lArg.entityType == SimpleProgram::DesignEntity::STMT && !lResults.empty()) {
+	if (clause.isNegated) {
+	  lResults = negateIntResults(lArg, lResults);
+	}
+
+	bool isNotEmpty = !lResults.empty();
+	if (lArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty) {
 	  resultStore->createColumn(lArg, lResults);
 	}
-	return !lResults.empty();
+	return isNotEmpty;
   }
 
   return getLeftResults();
@@ -248,27 +287,35 @@ bool StatementEvaluator::getLeftResults() {
   PQL::Synonym lArg = clause.arguments[0];
   int rightStmtNum = stoi(clause.arguments[1].identity);
 
-  std::vector<std::string> lResults = {};
-  std::vector<int> leftStmtNums = ClauseEvaluator::getStmtNums(lArg);
+  std::vector<int> lResults = {};
+  std::vector<int> leftStmtNums = ClauseEvaluator::getAllIntResults(lArg);
 
   for (auto leftStmtNum : leftStmtNums) {
 	if (hasRelationship(clause.clauseType, leftStmtNum, rightStmtNum)) {
-	  lResults.push_back(std::to_string(leftStmtNum));
+	  lResults.push_back(leftStmtNum);
 	}
   }
 
-  if (lResults.empty()) {
-	return false;
+  if (clause.isNegated) {
+	lResults = negateIntResults(lArg, lResults);
   }
 
-  resultStore->createColumn(lArg, lResults);
-  return true;
+  bool isNotEmpty = !lResults.empty();
+  if (isNotEmpty) {
+	resultStore->createColumn(lArg, lResults);
+  }
+
+  return isNotEmpty;
 }
 
 bool StatementEvaluator::getSynonymWildcard() {
   // handles (SYN, _)
   PQL::Synonym lArg = clause.arguments[0];
   std::vector<int> lResults = getUniqueKeys(lArg);
+
+  if (clause.isNegated) {
+	lResults = negateIntResults(lArg, lResults);
+  }
 
   if (lResults.empty()) {
 	return false;
@@ -312,8 +359,10 @@ std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
 	return keyStmtNums;
   }
 
-  std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(syn);
-  return ClauseEvaluator::getIntersection(synStmtNums, keyStmtNums);
+  std::vector<int> synStmtNums = ClauseEvaluator::getAllIntResults(syn);
+  std::vector<int> intersection = ClauseEvaluator::getIntersection(synStmtNums, keyStmtNums);
+
+  return intersection;
 }
 
 std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
@@ -350,8 +399,10 @@ std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
 	return valueStmtNums;
   }
 
-  std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(syn);
-  return ClauseEvaluator::getIntersection(synStmtNums, valueStmtNums);
+  std::vector<int> synStmtNums = ClauseEvaluator::getAllIntResults(syn);
+  std::vector<int> intersection = ClauseEvaluator::getIntersection(synStmtNums, valueStmtNums);
+
+  return intersection;
 }
 
 bool StatementEvaluator::getDoubleSynonym() {
@@ -364,7 +415,7 @@ bool StatementEvaluator::getDoubleSynonym() {
 
   for (auto v1 : lValues) {
 	for (auto v2 : rValues) {
-	  if (hasRelationship(clause.clauseType, v1, v2)) {
+	  if (hasRelationship(clause.clauseType, v1, v2) || clause.isNegated) {
 		lResults.push_back(std::to_string(v1));
 		rResults.push_back(std::to_string(v2));
 	  }

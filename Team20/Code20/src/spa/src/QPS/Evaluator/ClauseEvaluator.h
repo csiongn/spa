@@ -26,6 +26,8 @@ class ClauseEvaluator {
 
   static std::vector<int> getIntersection(std::vector<int> &v1, std::vector<int> &v2);
 
-  std::vector<int> getStmtNums(const PQL::Synonym &syn);
+  std::vector<int> getAllIntResults(const PQL::Synonym &syn);
+
+  std::vector<int> negateIntResults(const PQL::Synonym &syn, const std::vector<int> &selected);
 };
 }
