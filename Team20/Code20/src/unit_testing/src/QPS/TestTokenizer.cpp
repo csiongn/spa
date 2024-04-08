@@ -372,4 +372,24 @@ TEST_CASE("Tokenizer") {
 	};
 	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
   }
+
+  // Test whitespace before attributes both before full stop and after
+  SECTION("Attribute with whitespace") {
+	QueryTokenizer queryTokenizer;
+	std::string query1 = "stmt s; Select s with s   .stmt# = 1";
+	std::string query2 = "stmt s; Select s with s.     stmt# = 1";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query2), QuerySyntaxError);
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query1), QuerySyntaxError);
+
+  }
+
+  SECTION("Multi clause") {
+	QueryTokenizer queryTokenizer;
+	std::string query =
+		"Select <w1, p1>  such that Next(_, pn1) with r1.varName=p1.procName with \"a\"=v1.varName  pattern w1(_, _)";
+
+	auto tokens = queryTokenizer.tokenize(query);
+	// TODO: Update expected tokens
+	printTokens(tokens);
+  }
 }

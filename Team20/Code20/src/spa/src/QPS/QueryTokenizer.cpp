@@ -246,6 +246,11 @@ void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std:
 }
 
 void QueryTokenizer::processAttribute(std::string currentStr) {
+  // If currentStr is empty, means syntaxError, likely case that there was whitespace before full stop
+  // s        .attrName
+  if (currentStr.empty()) {
+	throw QuerySyntaxError("Syntax Error: Invalid whitespace before attribute");
+  }
   std::string currAttributeString = currentStr;
   std::string currAttributeValue = "";
   // Process until whitespace
@@ -257,7 +262,7 @@ void QueryTokenizer::processAttribute(std::string currentStr) {
 
   nextChar = peekChar();
   // Getting attribute field value, unable to validate syntax
-  while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF) {
+  while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF && nextChar != Constants::SpecialCharacters::EQUAL) {
 	currAttributeValue += nextChar;
 	removeChar();
 	nextChar = peekChar();
