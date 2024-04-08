@@ -5,13 +5,19 @@
 #include <utility>
 
 #include "control_flow_graph/CFG.h"
+#include "control_flow_graph/NextExtractor.h"
 
 class RuntimeExtractor {
 
 	// Attributes
 	std::shared_ptr<CFGManager> cfgManager;
+	std::shared_ptr<NextExtractor> nextExtractor;
 
  public:
+	// Constructor
+	RuntimeExtractor(std::shared_ptr<CFGManager> cfgManager, std::shared_ptr<NextExtractor> nextExtractor)
+	: cfgManager(std::move(cfgManager)), nextExtractor(std::move(nextExtractor)) {}
+
 	// Checks whether any NextT relationship exists
 	bool hasNextT();
 

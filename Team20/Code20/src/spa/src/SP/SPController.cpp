@@ -9,6 +9,7 @@
 #include "control_flow_graph/CFG.h"
 #include "control_flow_graph/CFGBuilder.h"
 #include "control_flow_graph/NextExtractor.h"
+#include "RuntimeExtractor.h"
 
 void SPController::populatePKB() {
   // Tokenize program
@@ -23,12 +24,16 @@ void SPController::populatePKB() {
   const ProgramNode &astRoot = *parsed_program;
   designExtractor.extractDesign(astRoot);
 
-  const std::shared_ptr<CFGManager> cfgManager = CFGBuilder::buildCFG(astRoot);
-  const std::shared_ptr<NextExtractor> nextExtractor = std::make_shared<NextExtractor>();
+	std::shared_ptr<CFGManager> cfgManager = CFGBuilder::buildCFG(astRoot);
+	std::shared_ptr<NextExtractor> nextExtractor = std::make_shared<NextExtractor>();
   cfgManager->accept(*nextExtractor);
   nextExtractor->pushToPKB(pkbWriter);
+	nextExtractor->finalize();
 
-  // PKB is populated
+	std::shared_ptr<RuntimeExtractor> runtimeExtractor =
+		std::make_shared<RuntimeExtractor>(cfgManager, nextExtractor);
+
+	pkbWriter->insertRuntimeExtractor(runtimeExtractor);
 }
 
 void SPController::insertEntity(SimpleProgram::DesignEntity entity, const std::unordered_set<int> &value) {

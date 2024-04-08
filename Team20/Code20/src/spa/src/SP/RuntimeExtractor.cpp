@@ -4,39 +4,39 @@
 #include "RuntimeExtractor.h"
 
 bool RuntimeExtractor::hasNextT() {
-  return false;
+  return nextExtractor->hasNextT();
 }
 
 bool RuntimeExtractor::containsNextT(int stmtNoFrom, int stmtNoTo) {
-  return false;
+  return nextExtractor->containsNextT(stmtNoFrom, stmtNoTo);
 }
 
 bool RuntimeExtractor::containsNextTFrom(int stmtNo) {
-  return false;
+  return nextExtractor->containsNextTFrom(stmtNo);
 }
 
 bool RuntimeExtractor::containsNextTTo(int stmtNo) {
-  return false;
+  return nextExtractor->containsNextTTo(stmtNo);
 }
 
 std::vector<int> RuntimeExtractor::getStatementsNextTFrom(int stmtNo) {
-  return std::vector<int>();
+  return nextExtractor->getStatementsNextTFrom(stmtNo);
 }
 
 std::vector<int> RuntimeExtractor::getStatementsNextTTo(int stmtNo) {
-  return std::vector<int>();
+  return nextExtractor->getStatementsNextTTo(stmtNo);
 }
 
 std::vector<int> RuntimeExtractor::getStatementsNextTFrom() {
-  return std::vector<int>();
+  return nextExtractor->getStatementsNextTFrom();
 }
 
 std::vector<int> RuntimeExtractor::getStatementsNextTTo() {
-  return std::vector<int>();
+  return nextExtractor->getStatementsNextTTo();
 }
 
 std::vector<std::pair<int, int>> RuntimeExtractor::getNextT() {
-  return std::vector<std::pair<int, int>>();
+  return nextExtractor->getNextT();
 }
 
 bool RuntimeExtractor::hasAffects() {
