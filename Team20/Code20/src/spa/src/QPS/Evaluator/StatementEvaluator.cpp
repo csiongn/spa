@@ -55,7 +55,8 @@ bool StatementEvaluator::evaluate() {
 
 bool StatementEvaluator::isAlwaysFalse() {
   if (clause.arguments[0].entityType == SimpleProgram::DesignEntity::WILDCARD
-	  || clause.arguments[1].entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  || clause.arguments[1].entityType == SimpleProgram::DesignEntity::WILDCARD
+	  || clause.clauseType == SimpleProgram::DesignAbstraction::NEXTT) {
 	return false;
   }
 
