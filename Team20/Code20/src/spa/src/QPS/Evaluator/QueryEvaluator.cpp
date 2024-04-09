@@ -31,12 +31,17 @@ std::vector<std::string> QueryEvaluator::evaluateQuery(const PQL::Query &q) {
 	}
   }
 
+  // all clauses evaluate to non-empty/TRUE
+  // need to select from the results
+  bool moreThanOneClause = resultStore->results.size() > 1;
+  std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonyms);
   if (q.selectSynonyms[0].entityType == SimpleProgram::DesignEntity::BOOLEAN) {
+	if (selectResult.empty() && moreThanOneClause) {
+	  // result after join is empty
+	  return {"FALSE"};
+	}
 	return {"TRUE"};
   }
-
-  // need to select from the results
-  std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonyms);
   return selectResult;
 }
 
