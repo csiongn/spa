@@ -1,0 +1,125 @@
+1 - Relationships from wiki page
+
+Select BOOLEAN such that Next(2, 3)
+TRUE
+5000
+2 -
+
+Select BOOLEAN such that Next(3, 4)
+TRUE
+5000
+3 -
+
+Select BOOLEAN such that Next(3, 7)
+TRUE
+5000
+4 -
+
+Select BOOLEAN such that Next(5, 6)
+TRUE
+5000
+5 -
+
+Select BOOLEAN such that Next(7, 9)
+TRUE
+5000
+6 -
+
+Select BOOLEAN such that Next(8, 10)
+TRUE
+5000
+7 -
+
+Select BOOLEAN such that Next(6, 4)
+FALSE
+5000
+8 -
+
+Select BOOLEAN such that Next(7, 10)
+FALSE
+5000
+9 -
+
+Select BOOLEAN such that Next(8, 9)
+FALSE
+5000
+10 - Combine above results
+
+Select BOOLEAN such that Next(2, 3) and Next(3, 4) and Next(3, 7) and Next(5, 6) and Next(7, 9) and Next(8, 10)
+TRUE
+5000
+11 -
+
+Select BOOLEAN such that Next(7, 9) and Next(8, 10) and Next(6, 4) and Next(7, 10) and Next(8, 9)
+FALSE
+5000
+12 - NextT queries from wiki page
+
+Select BOOLEAN such that Next*(1,2)
+TRUE
+5000
+13 -
+
+Select BOOLEAN such that Next*(1,3)
+TRUE
+5000
+14 -
+
+Select BOOLEAN such that Next*(2,5)
+TRUE
+5000
+15 -
+
+Select BOOLEAN such that Next*(4,3)
+TRUE
+5000
+16 -
+
+Select BOOLEAN such that Next*(5,5)
+TRUE
+5000
+17 -
+
+Select BOOLEAN such that Next*(5,8)
+TRUE
+5000
+18 -
+
+Select BOOLEAN such that Next*(5,12)
+TRUE
+5000
+19 - False queries
+
+Select BOOLEAN such that Next*(8,9)
+FALSE
+5000
+20 -
+
+Select BOOLEAN such that Next*(5,2)
+FALSE
+5000
+21-
+
+Select BOOLEAN such that Next*(6,6)
+TRUE
+5000
+22-
+
+Select BOOLEAN such that Next*(4,4)
+TRUE
+5000
+23 - Combine above nextT queries
+
+Select BOOLEAN such that Next*(5,8) and Next*(5,12)
+TRUE
+5000
+24 -
+
+Select BOOLEAN such that Next*(1,2) and Next*(1,3) and Next*(2,5) and Next*(4,3) and Next*(5,5) and Next*(5,8) and Next*(5,12)
+TRUE
+5000
+25 -
+
+Select BOOLEAN such that Next*(8,9) and Next*(5,2) and Next*(1,3)
+FALSE
+5000
