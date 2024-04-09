@@ -5,7 +5,7 @@ set -e
 SCRIPT_DIR=$(cd "$(dirname "\$0")" && pwd)
 
 # Base directory where to start searching for autotester.exe
-AUTOTESTER_BASE_DIR="$SCRIPT_DIR/Code20"
+AUTOTESTER_BASE_DIR="$SCRIPT_DIR/Team20/Code20/"
 
 # Set the default mode to DEBUG
 MODE="Debug"
@@ -53,7 +53,7 @@ if [[ -z "$AUTOTESTER_PATH" ]]; then
 fi
 
 # Base directory
-base_dir="$(pwd)/Tests20"
+base_dir="$(pwd)/Team20/Tests20"
 
 # Find all directories within Tests20 and loop over them
 find "$base_dir" -mindepth 1 -type d | while IFS= read -r dir; do
