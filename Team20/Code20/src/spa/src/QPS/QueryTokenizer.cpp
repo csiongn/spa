@@ -25,31 +25,37 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
 	// Process string within apostrophe
 	if (nextChar == Constants::SpecialCharacters::QUOTE) {
 	  processApostrophe(); // until apostrophe is closed
+	  removeChar();
 	} else if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
 	  processAttribute(currentStr);
 	  currentStr.clear();
 	} else if (nextChar == Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
 	  processTuple();
+	  removeChar();
 	} else if (isCharWhitespace(nextChar)) {
 	  if (!currentStr.empty()) {
 		processString(currentStr);
 		currentStr.clear();
 	  }
+	  removeChar();
 	} else if (isCharStar(nextChar)) {
 	  processStar(currentStr);
 	  currentStr.clear();
+	  removeChar();
 	} else if (nextChar == Constants::SpecialCharacters::UNDERSCORE) {
 	  processWildcard();
+	  removeChar();
 	} else if (isCharSeparator(nextChar)) {
 	  // Process Separator character
 	  processSeparator(currentStr, nextChar);
 	  currentStr.clear();
+	  removeChar();
 	} else if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
 	  currentStr += nextChar;
+	  removeChar();
 	} else {
 	  throw QuerySyntaxError("Syntax Error for the Invalid token: " + std::string(1, nextChar));
 	}
-	removeChar();
 	nextChar = peekChar();
   }
   // Reach EOF

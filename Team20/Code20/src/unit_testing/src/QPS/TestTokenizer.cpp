@@ -378,18 +378,78 @@ TEST_CASE("Tokenizer") {
 	QueryTokenizer queryTokenizer;
 	std::string query1 = "stmt s; Select s with s   .stmt# = 1";
 	std::string query2 = "stmt s; Select s with s.     stmt# = 1";
-	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query2), QuerySyntaxError);
+	std::string query3 = "stmt s; Select s with s.stmt     # = 1";
 	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query1), QuerySyntaxError);
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query2), QuerySyntaxError);
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query3), QuerySyntaxError);
 
   }
 
   SECTION("Multi clause") {
 	QueryTokenizer queryTokenizer;
 	std::string query =
-		"Select <w1, p1>  such that Next(_, pn1) with r1.varName=p1.procName with \"a\"=v1.varName  pattern w1(_, _)";
+		"while w1; procedure p1; print p1; read r1; variable v1;"\
+        "Select <w1, p1> such that Next(_, pn1) with r1.varName=p1.procName with \"a\"=v1.varName pattern w1(_, _)";
 
 	auto tokens = queryTokenizer.tokenize(query);
-	// TODO: Update expected tokens
-	printTokens(tokens);
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::NAME, "while"),
+		QueryToken(QPS::TokenType::NAME, "w1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "procedure"),
+		QueryToken(QPS::TokenType::NAME, "p1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "print"),
+		QueryToken(QPS::TokenType::NAME, "p1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "read"),
+		QueryToken(QPS::TokenType::NAME, "r1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "variable"),
+		QueryToken(QPS::TokenType::NAME, "v1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "Select"),
+		QueryToken(QPS::TokenType::TUPLE, "<w1,p1>"),
+		QueryToken(QPS::TokenType::NAME, "such"),
+		QueryToken(QPS::TokenType::NAME, "that"),
+		QueryToken(QPS::TokenType::NAME, "Next"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "("),
+		QueryToken(QPS::TokenType::WILDCARD, "_"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::NAME, "pn1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ")"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "r1.varName"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "p1.procName"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::CONSTANT_STRING, "a"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::ATTRIBUTE_NAME, "v1.varName"),
+		QueryToken(QPS::TokenType::NAME, "pattern"),
+		QueryToken(QPS::TokenType::NAME, "w1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "("),
+		QueryToken(QPS::TokenType::WILDCARD, "_"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::WILDCARD, "_"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ")")
+	};
+	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+  }
+
+  SECTION("Multi clause 1") {
+	QueryTokenizer queryTokenizer;
+	std::string query =
+		"if ifs; while w;"
+		"Select BOOLEAN pattern w (\"x\", _) and ifs (\"x\", _, _) such that Parent(w, ifs)";
+
+	auto tokens = queryTokenizer.tokenize(query);
+  }
+
+  SECTION("Tuple") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "assign a; while w; constant c;\n"
+						"Select <a, w> ";
+	auto tokens = queryTokenizer.tokenize(query);
   }
 }
