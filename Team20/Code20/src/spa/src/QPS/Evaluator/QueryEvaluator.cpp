@@ -1,6 +1,9 @@
+#include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
+
 
 #include "Models/PQL.h"
 #include "Models/SimpleProgram.h"
@@ -128,25 +131,21 @@ std::vector<std::string> QueryEvaluator::getStringResults(const PQL::Synonym &sy
 }
 
 std::vector<int> QueryEvaluator::getIntResults(const PQL::Synonym &syn) const {
-  switch (syn.entityType) {
-	case SimpleProgram::DesignEntity::STMT:
-	  return reader->getAllStatementNum();
-	case SimpleProgram::DesignEntity::READ:
-	  return reader->getAllReadStmtNum();
-	case SimpleProgram::DesignEntity::PRINT:
-	  return reader->getAllPrintStmtNum();
-	case SimpleProgram::DesignEntity::ASSIGN:
-	  return reader->getAllAssignStmtNum();
-	case SimpleProgram::DesignEntity::CALL:
-	  return reader->getAllCallStmtNum();
-	case SimpleProgram::DesignEntity::WHILE:
-	  return reader->getAllWhileStmtNum();
-	case SimpleProgram::DesignEntity::IF:
-	  return reader->getAllIfStmtNum();
-	case SimpleProgram::DesignEntity::CONSTANT:
-	  return reader->getAllConstants();
-	default:
-	  return {};
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignEntity::STMT, [this] { return reader->getAllStatementNum(); }},
+	  {SimpleProgram::DesignEntity::READ, [this] { return reader->getAllReadStmtNum(); }},
+	  {SimpleProgram::DesignEntity::PRINT, [this] { return reader->getAllPrintStmtNum(); }},
+	  {SimpleProgram::DesignEntity::ASSIGN, [this] { return reader->getAllAssignStmtNum(); }},
+	  {SimpleProgram::DesignEntity::CALL, [this] { return reader->getAllCallStmtNum(); }},
+	  {SimpleProgram::DesignEntity::WHILE, [this] { return reader->getAllWhileStmtNum(); }},
+	  {SimpleProgram::DesignEntity::IF, [this] { return reader->getAllIfStmtNum(); }},
+	  {SimpleProgram::DesignEntity::CONSTANT, [this] { return reader->getAllConstants(); }}
+  };
+
+  if (funcMap.find(syn.entityType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[syn.entityType]();
 }
 }

@@ -1,5 +1,7 @@
+#include <functional>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 #include "WithEvaluator.h"
@@ -75,19 +77,15 @@ bool WithEvaluator::handleSingleAttrRef() {
 
   if (hasMultiAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
 	// CALL/READ/PRINT & IDENT, NEED TO QUERY PKB TO GET THE RESULT
+	std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>()>> funcMap = {
+		{SimpleProgram::DesignEntity::CALL, [this, rArg] { return reader->getCallsProcStmtNum(rArg.identity); }},
+		{SimpleProgram::DesignEntity::READ, [this, rArg] { return reader->getReadStmtNum(rArg.identity); }},
+		{SimpleProgram::DesignEntity::PRINT, [this, rArg] { return reader->getPrintStmtNum(rArg.identity); }},
+	};
+
 	std::vector<int> stmtNums;
-	switch (lArg.entityType) {
-	  case SimpleProgram::DesignEntity::CALL:
-		stmtNums = reader->getCallsProcStmtNum(rArg.identity);
-		break;
-	  case SimpleProgram::DesignEntity::READ:
-		stmtNums = reader->getReadStmtNum(rArg.identity);
-		break;
-	  case SimpleProgram::DesignEntity::PRINT:
-		stmtNums = reader->getPrintStmtNum(rArg.identity);
-		break;
-	  default:
-		stmtNums = {};
+	if (funcMap.find(lArg.entityType) != funcMap.end()) {
+	  stmtNums = funcMap[lArg.entityType]();
 	}
 
 	if (clause.isNegated) {
@@ -192,20 +190,19 @@ bool WithEvaluator::canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rAr
 }
 
 std::vector<std::string> WithEvaluator::getIdentValues(const PQL::Synonym &syn) {
-  switch (syn.entityType) {
-	case SimpleProgram::DesignEntity::PROCEDURE:
-	  return reader->getAllProcedures();
-	case SimpleProgram::DesignEntity::CALL:
-	  return reader->getCallsProcName();
-	case SimpleProgram::DesignEntity::VARIABLE:
-	  return reader->getAllVariables();
-	case SimpleProgram::DesignEntity::READ:
-	  return reader->getReadVariable();
-	case SimpleProgram::DesignEntity::PRINT:
-	  return reader->getPrintVariable();
-	default:
-	  return {};
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return reader->getAllProcedures(); }},
+	  {SimpleProgram::DesignEntity::CALL, [this] { return reader->getCallsProcName(); }},
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return reader->getAllVariables(); }},
+	  {SimpleProgram::DesignEntity::READ, [this] { return reader->getReadVariable(); }},
+	  {SimpleProgram::DesignEntity::PRINT, [this] { return reader->getPrintVariable(); }},
+  };
+
+  if (funcMap.find(syn.entityType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[syn.entityType]();
 }
 
 template<typename T>

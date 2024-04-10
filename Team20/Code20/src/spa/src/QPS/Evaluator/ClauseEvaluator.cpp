@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <functional>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "ClauseEvaluator.h"
 
@@ -15,28 +17,23 @@ std::vector<int> ClauseEvaluator::getIntersection(std::vector<int> &v1, std::vec
 }
 
 std::vector<int> ClauseEvaluator::getAllIntResults(const PQL::Synonym &syn) {
-  switch (syn.entityType) {
-	case SimpleProgram::DesignEntity::STMT:
-	case SimpleProgram::DesignEntity::WILDCARD:
-	  return reader->getAllStatementNum();
-	case SimpleProgram::DesignEntity::READ:
-	  return reader->getAllReadStmtNum();
-	case SimpleProgram::DesignEntity::PRINT:
-	  return reader->getAllPrintStmtNum();
-	case SimpleProgram::DesignEntity::ASSIGN:
-	  return reader->getAllAssignStmtNum();
-	case SimpleProgram::DesignEntity::CALL:
-	  return reader->getAllCallStmtNum();
-	case SimpleProgram::DesignEntity::WHILE:
-	  return reader->getAllWhileStmtNum();
-	case SimpleProgram::DesignEntity::IF:
-	  return reader->getAllIfStmtNum();
-	case SimpleProgram::DesignEntity::CONSTANT:
-	  return reader->getAllConstants();
-	default:
-	  // TODO: throw illegal argument, not allowed entity type for statement reference
-	  return {};
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignEntity::STMT, [this] { return reader->getAllStatementNum(); }},
+	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return reader->getAllStatementNum(); }},
+	  {SimpleProgram::DesignEntity::READ, [this] { return reader->getAllReadStmtNum(); }},
+	  {SimpleProgram::DesignEntity::PRINT, [this] { return reader->getAllPrintStmtNum(); }},
+	  {SimpleProgram::DesignEntity::ASSIGN, [this] { return reader->getAllAssignStmtNum(); }},
+	  {SimpleProgram::DesignEntity::CALL, [this] { return reader->getAllCallStmtNum(); }},
+	  {SimpleProgram::DesignEntity::WHILE, [this] { return reader->getAllWhileStmtNum(); }},
+	  {SimpleProgram::DesignEntity::IF, [this] { return reader->getAllIfStmtNum(); }},
+	  {SimpleProgram::DesignEntity::CONSTANT, [this] { return reader->getAllConstants(); }}
+  };
+
+  if (funcMap.find(syn.entityType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[syn.entityType]();
 }
 
 std::vector<int> ClauseEvaluator::negateIntResults(const PQL::Synonym &syn, const std::vector<int> &selected) {

@@ -1,5 +1,6 @@
 #include "IfAndWhilePatternEvaluator.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -8,18 +9,19 @@
 
 namespace QueryEvaluator {
 bool IfAndWhilePatternEvaluator::evaluate() {
-  PQL::Synonym lArg = clause.arguments[1];
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return getForwardRelationship(); }},
+	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return hasAtLeastOneRelationship(); }},
+	  {SimpleProgram::DesignEntity::IDENT, [this] { return hasRelationship(); }},
+  };
 
-  if (lArg.entityType == SimpleProgram::DesignEntity::VARIABLE) {
-	// (VAR, _)
-	return getForwardRelationship();
-  } else if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-	// (_, _)
-	return hasAtLeastOneRelationship();
-  } else {
-	// ("IDENT", _)
-	return hasRelationship();
+  PQL::Synonym lArg = clause.arguments[1];
+  if (funcMap.find(lArg.entityType) == funcMap.end()) {
+	// unhandled cases
+	return false;
   }
+
+  return funcMap[lArg.entityType]();
 }
 
 bool IfAndWhilePatternEvaluator::hasRelationship() {
@@ -46,12 +48,15 @@ bool IfAndWhilePatternEvaluator::hasAtLeastOneRelationship() {
   // handles (_, _)
   // not adding IF_SYN/WHILE_SYN to result store, result same as all if/while statements
   // already added during initialise SYN in QueryEvaluator
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignEntity::IF, [this] { return reader->hasIfPattern(); }},
+	  {SimpleProgram::DesignEntity::WHILE, [this] { return reader->hasWhilePattern(); }},
+  };
+
   PQL::Synonym patternSyn = clause.arguments[0];
   bool isNotEmpty = false;
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	isNotEmpty = reader->hasIfPattern();
-  } else if (patternSyn.entityType == SimpleProgram::DesignEntity::WHILE) {
-	isNotEmpty = reader->hasWhilePattern();
+  if (funcMap.find(patternSyn.entityType) != funcMap.end()) {
+	isNotEmpty = funcMap[patternSyn.entityType]();
   }
 
   if (clause.isNegated) {
@@ -88,33 +93,42 @@ bool IfAndWhilePatternEvaluator::getLeftResults() {
 }
 
 std::vector<int> IfAndWhilePatternEvaluator::getAllStmts() {
-  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
-	return reader->getIfPatternStmtNum();
-  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
-	return reader->getWhilePatternStmtNum();
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this] { return reader->getIfPatternStmtNum(); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this] { return reader->getWhilePatternStmtNum(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
 
-  return {};
+  return funcMap[clause.clauseType]();
 }
 
 std::vector<int> IfAndWhilePatternEvaluator::getAllStmts(const std::string &var) {
-  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
-	return reader->getIfPatternStmtNum(var);
-  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
-	return reader->getWhilePatternStmtNum(var);
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this, var] { return reader->getIfPatternStmtNum(var); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this, var] { return reader->getWhilePatternStmtNum(var); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
 
-  return {};
+  return funcMap[clause.clauseType]();
 }
 
 std::vector<std::string> IfAndWhilePatternEvaluator::getAllVariables() {
-  if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_IF) {
-	return reader->getIfPatternVariable();
-  } else if (clause.clauseType == SimpleProgram::DesignAbstraction::PATTERN_WHILE) {
-	return reader->getWhilePatternVariable();
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this] { return reader->getIfPatternVariable(); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this] { return reader->getWhilePatternVariable(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
 
-  return {};
+  return funcMap[clause.clauseType]();
 }
 
 std::vector<std::pair<std::string, std::string>> IfAndWhilePatternEvaluator::getDoubleSynResult() {

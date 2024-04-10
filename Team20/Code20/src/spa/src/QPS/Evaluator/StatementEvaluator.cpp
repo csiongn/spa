@@ -1,11 +1,13 @@
 #include "StatementEvaluator.h"
 #include "ClauseEvaluator.h"
 
+#include <functional>
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
+
 
 namespace QueryEvaluator {
 
@@ -78,58 +80,44 @@ bool StatementEvaluator::hasRelationship() {
 
 bool StatementEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int leftStmtNum,
 										 int rightStmtNum) {
-  switch (relationship) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	  return reader->containsFollowsRelationship(leftStmtNum,
-												 rightStmtNum);
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
-	  return reader->containsFollowsTRelationship(leftStmtNum,
-												  rightStmtNum);
-	case SimpleProgram::DesignAbstraction::PARENT:
-	  return reader->containsParentRelationship(leftStmtNum, rightStmtNum);
-	case SimpleProgram::DesignAbstraction::PARENTT:
-	  return reader->containsParentTRelationship(leftStmtNum,
-												 rightStmtNum);
-	case SimpleProgram::DesignAbstraction::NEXT:
-	  return reader->containsNextRelationship(leftStmtNum, rightStmtNum);
-	case SimpleProgram::DesignAbstraction::NEXTT:
-	  return reader->containsNextTRelationship(leftStmtNum, rightStmtNum);
-	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  return reader->containsAffectsRelationship(leftStmtNum, rightStmtNum);
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  return false;
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::FOLLOWS,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsFollowsRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::FOLLOWST,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsFollowsTRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::PARENT,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsParentRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::PARENTT,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsParentTRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::NEXT,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsNextRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::NEXTT,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsNextTRelationship(leftStmtNum, rightStmtNum); }},
+	  {SimpleProgram::DesignAbstraction::AFFECTS,
+	   [this, leftStmtNum, rightStmtNum] { return reader->containsAffectsRelationship(leftStmtNum, rightStmtNum); }},
+  };
+
+  if (funcMap.find(relationship) == funcMap.end()) {
+	return false;
   }
+  return funcMap[relationship]();
 }
 
 bool StatementEvaluator::hasAtLeastOneRelationship() {
   // handles XXX(_, _)
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::FOLLOWS, [this] { return reader->hasFollowsRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::FOLLOWST, [this] { return reader->hasFollowsTRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::PARENT, [this] { return reader->hasParentRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::PARENTT, [this] { return reader->hasParentTRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::NEXT, [this] { return reader->hasNextRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::NEXTT, [this] { return reader->hasNextTRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::AFFECTS, [this] { return reader->hasAffectsRelationship(); }},
+  };
+
   bool isNotEmpty = false;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	  isNotEmpty = reader->hasFollowsRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
-	  isNotEmpty = reader->hasFollowsTRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENT:
-	  isNotEmpty = reader->hasParentRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENTT:
-	  isNotEmpty = reader->hasParentTRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXT:
-	  isNotEmpty = reader->hasNextRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXTT:
-	  isNotEmpty = reader->hasNextTRelationship();
-	  break;
-	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  isNotEmpty = reader->hasAffectsRelationship();
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  isNotEmpty = false;
+  if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	isNotEmpty = funcMap[clause.clauseType]();
   }
 
   if (clause.isNegated) {
@@ -147,32 +135,20 @@ bool StatementEvaluator::getForwardRelationship() {
   if (rArg.entityType == SimpleProgram::DesignEntity::STMT
 	  || rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 
+	std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+		{SimpleProgram::DesignAbstraction::FOLLOWS, [this, leftStmtNum] { return reader->getFollows(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::FOLLOWST,
+		 [this, leftStmtNum] { return reader->getFollowsT(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::PARENT, [this, leftStmtNum] { return reader->getChild(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::PARENTT, [this, leftStmtNum] { return reader->getChildT(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::NEXT, [this, leftStmtNum] { return reader->getNext(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::NEXTT, [this, leftStmtNum] { return reader->getNextT(leftStmtNum); }},
+		{SimpleProgram::DesignAbstraction::AFFECTS, [this, leftStmtNum] { return reader->getAffects(leftStmtNum); }},
+	};
+
 	std::vector<int> rResults;
-	switch (clause.clauseType) {
-	  case SimpleProgram::DesignAbstraction::FOLLOWS:
-		rResults = reader->getFollows(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::FOLLOWST:
-		rResults = reader->getFollowsT(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::PARENT:
-		rResults = reader->getChild(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::PARENTT:
-		rResults = reader->getChildT(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::NEXT:
-		rResults = reader->getNext(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::NEXTT:
-		rResults = reader->getNextT(leftStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::AFFECTS:
-		rResults = reader->getAffects(leftStmtNum);
-		break;
-	  default:
-		// TODO: throw illegal argument, not allowed relationship type for statement only queries
-		rResults = {};
+	if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	  rResults = funcMap[clause.clauseType]();
 	}
 
 	if (clause.isNegated) {
@@ -241,32 +217,23 @@ bool StatementEvaluator::getReversedRelationship() {
   if (lArg.entityType == SimpleProgram::DesignEntity::STMT
 	  || lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 
+	std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+		{SimpleProgram::DesignAbstraction::FOLLOWS,
+		 [this, rightStmtNum] { return reader->getFollowing(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::FOLLOWST,
+		 [this, rightStmtNum] { return reader->getFollowingT(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::PARENT, [this, rightStmtNum] { return reader->getParent(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::PARENTT, [this, rightStmtNum] { return reader->getParentT(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::NEXT, [this, rightStmtNum] { return reader->getNextReverse(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::NEXTT,
+		 [this, rightStmtNum] { return reader->getNextTReverse(rightStmtNum); }},
+		{SimpleProgram::DesignAbstraction::AFFECTS,
+		 [this, rightStmtNum] { return reader->getAffectsReverse(rightStmtNum); }},
+	};
+
 	std::vector<int> lResults;
-	switch (clause.clauseType) {
-	  case SimpleProgram::DesignAbstraction::FOLLOWS:
-		lResults = reader->getFollowing(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::FOLLOWST:
-		lResults = reader->getFollowingT(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::PARENT:
-		lResults = reader->getParent(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::PARENTT:
-		lResults = reader->getParentT(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::NEXT:
-		lResults = reader->getNextReverse(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::NEXTT:
-		lResults = reader->getNextTReverse(rightStmtNum);
-		break;
-	  case SimpleProgram::DesignAbstraction::AFFECTS:
-		lResults = reader->getAffectsReverse(rightStmtNum);
-		break;
-	  default:
-		// TODO: throw illegal argument, not allowed relationship type for statement only queries
-		lResults = {};
+	if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	  lResults = funcMap[clause.clauseType]();
 	}
 
 	if (clause.isNegated) {
@@ -328,32 +295,19 @@ bool StatementEvaluator::getSynonymWildcard() {
 
 std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
   // get all possible left stmtNum that satisfies the relationship
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::FOLLOWS, [this] { return reader->getFolloweeStmts(); }},
+	  {SimpleProgram::DesignAbstraction::FOLLOWST, [this] { return reader->getFolloweeTStmts(); }},
+	  {SimpleProgram::DesignAbstraction::PARENT, [this] { return reader->getParentStmts(); }},
+	  {SimpleProgram::DesignAbstraction::PARENTT, [this] { return reader->getParentTStmts(); }},
+	  {SimpleProgram::DesignAbstraction::NEXT, [this] { return reader->getNextReverse(); }},
+	  {SimpleProgram::DesignAbstraction::NEXTT, [this] { return reader->getNextTReverse(); }},
+	  {SimpleProgram::DesignAbstraction::AFFECTS, [this] { return reader->getAffectsReverse(); }},
+  };
+
   std::vector<int> keyStmtNums;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	  keyStmtNums = reader->getFolloweeStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
-	  keyStmtNums = reader->getFolloweeTStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENT:
-	  keyStmtNums = reader->getParentStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENTT:
-	  keyStmtNums = reader->getParentTStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXT:
-	  keyStmtNums = reader->getNextReverse();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXTT:
-	  keyStmtNums = reader->getNextTReverse();
-	  break;
-	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  keyStmtNums = reader->getAffects();
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  return {};
+  if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	keyStmtNums = funcMap[clause.clauseType]();
   }
 
   if (syn.entityType == SimpleProgram::DesignEntity::STMT) {
@@ -368,36 +322,19 @@ std::vector<int> StatementEvaluator::getUniqueKeys(const PQL::Synonym &syn) {
 
 std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
   // get all possible right stmtNum that satisfies the relationship
-  std::vector<int> valueStmtNums;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::FOLLOWS:
-	  valueStmtNums = reader->getFollowerStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::FOLLOWST:
-	  valueStmtNums = reader->getFollowerTStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENT:
-	  valueStmtNums = reader->getChildStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::PARENTT:
-	  valueStmtNums = reader->getChildTStmts();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXT:
-	  valueStmtNums = reader->getNext();
-	  break;
-	case SimpleProgram::DesignAbstraction::NEXTT:
-	  valueStmtNums = reader->getNextT();
-	  break;
-	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  valueStmtNums = reader->getAffects();
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  valueStmtNums = {};
-  }
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::FOLLOWS, [this] { return reader->getFollowerStmts(); }},
+	  {SimpleProgram::DesignAbstraction::FOLLOWST, [this] { return reader->getFollowerTStmts(); }},
+	  {SimpleProgram::DesignAbstraction::PARENT, [this] { return reader->getChildStmts(); }},
+	  {SimpleProgram::DesignAbstraction::PARENTT, [this] { return reader->getChildTStmts(); }},
+	  {SimpleProgram::DesignAbstraction::NEXT, [this] { return reader->getNext(); }},
+	  {SimpleProgram::DesignAbstraction::NEXTT, [this] { return reader->getNextT(); }},
+	  {SimpleProgram::DesignAbstraction::AFFECTS, [this] { return reader->getAffects(); }},
+  };
 
-  if (syn.entityType == SimpleProgram::DesignEntity::STMT) {
-	return valueStmtNums;
+  std::vector<int> valueStmtNums;
+  if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	valueStmtNums = funcMap[clause.clauseType]();
   }
 
   std::vector<int> synStmtNums = ClauseEvaluator::getAllIntResults(syn);

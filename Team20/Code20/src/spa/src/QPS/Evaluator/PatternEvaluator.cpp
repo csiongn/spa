@@ -1,5 +1,6 @@
-#include <utility>
+#include <functional>
 #include <unordered_map>
+#include <utility>
 
 #include "PatternEvaluator.h"
 
