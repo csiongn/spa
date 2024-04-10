@@ -19,7 +19,7 @@ TEST_CASE("Integration test SP to PKB") {
     "if (x>2) then {"
     "x = 1;"
     "} else {"
-    "a = (x % y) + ((y / 1) * 3);"
+    "a = (x % y) + ((y / 1) * 3) + a;"
     "}"
     "} else {"
     "a = 5;"
@@ -427,6 +427,54 @@ TEST_CASE("Integration test SP to PKB") {
       std::cout << "Time taken to compute getNextTRelationships(): " <<  duration << " ms" << std::endl;
       REQUIRE(duration <= TIMEOUT);
       std::cout << "========================================================" << std::endl;
+
+      REQUIRE(pkbFacade->hasAffectsRelationship());
+
+      REQUIRE(pkbFacade->containsAffectsRelationship(3, 4));
+      REQUIRE(pkbFacade->containsAffectsRelationship(3, 7));
+      REQUIRE(pkbFacade->containsAffectsRelationship(4, 7));
+      REQUIRE(pkbFacade->containsAffectsRelationship(11, 12));
+      REQUIRE_FALSE(pkbFacade->containsAffectsRelationship(7, 7));
+      REQUIRE_FALSE(pkbFacade->containsAffectsRelationship(3, 3));
+      REQUIRE_FALSE(pkbFacade->containsAffectsRelationship(7, 3));
+      REQUIRE_FALSE(pkbFacade->containsAffectsRelationship(12, 12));
+
+      REQUIRE(pkbFacade->containsAffects(4));
+      REQUIRE(pkbFacade->containsAffectsReverse(7));
+      REQUIRE_FALSE(pkbFacade->containsAffectsReverse(11));
+      REQUIRE(pkbFacade->containsAffectsReverse(12));
+
+      const std::vector<int>& expectedAffectsFrom3 = {4, 7};
+      auto startAffectsFrom3 = std::chrono::high_resolution_clock::now();
+      const auto& actualAffectsFrom3 = pkbFacade->getAffects(3);
+      auto endAffectsFrom3 = std::chrono::high_resolution_clock::now();
+      auto durationAffectsFrom3 = std::chrono::duration_cast<std::chrono::milliseconds>(endAffectsFrom3 - startAffectsFrom3).count();
+
+      REQUIRE(durationAffectsFrom3 <= TIMEOUT);
+      REQUIRE(checkVecValuesEqual(expectedAffectsFrom3, actualAffectsFrom3));
+
+      // All Affects relationships
+      const std::vector<std::pair<int, int>>& expectedAffectsRelationships = {
+        // Statement 3
+        std::pair{3, 4}, std::pair{3, 7},
+
+        // Statement 4
+        std::pair{4, 7},
+
+        // Statement 11
+        std::pair{11, 12},
+      };
+
+      auto startAffectsAll = std::chrono::high_resolution_clock::now();
+      const auto& actualAffectsRelationships = pkbFacade->getAffectsRelationships();
+      auto endAffectsAll = std::chrono::high_resolution_clock::now();
+      auto durationAffectsAll = std::chrono::duration_cast<std::chrono::milliseconds>(endAffectsAll - startAffectsAll).count();
+
+      REQUIRE(checkVecValuesEqual(expectedAffectsRelationships, actualAffectsRelationships));
+      std::cout << "Time taken to compute getAffectsRelationships(): " <<  durationAffectsAll << " ms" << std::endl;
+      REQUIRE(durationAffectsAll <= TIMEOUT);
+      std::cout << "========================================================" << std::endl;
+
     }
   }
 }

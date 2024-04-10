@@ -15,7 +15,7 @@ class DesignExtractor {
   // Stores code context during traversal of Source program
   class SourceContext {
    public:
-    int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
+    uint16_t currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
     std::string procName; // Keep track of current procedure as we traverse
   };
 
@@ -42,7 +42,7 @@ class DesignExtractor {
     return parentT;
   }
 
-  const std::unordered_map<int, std::unordered_set<std::string>>& getUses() const {
+  std::unordered_map<int, std::unordered_set<std::string>>& getUses() {
     return uses;
   }
 
@@ -50,7 +50,7 @@ class DesignExtractor {
     return procsUses;
   }
 
-  const std::unordered_map<int, std::unordered_set<std::string>>& getModifies() const {
+  std::unordered_map<int, std::unordered_set<std::string>>& getModifies() {
     return modifies;
   }
 

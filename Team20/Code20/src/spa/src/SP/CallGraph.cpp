@@ -57,14 +57,14 @@ void CallGraph::addCall(const std::string& caller, const std::string& called) {
     throw std::runtime_error("Tried to add call relationship after call graph is finalized.");
   }
   if (!nameToIndex.count(caller)) {
-    adjLst.push_back(std::unordered_set<int>());
+    adjLst.emplace_back();
     nameToIndex[caller] = index;
     indexToName.push_back(caller);
     index++;
   }
 
   if (!nameToIndex.count(called)) {
-    adjLst.push_back(std::unordered_set<int>());
+    adjLst.emplace_back();
     nameToIndex[called] = index;
     indexToName.push_back(called);
     index++;

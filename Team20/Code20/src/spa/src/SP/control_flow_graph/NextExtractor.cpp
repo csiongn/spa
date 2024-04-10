@@ -10,11 +10,15 @@
 #include "ICFGVisitor.h"
 #include "CFG.h"
 
+void NextExtractor::visit(CFG& cfg) {
+    visit(cfg.root);
+}
+
 void NextExtractor::visit(const std::shared_ptr<CFGNode>& node) {
     if (visited.insert(node->stmtNum).second) { // Insert returns a pair, .second is true if the element was inserted
         for (const auto& nextNode : node->getNext()) {
             nextRelationships[node->stmtNum].push_back(nextNode->stmtNum);
-            nextNode->accept(*this); // Recursively visit next nodes
+            this->visit(nextNode); // Recursively visit next nodes
         }
     }
 }

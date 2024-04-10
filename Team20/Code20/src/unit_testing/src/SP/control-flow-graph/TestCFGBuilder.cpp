@@ -65,7 +65,11 @@ TEST_CASE("Simple program") {
 	auto program = std::make_shared<ProgramNode>(std::vector{procedureMain, procedureFoo});
 
 	// Initialize CFGBuilder
-	auto cfgManager = CFGBuilder::buildCFG(*program);
+	std::shared_ptr<IPKBWriter> mock = std::make_shared<MockPKBWriter>();
+	std::unique_ptr<DesignExtractor> designExtractor = std::make_unique<DesignExtractor>(mock);
+	designExtractor->extractDesign(*program);
+	std::unique_ptr<CFGBuilder> cfgBuilder = std::make_unique<CFGBuilder>(designExtractor->getUses(), designExtractor->getModifies(), *program);
+	std::shared_ptr<CFGManager> cfgManager = cfgBuilder->buildCFG();
 
 	SECTION("Check correct dimensions") {
 		REQUIRE(cfgManager->getCFGs().size() == 2);

@@ -1,12 +1,8 @@
 
 #include "CFG.h"
 
-void CFGNode::accept(ICFGVisitor& visitor)  {
-    visitor.visit(shared_from_this());
-}
-
-void CFG::accept(ICFGVisitor &visitor) const {
-    root->accept(visitor);
+void CFG::accept(ICFGVisitor& visitor) {
+    visitor.visit(*shared_from_this().get());
 }
 
 void CFGManager::accept(ICFGVisitor &visitor) const {

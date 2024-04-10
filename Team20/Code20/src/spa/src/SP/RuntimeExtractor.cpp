@@ -1,6 +1,8 @@
 #include <vector>
+#include <unordered_set>
 #include <utility>
 
+#include "control_flow_graph/AffectsQueryExtractor.h"
 #include "RuntimeExtractor.h"
 
 bool RuntimeExtractor::hasNextT() {
@@ -40,37 +42,133 @@ std::vector<std::pair<int, int>> RuntimeExtractor::getNextT() {
 }
 
 bool RuntimeExtractor::hasAffects() {
-  return false;
+  std::unique_ptr<IShortCircuitAffectsExtractor> query = \
+    std::make_unique<HasAffectsQuery>();
+
+  query->execute(*cfgManager);
+
+  return query->getResult();
 }
 
 bool RuntimeExtractor::containsAffects(int stmtNoFrom, int stmtNoTo) {
-  return false;
+  std::unique_ptr<IShortCircuitAffectsExtractor> query = \
+    std::make_unique<AffectsFromToStatementQuery>(stmtNoFrom, stmtNoTo);
+
+  query->execute(*cfgManager);
+
+  return query->getResult();
 }
 
 bool RuntimeExtractor::containsAffectsFrom(int stmtNo) {
-  return false;
+  std::unique_ptr<IShortCircuitAffectsExtractor> query = \
+    std::make_unique<AffectsContainsFromQuery>(stmtNo);
+
+  query->execute(*cfgManager);
+
+  return query->getResult();
 }
 
 bool RuntimeExtractor::containsAffectsTo(int stmtNo) {
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AllAffectsQuery>();
+  query->execute(*cfgManager);
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  auto setResults = query->getAffectsRelationships();
+  std::vector<int> arrResults;
+  for (auto pair : setResults) {
+    if (pair.second.count(stmtNo)) {
+      return true;
+    }
+  }
+
+  return false;
   return false;
 }
 
 std::vector<int> RuntimeExtractor::getStatementsAffectsFrom(int stmtNo) {
-  return std::vector<int>();
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AffectsFromStatementQuery>(stmtNo);
+  query->execute(*cfgManager);
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  auto setResults = query->getAffectsRelationships();
+  std::vector<int> arrResults;
+  for (int affectedStmtNum : setResults.at(stmtNo)) {
+      arrResults.emplace_back(affectedStmtNum);
+  }
+
+  return arrResults;
 }
 
 std::vector<int> RuntimeExtractor::getStatementsAffectsTo(int stmtNo) {
-  return std::vector<int>();
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AllAffectsQuery>();
+  query->execute(*cfgManager);
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  auto setResults = query->getAffectsRelationships();
+  std::vector<int> arrResults;
+  for (auto pair : setResults) {
+    if (pair.second.count(stmtNo)) {
+      arrResults.emplace_back(pair.first);
+    }
+  }
+
+  return arrResults;
 }
 
 std::vector<int> RuntimeExtractor::getStatementsAffectsFrom() {
-  return std::vector<int>();
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AllAffectsQuery>();
+  query->execute(*cfgManager);
+
+  auto allResults = query->getAffectsRelationships();
+  std::unordered_set<int> setResults;
+
+  for (const auto& pair : allResults) {
+    setResults.insert(pair.first);
+  }
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  std::vector<int> arrResults;
+  for (int stmtNo : setResults) {
+    arrResults.emplace_back(stmtNo);
+  }
+
+  return arrResults;
 }
 
 std::vector<int> RuntimeExtractor::getStatementsAffectsTo() {
-  return std::vector<int>();
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AllAffectsQuery>();
+  query->execute(*cfgManager);
+
+  auto allResults = query->getAffectsRelationships();
+  std::unordered_set<int> setResults;
+
+  for (const auto& pair : allResults) {
+    for (const int stmtNo : pair.second) {
+      setResults.insert(stmtNo);
+    }
+  }
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  std::vector<int> arrResults;
+  for (int stmtNo : setResults) {
+    arrResults.emplace_back(stmtNo);
+  }
+
+  return arrResults;
 }
 
 std::vector<std::pair<int, int>> RuntimeExtractor::getAffects() {
-  return std::vector<std::pair<int, int>>();
+  std::unique_ptr<IAffectsExtractor> query = std::make_unique<AllAffectsQuery>();
+  query->execute(*cfgManager);
+
+  // Convert std::unordered_set to std::vector because QPS requires it as std::vector
+  auto setResults = query->getAffectsRelationships();
+  std::vector<std::pair<int, int>> arrResults;
+  for (auto pair : setResults) {
+    for (int affectedStmtNum : pair.second) {
+      arrResults.emplace_back(pair.first, affectedStmtNum);
+    }
+  }
+
+  return arrResults;
 }

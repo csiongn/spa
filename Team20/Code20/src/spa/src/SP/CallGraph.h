@@ -9,7 +9,7 @@
 
 #include "PKB/facade/IPKBWriter.h"
 
-constexpr size_t MAX_NODES = 600;
+constexpr size_t MAX_NODES = 525;
 class CallGraph {
 
   // Attributes

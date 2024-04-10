@@ -24,7 +24,8 @@ void SPController::populatePKB() {
   const ProgramNode &astRoot = *parsed_program;
   designExtractor.extractDesign(astRoot);
 
-	std::shared_ptr<CFGManager> cfgManager = CFGBuilder::buildCFG(astRoot);
+	std::unique_ptr<CFGBuilder> cfgBuilder = std::make_unique<CFGBuilder>(designExtractor.getUses(), designExtractor.getModifies(), astRoot);
+	std::shared_ptr<CFGManager> cfgManager = cfgBuilder->buildCFG();
 	std::shared_ptr<NextExtractor> nextExtractor = std::make_shared<NextExtractor>();
   cfgManager->accept(*nextExtractor);
   nextExtractor->pushToPKB(pkbWriter);

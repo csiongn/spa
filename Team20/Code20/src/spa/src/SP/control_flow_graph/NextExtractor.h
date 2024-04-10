@@ -18,8 +18,9 @@ class NextExtractor : public ICFGVisitor {
     bool finalized = false;
 
  public:
-    void visit(const std::shared_ptr<CFGNode>& node) override;
-    void pushToPKB(const std::shared_ptr<IPKBWriter> &pkbWriter) override;
+    void visit(const std::shared_ptr<CFGNode>& node);
+    void visit(CFG& cfg) override;
+    void pushToPKB(const std::shared_ptr<IPKBWriter> &pkbWriter);
     const std::unordered_map<int, std::vector<int>>& getNextRelationships() const;
     void finalize();
 
