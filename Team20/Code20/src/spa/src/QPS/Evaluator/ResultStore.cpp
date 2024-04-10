@@ -1,5 +1,6 @@
 #include "ResultStore.h"
 
+#include <iostream>
 #include <unordered_set>
 #include <memory>
 #include <string>
@@ -11,18 +12,31 @@ void ResultStore::insertResult(std::shared_ptr<Result> res) {
 }
 
 std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Synonym> &selectSyns) {
+  bool selectBoolean = selectSyns[0].entityType == SimpleProgram::DesignEntity::BOOLEAN;
   if (results.empty()) {
-	// no result
+	if (selectBoolean) {
+	  // All clauses are T/F clauses and there is no result added/initialised
+	  return {"TRUE"};
+	}
 	return {};
   }
 
   joinResults();
   if (results.empty()) {
+	if (selectBoolean) {
+	  // result after joining became empty
+	  return {"FALSE"};
+	}
 	return {};
   }
 
+
   std::shared_ptr<Result> res = results[0];
   if (selectSyns.size() == 1) {
+	if (selectBoolean) {
+	  return {"TRUE"};
+	}
+
 	size_t selectSynIndex = res->colNameToIndex.at(selectSyns[0].identity);
 	std::vector<std::string> selectResult = res->table[selectSynIndex];
 	return removeDuplicates(selectResult);
