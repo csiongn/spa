@@ -18,6 +18,10 @@ Synonym::Synonym(const SimpleProgram::DesignEntity &entity,
 				 const SimpleProgram::AttributeRef &attribute)
 	: entityType(entity), identity(id), attribute(attribute) {}
 
+Clause Clause::createEmptyClause() {
+  return {SimpleProgram::DesignAbstraction::INVALID, {}};
+}
+
 Clause::Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args)
 	: clauseType(abstraction), arguments(args) {}
 

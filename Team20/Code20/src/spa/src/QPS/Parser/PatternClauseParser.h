@@ -18,5 +18,6 @@ class PatternClauseParser {
 							   std::vector<PQL::Synonym> &declarations);
   std::vector<std::shared_ptr<QueryToken>> getPatternClause();
   SimpleProgram::DesignAbstraction getPatternClauseType(std::shared_ptr<QueryToken> &patternClauseToken);
+  bool isNotClause(std::vector<std::shared_ptr<QueryToken>> &patternClauseTokens);
   PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>> &patternClauseTokens);
 };

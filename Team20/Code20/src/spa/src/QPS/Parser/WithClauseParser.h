@@ -18,6 +18,7 @@ class WithClauseParser {
 							std::shared_ptr<ClauseValidator> &validator,
 							std::vector<PQL::Synonym> &declarations);
   std::vector<std::shared_ptr<QueryToken>> getWithClause();
+  bool isNotClause(std::vector<std::shared_ptr<QueryToken>> &withClauseTokens);
   PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>> &withClauseTokens);
 
  private:

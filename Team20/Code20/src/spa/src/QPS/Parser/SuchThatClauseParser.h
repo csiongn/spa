@@ -17,5 +17,6 @@ class SuchThatClauseParser {
 								std::vector<PQL::Synonym> &declarations);
   std::vector<std::shared_ptr<QueryToken>> getSuchThatClause();
   SimpleProgram::DesignAbstraction getSuchThatClauseType(std::shared_ptr<QueryToken> &suchThatClauseToken);
+  bool isNotClause(std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens, bool isAnd);
   PQL::Clause parse(std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens, bool isAnd);
 };

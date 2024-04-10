@@ -142,6 +142,22 @@ bool ClauseValidator::isAttrCompare(std::vector<std::shared_ptr<QueryToken>> att
   return true;
 }
 
+bool ClauseValidator::isAttrRef(std::string attrRefValue) {
+  std::vector<std::string> splittedAttr = QueryEvaluator::ParseUtils::splitStrByFirstDelim(attrRefValue, ".");
+  if (splittedAttr.size() != 2) {
+	return false;
+  }
+
+  std::string synonymValue = splittedAttr[0];
+  std::string attrName = splittedAttr[1];
+
+  bool isValidSynonymName = QueryEvaluator::ParseUtils::isName(synonymValue);
+
+  std::unordered_set<std::string> validAttrNames({"procName", "varName", "value", "stmt#"});
+  bool isValidAttrName = validAttrNames.find(attrName) != validAttrNames.end();
+  return isValidSynonymName && isValidAttrName;
+}
+
 bool ClauseValidator::isAttrRef(std::shared_ptr<QueryToken> token) {
   auto tokenType = token->getType();
   return tokenType == QPS::TokenType::ATTRIBUTE_VALUE || tokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
@@ -154,11 +170,7 @@ bool ClauseValidator::isRef(std::shared_ptr<QueryToken> token) {
 	  || isAttrRef(token);
 }
 
-void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
-  std::vector<std::string> splittedAttr = QueryEvaluator::ParseUtils::splitAttrToken(attrToken);
-  auto synonymValue = splittedAttr[0];
-  auto attrRef = splittedAttr[1];
-
+void ClauseValidator::validateSynToAttrName(std::string synonymValue, std::string attrName) {
   validateDeclarationExists(synonymValue);
 
   std::unordered_map<std::string, std::vector<SimpleProgram::DesignEntity>> withAttrNameToEntityListMap = {
@@ -174,7 +186,7 @@ void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
 
   auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
 
-  std::vector<SimpleProgram::DesignEntity> allowedEntityTypes = withAttrNameToEntityListMap.at(attrRef);
+  std::vector<SimpleProgram::DesignEntity> allowedEntityTypes = withAttrNameToEntityListMap.at(attrName);
 
   bool isValidSynForEntityType =
 	  std::find(allowedEntityTypes.begin(),
@@ -184,6 +196,25 @@ void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
   if (!isValidSynForEntityType) {
 	setSemanticError();
   }
+}
+
+void ClauseValidator::validateAttrRef(std::string attrRefValue) {
+  if (!isAttrRef(attrRefValue)) {
+	throw QuerySyntaxError("Syntax Error: Invalid attribute reference");
+  }
+
+  std::vector<std::string> splittedAttr = QueryEvaluator::ParseUtils::splitStrByFirstDelim(attrRefValue, ".");
+  std::string synonymValue = splittedAttr[0];
+  std::string attrName = splittedAttr[1];
+
+  return validateSynToAttrName(synonymValue, attrName);
+}
+
+void ClauseValidator::validateAttrRef(std::shared_ptr<QueryToken> attrToken) {
+  std::vector<std::string> splittedAttr = QueryEvaluator::ParseUtils::splitAttrToken(attrToken);
+  auto synonymValue = splittedAttr[0];
+  auto attrName = splittedAttr[1];
+  return validateSynToAttrName(synonymValue, attrName);
 }
 
 void ClauseValidator::validateAttrCompare(std::vector<std::shared_ptr<QueryToken>> attrTokens) {

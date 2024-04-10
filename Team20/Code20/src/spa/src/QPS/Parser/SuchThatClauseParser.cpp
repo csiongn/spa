@@ -41,18 +41,42 @@ SimpleProgram::DesignAbstraction SuchThatClauseParser::getSuchThatClauseType(
   return designAbstractionMap[tokenValue];
 }
 
+bool SuchThatClauseParser::isNotClause(std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens, bool isAnd) {
+  auto firstTokenAfterSuchThat = suchThatClauseTokens[isAnd ? 1 : 2];
+  if (firstTokenAfterSuchThat->getValue() == "not") {
+	return true;
+  }
+  return false;
+}
+
 PQL::Clause SuchThatClauseParser::parse(
 	std::vector<std::shared_ptr<QueryToken>> &suchThatClauseTokens, bool isAnd) {
   std::vector<PQL::Synonym> args;
 
-  auto suchThatClauseToken = suchThatClauseTokens[isAnd ? 1 : 2];
+  bool isNot = isNotClause(suchThatClauseTokens, isAnd);
+  int suchThatClauseTokenPos = -1;
+  if (isNot) {
+	if (isAnd) {
+	  suchThatClauseTokenPos = 2;
+	} else {
+	  suchThatClauseTokenPos = 3;
+	}
+  } else {
+	if (isAnd) {
+	  suchThatClauseTokenPos = 1;
+	} else {
+	  suchThatClauseTokenPos = 2;
+	}
+  }
+
+  auto suchThatClauseToken = suchThatClauseTokens[suchThatClauseTokenPos];
   auto suchThatClauseType = getSuchThatClauseType(suchThatClauseToken);
 
   std::vector<std::shared_ptr<QueryToken>> cleanedSuchThatTokens =
 	  QueryEvaluator::ParseUtils::removeBracketsAndCommas(
 		  suchThatClauseTokens);
   std::vector<std::shared_ptr<QueryToken>> suchThatArgsTokens =
-	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, isAnd ? 2 : 3,
+	  QueryEvaluator::ParseUtils::splitTokens(cleanedSuchThatTokens, suchThatClauseTokenPos + 1,
 											  cleanedSuchThatTokens.size());
 
   if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS ||

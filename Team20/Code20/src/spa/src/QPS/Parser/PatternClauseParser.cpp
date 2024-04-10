@@ -27,9 +27,14 @@ SimpleProgram::DesignAbstraction PatternClauseParser::getPatternClauseType(std::
   }
 }
 
+bool PatternClauseParser::isNotClause(std::vector<std::shared_ptr<QueryToken>> &patternClauseTokens) {
+  return patternClauseTokens[1]->getValue() == "not";
+}
+
 PQL::Clause PatternClauseParser::parse(std::vector<std::shared_ptr<QueryToken>> &patternClauseTokens) {
   std::vector<PQL::Synonym> patternArgs;
-  auto patternSynonymToken = patternClauseTokens[1];
+  int patternClauseTokenPos = isNotClause(patternClauseTokens) ? 2 : 1;
+  auto patternSynonymToken = patternClauseTokens[patternClauseTokenPos];
 
   validator->validateDeclarationExists(patternSynonymToken);
   validator->validatePatternSynonym(patternSynonymToken);
@@ -38,7 +43,9 @@ PQL::Clause PatternClauseParser::parse(std::vector<std::shared_ptr<QueryToken>> 
   std::vector<std::shared_ptr<QueryToken>>
 	  cleanedPatternTokens = QueryEvaluator::ParseUtils::removeBracketsAndCommas(patternClauseTokens);
   std::vector<std::shared_ptr<QueryToken>>
-	  patternArgsTokens = QueryEvaluator::ParseUtils::splitTokens(cleanedPatternTokens, 2, cleanedPatternTokens.size());
+	  patternArgsTokens = QueryEvaluator::ParseUtils::splitTokens(cleanedPatternTokens,
+																  patternClauseTokenPos + 1,
+																  cleanedPatternTokens.size());
   auto patternSynonymEntityType = QueryEvaluator::ParseUtils::getEntityType(patternSynonymToken, declarations);
   auto patternSynonym = QueryEvaluator::ParseUtils::createSynonym(patternSynonymEntityType, patternSynonymToken);
 

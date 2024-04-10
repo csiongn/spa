@@ -52,14 +52,28 @@ std::vector<PQL::Synonym> ClauseParser::parseSelectClause() {
   if (nextToken->getType() == QPS::TokenType::TUPLE) {
 	auto tupleSynonyms = QueryEvaluator::ParseUtils::splitTuple(nextToken);
 	for (auto &tupleSynonym : tupleSynonyms) {
-	  validator->validateDeclarationExists(tupleSynonym);
-	  auto declarationUsed = getDeclarationUsed(tupleSynonym);
-	  SimpleProgram::DesignEntity entityType = declarationUsed.entityType;
-	  auto synonym = QueryEvaluator::ParseUtils::createSynonym(
-		  entityType, tupleSynonym);
-	  selectSynonyms.push_back(synonym);
+
+	  if (validator->isAttrRef(tupleSynonym)) {
+		validator->validateAttrRef(tupleSynonym);
+		auto syn = QueryEvaluator::ParseUtils::createAttrSynonym(tupleSynonym, declarations);
+		selectSynonyms.push_back(syn);
+	  } else {
+		validator->validateDeclarationExists(tupleSynonym);
+		auto declarationUsed = getDeclarationUsed(tupleSynonym);
+		SimpleProgram::DesignEntity entityType = declarationUsed.entityType;
+		auto synonym = QueryEvaluator::ParseUtils::createSynonym(
+			entityType, tupleSynonym);
+		selectSynonyms.push_back(synonym);
+	  }
 	}
   } else {
+	if (validator->isAttrRef(nextToken)) {
+	  validator->validateAttrRef(nextToken);
+	  auto syn = QueryEvaluator::ParseUtils::createAttrSynonym(nextToken, declarations);
+	  selectSynonyms.push_back(syn);
+	  return selectSynonyms;
+	}
+
 	if (nextToken->getValue() == "BOOLEAN") {
 	  if (!doesDeclarationExist(nextToken)) {
 		auto boolSynonym = QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity::BOOLEAN, "BOOLEAN");
@@ -107,39 +121,39 @@ std::vector<PQL::Clause> ClauseParser::parseRelationshipClause() {
 
 	prevClauseToken = tokenValue;
 
+	PQL::Clause clause = PQL::Clause::createEmptyClause();
+
 	if (tokenValue == "pattern") {
 	  auto patternClauseTokens = patternClauseParser.getPatternClause();
-	  PQL::Clause patternClause =
-		  patternClauseParser.parse(patternClauseTokens);
-	  clauses.push_back(patternClause);
+	  if (patternClauseParser.isNotClause(patternClauseTokens)) {
+		isNot = true;
+	  }
+	  clause = patternClauseParser.parse(patternClauseTokens);
 	} else if (tokenValue == "such") {
 	  auto suchThatClauseTokens =
 		  suchThatClauseParser.getSuchThatClause();
-	  PQL::Clause suchThatClause =
+	  if (suchThatClauseParser.isNotClause(suchThatClauseTokens, isAnd)) {
+		isNot = true;
+	  }
+	  clause =
 		  suchThatClauseParser.parse(suchThatClauseTokens, isAnd);
-	  clauses.push_back(suchThatClause);
 	} else if (tokenValue == "with") {
 	  auto withClauseTokens = withClauseParser.getWithClause();
-	  PQL::Clause withClause = withClauseParser.parse(withClauseTokens);
-	  clauses.push_back(withClause);
-	} else if (tokenValue == "not") {
-	  isNot = true;
-	  relationshipClauseTokens =
-		  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens,
-																											 1,
-																											 relationshipClauseTokens->size()));
-	  continue;
+	  if (withClauseParser.isNotClause(withClauseTokens)) {
+		isNot = true;
+	  }
+	  clause = withClauseParser.parse(withClauseTokens);
 	} else {
 	  throw QuerySyntaxError("Syntax Error: Invalid relationship clause");
 	}
 
 	if (isNot) {
-	  auto lastClause = clauses.back();
-	  lastClause.setNotClause();
+	  clause.setNotClause();
+	  isNot = false;
 	}
 
+	clauses.push_back(clause);
 	isAnd = false;
-	isNot = false;
   }
 
   return clauses;

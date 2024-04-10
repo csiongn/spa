@@ -54,6 +54,18 @@ class ParseUtils {
 
   static std::vector<std::shared_ptr<QueryToken>> getClause(std::shared_ptr<std::vector<std::shared_ptr<QueryToken>>> &relationshipClauseTokens);
 
+  static std::vector<std::string> splitStrByFirstDelim(std::string str, std::string delim);
+
   static std::vector<std::string> splitAttrToken(std::shared_ptr<QueryToken> attrToken);
+
+  static SimpleProgram::AttributeRef getAttrRef(std::string attrRefStr);
+
+  static PQL::Synonym createSynonymFromAttrToken(std::shared_ptr<QueryToken> attrToken,
+												 std::vector<PQL::Synonym> declarations);
+
+  static PQL::Synonym createAttrSynonym(std::shared_ptr<QueryToken> operandToken,
+										std::vector<PQL::Synonym> declarations);
+
+  static PQL::Synonym createAttrSynonym(std::string attrRefStr, std::vector<PQL::Synonym> declarations);
 };
 };

@@ -35,6 +35,8 @@ struct Clause {
 
   Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args);
 
+  static Clause createEmptyClause();
+
   void setNotClause();
 
   bool operator==(const Clause &other) const {

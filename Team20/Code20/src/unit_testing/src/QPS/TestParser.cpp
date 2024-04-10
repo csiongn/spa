@@ -5,9 +5,202 @@
 #include "QPS/QueryTokenizer.h"
 
 TEST_CASE("Parse") {
+  SECTION("Multi-clause not") {
+	QueryTokenizer queryTokenizer{};
+	std::string query =
+		R"(procedure p; call c; while w; Select p such that not Calls ("Second", p) and not Parent (w, c) with not c.procName = p.procName)";
+
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::CALL, "c");
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::WHILE, "w");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(
+		SimpleProgram::DesignEntity::PROCEDURE, "p");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "Second");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::PROCEDURE, "p");
+	std::vector<PQL::Synonym> args1;
+	args1.emplace_back(arg1);
+	args1.emplace_back(arg2);
+
+	PQL::Clause clause1 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, args1);
+	clause1.setNotClause();
+	expectedClauses.emplace_back(clause1);
+
+	PQL::Synonym arg3(SimpleProgram::DesignEntity::WHILE, "w");
+	PQL::Synonym arg4(SimpleProgram::DesignEntity::CALL, "c");
+	std::vector<PQL::Synonym> args2;
+	args2.emplace_back(arg3);
+	args2.emplace_back(arg4);
+
+	PQL::Clause clause2 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::PARENT, args2);
+	clause2.setNotClause();
+	expectedClauses.emplace_back(clause2);
+
+	PQL::Synonym arg5(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NAME);
+	PQL::Synonym arg6(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+	std::vector<PQL::Synonym> args3;
+	args3.emplace_back(arg5);
+	args3.emplace_back(arg6);
+
+	PQL::Clause clause3 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::WITH, args3);
+	clause3.setNotClause();
+	expectedClauses.emplace_back(clause3);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+
+	REQUIRE(results == expectedQuery);
+  }
+
+  SECTION("Select boolean not") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = "\nSelect BOOLEAN such that not Next* (2, 9)";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::BOOLEAN,
+									   "BOOLEAN");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::STMT_NO, "2");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::STMT_NO, "9");
+	std::vector<PQL::Synonym> args;
+	args.emplace_back(arg1);
+	args.emplace_back(arg2);
+	PQL::Clause clause =
+		PQL::Clause(SimpleProgram::DesignAbstraction::NEXTT, args);
+	clause.setNotClause();
+	expectedClauses.emplace_back(clause);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+	REQUIRE(expectedQuery == results);
+  }
+
+  SECTION("Select attributes") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = R"(procedure p, q; Select p.procName such that Calls (p, q))";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::PROCEDURE,
+									  "p");
+
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::PROCEDURE,
+									  "q");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(SimpleProgram::DesignEntity::PROCEDURE, "p", SimpleProgram::AttributeRef::NAME);
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::PROCEDURE, "p");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::PROCEDURE, "q");
+	std::vector<PQL::Synonym> args;
+	args.emplace_back(arg1);
+	args.emplace_back(arg2);
+	PQL::Clause clause =
+		PQL::Clause(SimpleProgram::DesignAbstraction::CALLS, args);
+	expectedClauses.emplace_back(clause);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+	REQUIRE(expectedQuery == results);
+  }
+
+  SECTION("Select tuple") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = R"(assign a1, a2; Select <a1, a2> such that Affects (a1, a2))";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN,
+									  "a1");
+
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN,
+									  "a2");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym1(SimpleProgram::DesignEntity::ASSIGN, "a1");
+	PQL::Synonym expectedSelectSynonym2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a1");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+	std::vector<PQL::Synonym> args;
+	args.emplace_back(arg1);
+	args.emplace_back(arg2);
+	PQL::Clause clause =
+		PQL::Clause(SimpleProgram::DesignAbstraction::AFFECTS, args);
+	expectedClauses.emplace_back(clause);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym1, expectedSelectSynonym2});
+	REQUIRE(expectedQuery == results);
+  }
+
+  SECTION("Select tuple with attributes") {
+	QueryTokenizer queryTokenizer{};
+	std::string query = R"(assign a1, a2; Select <a1.stmt#, a2> such that Affects (a1, a2))";
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN,
+									  "a1");
+
+	expectedDeclarations.emplace_back(SimpleProgram::DesignEntity::ASSIGN,
+									  "a2");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym
+		expectedSelectSynonym1(SimpleProgram::DesignEntity::ASSIGN, "a1", SimpleProgram::AttributeRef::INTEGER);
+	PQL::Synonym expectedSelectSynonym2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::ASSIGN, "a1");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::ASSIGN, "a2");
+	std::vector<PQL::Synonym> args;
+	args.emplace_back(arg1);
+	args.emplace_back(arg2);
+	PQL::Clause clause =
+		PQL::Clause(SimpleProgram::DesignAbstraction::AFFECTS, args);
+	expectedClauses.emplace_back(clause);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym1, expectedSelectSynonym2});
+	REQUIRE(expectedQuery == results);
+  }
+
   SECTION("Select boolean") {
 	QueryTokenizer queryTokenizer{};
-	std::string query = "\nSelect BOOLEAN such that Next* (2,9)";
+	std::string query = "\nSelect BOOLEAN such that Next* (2, 9)";
 	auto tokens = queryTokenizer.tokenize(query);
 	QueryParser queryParser(tokens);
 

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -301,10 +302,70 @@ std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::getClause(s
   return patternClauseTokens;
 }
 
+std::vector<std::string> QueryEvaluator::ParseUtils::splitStrByFirstDelim(std::string str, std::string delim) {
+  std::string delimiter = ".";
+  std::string first = str.substr(0, str.find(delim));
+  std::string second = str.substr(str.find(delim) + 1, str.length());
+  return {first, second};
+};
+
 std::vector<std::string> QueryEvaluator::ParseUtils::splitAttrToken(std::shared_ptr<QueryToken> attrToken) {
   std::string attrTokenValue = attrToken->getValue();
-  std::string delimiter = ".";
-  std::string synonymValue = attrTokenValue.substr(0, attrTokenValue.find(delimiter));
-  std::string attrRefValue = attrTokenValue.substr(attrTokenValue.find(delimiter) + 1, attrTokenValue.length());
-  return {synonymValue, attrRefValue};
+  return splitStrByFirstDelim(attrTokenValue, ".");
+}
+
+SimpleProgram::AttributeRef QueryEvaluator::ParseUtils::getAttrRef(std::string attrRefStr) {
+  std::unordered_map<std::string, SimpleProgram::AttributeRef> strToAttrRef = {
+	  {"procName", SimpleProgram::AttributeRef::NAME},
+	  {"varName", SimpleProgram::AttributeRef::NAME},
+	  {"value", SimpleProgram::AttributeRef::INTEGER},
+	  {"stmt#", SimpleProgram::AttributeRef::INTEGER}
+  };
+
+  return strToAttrRef.at(attrRefStr);
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonymFromAttrToken(std::shared_ptr<QueryToken> attrToken,
+																	std::vector<PQL::Synonym> declarations) {
+  std::vector<std::string> splitted = QueryEvaluator::ParseUtils::splitAttrToken(attrToken);
+  auto synonymValue = splitted[0];
+  auto attrRefStr = splitted[1];
+  auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
+  auto attrRef = getAttrRef(attrRefStr);
+  return QueryEvaluator::ParseUtils::createSynonym(entityType, synonymValue, attrRef);
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createAttrSynonym(std::shared_ptr<QueryToken> operandToken,
+														   std::vector<PQL::Synonym> declarations) {
+  PQL::Synonym operandSynonym = PQL::Synonym::createInvalidSynonym();
+  QPS::TokenType operandTokenType = operandToken->getType();
+  if (operandTokenType == QPS::TokenType::ATTRIBUTE_NAME || operandTokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
+	  || operandTokenType == QPS::TokenType::ATTRIBUTE_VALUE) {
+	operandSynonym = createSynonymFromAttrToken(operandToken, declarations);
+  } else {
+	SimpleProgram::DesignEntity operandEntity = SimpleProgram::DesignEntity::INVALID;
+
+	if (operandTokenType == QPS::TokenType::INTEGER) {
+	  operandEntity = SimpleProgram::DesignEntity::INTEGER;
+	} else if (operandTokenType == QPS::TokenType::CONSTANT_STRING) {
+	  operandEntity = SimpleProgram::DesignEntity::IDENT;
+	} else {
+	  throw QuerySyntaxError("Syntax Error: Invalid attribute reference");
+	}
+
+	operandSynonym = QueryEvaluator::ParseUtils::createSynonym(operandEntity, operandToken->getValue());
+  }
+  return operandSynonym;
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createAttrSynonym(std::string attrRefStr,
+														   std::vector<PQL::Synonym> declarations) {
+  std::vector<std::string> splittedAttr = splitStrByFirstDelim(attrRefStr, ".");
+
+  auto synonymValue = splittedAttr[0];
+  auto attrName = splittedAttr[1];
+  auto attrRef = getAttrRef(attrName);
+  auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
+
+  return QueryEvaluator::ParseUtils::createSynonym(entityType, synonymValue, attrRef);
 }
