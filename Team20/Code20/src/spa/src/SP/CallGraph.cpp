@@ -117,6 +117,36 @@ void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter) {
   }
 }
 
+void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter, std::unordered_map<std::string, std::unordered_set<std::string>> procsUses, std::unordered_map<std::string, std::unordered_set<std::string>> procsModifies) {
+  if (!finalized) {
+    throw std::runtime_error("Tried to push calls relationships to PKB without finalizing call graph.");
+  }
+
+  // Push Calls relationships
+  for (int callingProc = 0; callingProc < index; callingProc++) {
+    for (int calledProc : adjLst[callingProc]) {
+      pkbWriter->insertCallsProc(indexToName[callingProc], indexToName[calledProc]);
+    }
+  }
+
+  // Push CallsT relationships
+  for (int callingProc = 0; callingProc < index; callingProc++) {
+    for (int calledProc = 0; calledProc < index; calledProc++) {
+      if (adjMatrix[callingProc][calledProc]) {
+        pkbWriter->insertCallsTProc(indexToName[callingProc], indexToName[calledProc]);
+        for (auto& varName : procsUses[indexToName[calledProc]]) {
+          pkbWriter->insertUsesProc(indexToName[callingProc], varName);
+        }
+
+        for (auto& varName : procsModifies[indexToName[calledProc]]) {
+          pkbWriter->insertModifiesProc(indexToName[callingProc], varName);
+        }
+      }
+    }
+  }
+}
+
+
 bool CallGraph::hasCallsRelationship(const std::string& a, const std::string& b) {
   if (!nameToIndex.count(a) || !nameToIndex.count(b)) {
     return false;

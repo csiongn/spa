@@ -27,6 +27,8 @@ class CallGraph {
   void addCall(const std::string& caller, const std::string& called);
   void finalize();
   void pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter);
+  void pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter, std::unordered_map<std::string, std::unordered_set<std::string>> procsUses,
+    std::unordered_map<std::string, std::unordered_set<std::string>> procsModifies);
   bool hasCallsRelationship(const std::string& a, const std::string& b);
   bool hasCallsTRelationship(const std::string& a, const std::string& b);
 };

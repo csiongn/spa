@@ -10,7 +10,7 @@ void DesignExtractor::extractDesign(const ProgramNode &astRoot) {
   visitProgramNode(astRoot);
 	callGraph->finalize();
   pushToPKB();
-	callGraph->pushToPKB(pkbWriter);
+	callGraph->pushToPKB(pkbWriter, procsUses, procsModifies);
 }
 
 void DesignExtractor::pushToPKB() {

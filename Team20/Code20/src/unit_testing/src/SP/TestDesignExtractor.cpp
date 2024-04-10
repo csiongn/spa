@@ -284,4 +284,51 @@ TEST_CASE("Simple program extractDesign") {
 	REQUIRE_THROWS(newProcModifies.at("procedure"));
 	REQUIRE_THROWS(newPKBProcModifies.at("procedure"));
   }
+
+	AND_GIVEN("procedure foo calls procedure main") {
+	  std::shared_ptr<StmtNode> callStmt = std::make_shared<CallNode>(9, "main");
+  	auto newFooStmtLst = {assignStmt3, callStmt};
+  	auto newFooBlockNode = std::make_shared<BlockNode>(newFooStmtLst);
+  	auto newProcedureFoo = std::make_shared<ProcedureNode>("foo", newFooBlockNode);
+
+		auto newProgamUpdatedFoo = std::make_shared<ProgramNode>(std::vector{procedure, newProcedureFoo});
+
+  	WHEN("Extractor extracts relationships") {
+  		// Initialize new design extractor
+  		auto newPKBWriterUpdatedFoo = std::make_shared<MockPKBWriter>();
+  		auto newExtractorUpdatedFoo = DesignExtractor(newPKBWriterUpdatedFoo);
+
+  		newExtractorUpdatedFoo.extractDesign(*newProgamUpdatedFoo);
+
+  		THEN("The calls and modifies relationship should account for call statements") {
+
+  			// Check uses relationships
+  			auto& updatedPKBProcUses = newPKBWriterUpdatedFoo->procUsesRelations;
+
+  			// Expected uses relationships
+  			std::unordered_set<std::string> new_main_uses_expected = {"a", "x", "y", "z"};
+  			std::unordered_set<std::string> new_foo_uses_expected = {"a", "x", "y", "z"};
+
+  			// Check for procedure main
+  			REQUIRE(new_main_uses_expected == updatedPKBProcUses.at("main"));
+
+  			// Check for procedure foo
+  			REQUIRE(new_foo_uses_expected == updatedPKBProcUses.at("foo"));
+
+
+  			// Check modifies relationships
+  			auto &newPKBProcModifies = newPKBWriterUpdatedFoo->procModifiesRelations;
+
+  			// Expected modifies relationships
+  			std::unordered_set<std::string> new_main_modifies_expected = {"a", "x", "b"};
+  			std::unordered_set<std::string> new_foo_modifies_expected = {"i", "a", "x", "b"};
+
+  			// Check for procedure main
+  			REQUIRE(new_main_modifies_expected == newPKBProcModifies.at("main"));
+
+  			// Check for procedure foo
+  			REQUIRE(new_foo_modifies_expected == newPKBProcModifies.at("foo"));
+  		}
+  	}
+  }
 }
