@@ -39,6 +39,7 @@ bool EntityEvaluator::evaluate() {
 
   std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
 	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return getDoubleSynonym(); }},
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return getDoubleSynonym(); }},
 	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return getSynonymWildcard(); }},
 	  {SimpleProgram::DesignEntity::IDENT, [this] { return getReversedRelationship(); }},
   };
