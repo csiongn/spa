@@ -235,8 +235,8 @@ bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 	return false;
   }
 
-  resultStore->createColumn(lArg, lValues);
-  resultStore->createColumn(rArg, rValues);
+  checkAndInsertResult(lArg, lValues);
+  checkAndInsertResult(rArg, rValues);
   return true;
 }
 
@@ -277,5 +277,48 @@ std::vector<T> WithEvaluator::negateResults(const PQL::Synonym &syn, const std::
   }
 
   return {};
+}
+
+bool WithEvaluator::isIntResultsOnly(const PQL::Synonym &syn) {
+  std::unordered_set<SimpleProgram::DesignEntity> intResultOnlySet = {
+	  SimpleProgram::DesignEntity::CALL,
+	  SimpleProgram::DesignEntity::READ,
+	  SimpleProgram::DesignEntity::PRINT
+  };
+
+  return intResultOnlySet.find(syn.entityType) != intResultOnlySet.end();
+}
+
+std::vector<int> WithEvaluator::retrieveIntResults(const PQL::Synonym &syn, const std::vector<std::string> &values) {
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>(std::string)>> funcMap = {
+	  {SimpleProgram::DesignEntity::CALL,
+	   [this](const std::string &ident) { return reader->getCallsProcStmtNum(ident); }},
+	  {SimpleProgram::DesignEntity::READ,
+	   [this](const std::string &ident) { return reader->getReadStmtNum(ident); }},
+	  {SimpleProgram::DesignEntity::PRINT,
+	   [this](const std::string &ident) { return reader->getPrintStmtNum(ident); }},
+  };
+
+  std::unordered_set<int> intResultSet;
+  for (const std::string &ident : values) {
+	std::vector<int> res = funcMap[syn.entityType](ident);
+	intResultSet.insert(res.begin(), res.end());
+  }
+
+  std::vector<int> intResult(intResultSet.begin(), intResultSet.end());
+  return intResult;
+}
+
+template<typename T>
+void WithEvaluator::checkAndInsertResult(const PQL::Synonym &syn, const std::vector<T> &values) {
+  if constexpr (std::is_same_v<T, std::string>) {
+	if (isIntResultsOnly(syn)) {
+	  std::vector<int> intResult = retrieveIntResults(syn, values);
+	  resultStore->createColumn(syn, intResult);
+	  return;
+	}
+  }
+
+  resultStore->createColumn(syn, values);
 }
 }

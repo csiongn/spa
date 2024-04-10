@@ -46,5 +46,12 @@ class WithEvaluator : private ClauseEvaluator {
 
   template<typename T>
   std::vector<T> negateResults(const PQL::Synonym &syn, const std::vector<T> &selected);
+
+  static bool isIntResultsOnly(const PQL::Synonym &syn);
+
+  std::vector<int> retrieveIntResults(const PQL::Synonym &syn, const std::vector<std::string> &values);
+
+  template<typename T>
+  void checkAndInsertResult(const PQL::Synonym &syn, const std::vector<T> &values);
 };
 }
