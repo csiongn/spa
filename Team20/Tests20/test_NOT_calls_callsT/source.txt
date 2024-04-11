@@ -1,0 +1,49 @@
+procedure mainProc {
+    x = 5;
+    y = 10;
+    read z;
+    while (x < 20) {
+        if (y > 15) then {
+            print y;
+            call procA;
+        } else {
+            call procB;
+        }
+        x = x + 1;
+    }
+    call procC;
+}
+
+procedure procA {
+    c = x + y;
+    d = x - y;
+    print c;
+    print d;
+    call procB;
+}
+
+procedure procB {
+    r = x * z;
+    s = x / z;
+    print r;
+    print s;
+}
+
+procedure procC {
+    t = x + y + z;
+    u = x - y - z;
+    v = x * y * z;
+    print t;
+    print u;
+    print v;
+    call procD;
+}
+
+procedure procD {
+    t = x + y + z;
+    u = x - y - z;
+    v = x * y * z;
+    print t;
+    print u;
+    print v;
+}

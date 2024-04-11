@@ -1,0 +1,75 @@
+5.1 - calls with 2 procedure NOT
+procedure p1, p2;
+Select p1 such that not Calls(p1, p2)
+mainProc, procA, procB, procC, procD 
+5000
+5.2 - calls with procedure, wildcard NOT
+procedure p1;
+Select p1 such that not Calls(p1, _)
+procB, procD
+5000
+5.3 - calls with wildcard, procedure NOT
+procedure p2;
+Select p2 such that not Calls(_, p2)
+mainProc
+5000
+5.4 - calls with procedure, IDENT NOT
+procedure p1;
+Select p1 such that not Calls(p1, "procB")
+procB, procC, procD 
+5000
+5.5 - calls with IDENT, procedure NOT
+procedure p1;
+Select p1 such that not Calls("mainProc", p1)
+mainProc, procD 
+5000
+5.6 - calls with wildcard, wildcard NOT
+procedure p2;
+Select p2 such that not Calls(_, p2)
+mainProc
+5000
+5.7 - calls with IDENT, IDENT NOT
+procedure p2;
+Select p2 such that not Calls("mainProc", "procB")
+none
+5000
+6.1 - calls* with 2 procedure NOT
+procedure p1, p2;
+Select p1 such that not Calls*(p1, p2)
+mainProc, procA, procB, procC, procD 
+5000
+6.2 - calls* with procedure, wildcard NOT
+procedure p1;
+Select p1 such that not Calls*(p1, _)
+procB, procD
+5000
+6.3 - calls* with wildcard, procedure NOT
+procedure p2;
+Select p2 such that not Calls*(_, p2)
+mainProc
+5000
+6.4 - calls* with procedure, IDENT NOT
+procedure p1;
+Select p1 such that not Calls*(p1, "procB")
+procB, procC, procD
+5000
+6.5 - calls* with IDENT, procedure NOT
+procedure p1;
+Select p1 such that not Calls*("mainProc", p1)
+mainProc
+5000
+6.6 - calls* with wildcard, wildcard NOT
+procedure p2;
+Select p2 such that not Calls*(_, _)
+none
+5000
+6.7 - calls* with IDENT, IDENT NOT
+procedure p2;
+Select p2 such that not Calls*("mainProc", "procB")
+none
+5000
+6.8 - calls* with recursive calls NOT
+procedure p2;
+Select p2 such that not Calls*("mainProc", "procC")
+none
+5000

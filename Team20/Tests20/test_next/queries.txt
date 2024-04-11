@@ -86,7 +86,7 @@ SyntaxError
 3.1 - next with boolean
 stmt s1;
 Select BOOLEAN such that Next(2, 3) and Next(3, 4)
-TRUE
+FALSE
 5000
 3.2 - next with boolean
 stmt s1;

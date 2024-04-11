@@ -28,9 +28,9 @@ procedure p; call c; while w;
 Select p such that Calls ("Second", p) and Parent (w, c) with c.procName = p.procName
 Third
 5000
-5 - Is there an execution path from statement 2 to statement 9?
+5 - Is there an execution path from statement 2 to statement 9? bump up by 3 as we add FIRST procedure
 
-Select BOOLEAN such that Next* (2, 9)
+Select BOOLEAN such that Next* (5, 12)
 TRUE
 5000
 6 -  Is there an execution path from statement 2 to statement 9 that passes through statement 8?
@@ -40,18 +40,18 @@ FALSE
 5000
 7.1 - Find assignments to variable x located in a loop, that can be reached (in terms of control flow) from statement 1.
 assign a; while w;
-Select a pattern a ("x", _) such that Parent* (w, a) and Next* (1, a)
-4
+Select a pattern a ("x", _) such that Parent* (w, a) and Next* (4, a)
+7
 5000
 7.2 - Find assignments to variable x located in a loop, that can be reached (in terms of control flow) from statement 1.
 assign a; while w;
-Select a such that Modifies (a, "x") and Parent* (w, a) and Next* (1, a)
-4
+Select a such that Modifies (a, "x") and Parent* (w, a) and Next* (4, a)
+7
 5000
 8 - Which statements can be executed between statement 5 and statement 12?
 stmt s;
-Select s such that Next* (5, s) and Next* (s, 12)
-3, 4, 5, 6, 7, 8, 9, 10, 11
+Select s such that Next* (8, s) and Next* (s, 15)
+6, 7, 8, 9, 10, 11, 12, 13, 14
 5000
 11 - Which statements can be executed between statement 5 and statement 12?
 procedure p, q;
