@@ -73,7 +73,7 @@ bool AssignPatternEvaluator::hasRelationship() {
 	}
 
 	isNotEmpty = !assignSynResults.empty();
-	if (isNotEmpty) {
+	if (isNotEmpty && createTable) {
 	  resultStore->createColumn(assignSyn, assignSynResults);
 	}
   }
@@ -91,7 +91,9 @@ bool AssignPatternEvaluator::hasRelationship(const std::string &ident, const std
   }
 
   // add ASSIGN_SYN to result store
-  resultStore->createColumn(clause.arguments[0], assignStmtNums);
+  if (createTable) {
+	resultStore->createColumn(clause.arguments[0], assignStmtNums);
+  }
   return true;
 }
 
@@ -141,7 +143,7 @@ bool AssignPatternEvaluator::hasAtLeastOneRelationship() {
   }
 
   isNotEmpty = !assignStmtNums.empty();
-  if (isNotEmpty) {
+  if (isNotEmpty && createTable) {
 	resultStore->createColumn(assignSyn, assignStmtNums);
   }
   return isNotEmpty;
@@ -173,7 +175,7 @@ bool AssignPatternEvaluator::getLeftResults() {
   }
 
   bool isNotEmpty = !result.empty();
-  if (isNotEmpty) {
+  if (isNotEmpty && createTable) {
 	insertDoubleColumnResult(result);
   }
   return isNotEmpty;
@@ -198,7 +200,7 @@ bool AssignPatternEvaluator::getSynonymWildcard() {
   }
 
   bool isNotEmpty = !result.empty();
-  if (isNotEmpty) {
+  if (isNotEmpty && createTable) {
 	insertDoubleColumnResult(result);
   }
 

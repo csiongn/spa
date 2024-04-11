@@ -1,6 +1,5 @@
 #include "ResultStore.h"
 
-#include <iostream>
 #include <unordered_set>
 #include <memory>
 #include <string>
@@ -89,7 +88,7 @@ void ResultStore::joinResults() {
 
 	results.erase(results.begin());
 	results.erase(results.begin());
-	results.push_back(newResult);
+	results.insert(results.begin(), newResult);
   }
 }
 

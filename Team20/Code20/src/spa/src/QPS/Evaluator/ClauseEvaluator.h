@@ -15,10 +15,14 @@ class ClauseEvaluator {
   std::shared_ptr<IPKBReader> reader;
   PQL::Clause clause;
   std::shared_ptr<ResultStore> resultStore;
+  bool createTable;
 
  public:
-  ClauseEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> _resultStore)
-	  : reader(r), clause(cl) {
+  ClauseEvaluator(std::shared_ptr<IPKBReader> r,
+				  const PQL::Clause &cl,
+				  std::shared_ptr<ResultStore> _resultStore,
+				  bool _createTable)
+	  : reader(r), clause(cl), createTable(_createTable) {
 	resultStore = _resultStore;
   };
 

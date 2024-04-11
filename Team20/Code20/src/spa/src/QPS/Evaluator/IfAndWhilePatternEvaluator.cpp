@@ -40,7 +40,9 @@ bool IfAndWhilePatternEvaluator::hasRelationship() {
   }
 
   // add the if/while SYN to result store
-  resultStore->createColumn(patternSyn, stmtNums);
+  if (createTable) {
+	resultStore->createColumn(patternSyn, stmtNums);
+  }
   return true;
 }
 
@@ -88,7 +90,9 @@ bool IfAndWhilePatternEvaluator::getLeftResults() {
 	return false;
   }
 
-  insertDoubleColumnResult(res);
+  if (createTable) {
+	insertDoubleColumnResult(res);
+  }
   return true;
 }
 

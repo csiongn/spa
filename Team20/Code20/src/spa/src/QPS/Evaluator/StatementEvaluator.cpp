@@ -156,7 +156,7 @@ bool StatementEvaluator::getForwardRelationship() {
 	}
 
 	bool isNotEmpty = !rResults.empty();
-	if (rArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty) {
+	if (rArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty && createTable) {
 	  resultStore->createColumn(rArg, rResults);
 	}
 
@@ -185,7 +185,7 @@ bool StatementEvaluator::getRightResults() {
 	rResults = negateIntResults(rArg, rResults);
   }
   bool isNotEmpty = !rResults.empty();
-  if (isNotEmpty) {
+  if (isNotEmpty && createTable) {
 	resultStore->createColumn(rArg, rResults);
   }
 
@@ -205,7 +205,9 @@ bool StatementEvaluator::getWildcardSynonym() {
 	return false;
   }
 
-  resultStore->createColumn(rArg, rResults);
+  if (createTable) {
+	resultStore->createColumn(rArg, rResults);
+  }
   return true;
 }
 
@@ -241,7 +243,7 @@ bool StatementEvaluator::getReversedRelationship() {
 	}
 
 	bool isNotEmpty = !lResults.empty();
-	if (lArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty) {
+	if (lArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty && createTable) {
 	  resultStore->createColumn(lArg, lResults);
 	}
 	return isNotEmpty;
@@ -269,7 +271,7 @@ bool StatementEvaluator::getLeftResults() {
   }
 
   bool isNotEmpty = !lResults.empty();
-  if (isNotEmpty) {
+  if (isNotEmpty && createTable) {
 	resultStore->createColumn(lArg, lResults);
   }
 
@@ -289,7 +291,9 @@ bool StatementEvaluator::getSynonymWildcard() {
 	return false;
   }
 
-  resultStore->createColumn(lArg, lResults);
+  if (createTable) {
+	resultStore->createColumn(lArg, lResults);
+  }
   return true;
 }
 
@@ -364,13 +368,16 @@ bool StatementEvaluator::getDoubleSynonym() {
 	return false;
   }
 
-  std::vector<std::vector<std::string>> table = {lResults, rResults};
-  std::vector<std::string> colNames = {lArg.identity, rArg.identity};
-  std::unordered_map<std::string, size_t> colNameToIndex;
-  for (size_t i = 0; i < colNames.size(); i++) {
-	colNameToIndex[colNames[i]] = i;
+  if (createTable) {
+	std::vector<std::vector<std::string>> table = {lResults, rResults};
+	std::vector<std::string> colNames = {lArg.identity, rArg.identity};
+	std::unordered_map<std::string, size_t> colNameToIndex;
+	for (size_t i = 0; i < colNames.size(); i++) {
+	  colNameToIndex[colNames[i]] = i;
+	}
+	resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
   }
-  resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
+
   return true;
 }
 }

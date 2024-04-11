@@ -10,8 +10,11 @@
 namespace QueryEvaluator {
 class PatternEvaluator : protected ClauseEvaluator {
  public:
-  PatternEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {};
+  PatternEvaluator(std::shared_ptr<IPKBReader> r,
+				   const PQL::Clause &cl,
+				   std::shared_ptr<ResultStore> resultStore,
+				   bool createTable)
+	  : ClauseEvaluator(r, cl, resultStore, createTable) {};
 
   bool evaluate() override = 0;
 

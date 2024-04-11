@@ -95,7 +95,9 @@ bool WithEvaluator::handleSingleAttrRef() {
 	  return false;
 	}
 
-	resultStore->createColumn(lArg, stmtNums);
+	if (createTable) {
+	  resultStore->createColumn(lArg, stmtNums);
+	}
 	return true;
   }
 
@@ -108,7 +110,10 @@ bool WithEvaluator::handleSingleAttrRef() {
 	if (values.empty()) {
 	  return false;
 	}
-	resultStore->createColumn(lArg, values);
+
+	if (createTable) {
+	  resultStore->createColumn(lArg, values);
+	}
 	return true;
   }
 
@@ -121,7 +126,10 @@ bool WithEvaluator::handleSingleAttrRef() {
 	if (values.empty()) {
 	  return false;
 	}
-	resultStore->createColumn(lArg, values);
+
+	if (createTable) {
+	  resultStore->createColumn(lArg, values);
+	}
 	return true;
   }
 
@@ -235,8 +243,10 @@ bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 	return false;
   }
 
-  checkAndInsertResult(lArg, lValues);
-  checkAndInsertResult(rArg, rValues);
+  if (createTable) {
+	checkAndInsertResult(lArg, lValues);
+	checkAndInsertResult(rArg, rValues);
+  }
   return true;
 }
 

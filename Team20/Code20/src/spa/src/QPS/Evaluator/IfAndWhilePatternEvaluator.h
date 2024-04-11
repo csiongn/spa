@@ -11,8 +11,8 @@ namespace QueryEvaluator {
 class IfAndWhilePatternEvaluator : private PatternEvaluator {
  public:
   IfAndWhilePatternEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl,
-							 std::shared_ptr<ResultStore> resultStore)
-	  : PatternEvaluator(r, cl, resultStore) {};
+							 std::shared_ptr<ResultStore> resultStore, bool createTable)
+	  : PatternEvaluator(r, cl, resultStore, createTable) {};
 
   bool evaluate() override;
 

@@ -1,9 +1,10 @@
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
-
 
 #include "Models/PQL.h"
 #include "Models/SimpleProgram.h"
@@ -20,11 +21,12 @@ namespace QueryEvaluator {
 QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(std::make_shared<ResultStore>()),
 																reader(r) {}
 
-std::vector<std::string> QueryEvaluator::evaluateQuery(const PQL::Query &q) {
+std::vector<std::string> QueryEvaluator::evaluateQuery(PQL::Query &q) {
   initialiseDeclaration(q);
+  std::vector<std::pair<PQL::Clause, bool>> sortedClauses = sortClauses(q);
 
-  for (const auto &clause : q.clauses) {
-	auto isTrue = evaluateClause(clause);
+  for (const auto &[clause, createTable] : sortedClauses) {
+	auto isTrue = evaluateClause(clause, createTable);
 	if (!isTrue) {
 	  // empty result, final result will also be empty, can just return
 	  if (q.selectSynonyms[0].entityType == SimpleProgram::DesignEntity::BOOLEAN) {
@@ -40,7 +42,7 @@ std::vector<std::string> QueryEvaluator::evaluateQuery(const PQL::Query &q) {
   return selectResult;
 }
 
-bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
+bool QueryEvaluator::evaluateClause(const PQL::Clause &clause, bool createTable) {
   switch (clause.clauseType) {
 	case SimpleProgram::DesignAbstraction::FOLLOWS:
 	case SimpleProgram::DesignAbstraction::FOLLOWST:
@@ -49,21 +51,21 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause) {
 	case SimpleProgram::DesignAbstraction::NEXT:
 	case SimpleProgram::DesignAbstraction::NEXTT:
 	case SimpleProgram::DesignAbstraction::AFFECTS:
-	  return StatementEvaluator{reader, clause, resultStore}.evaluate();
+	  return StatementEvaluator{reader, clause, resultStore, createTable}.evaluate();
 	case SimpleProgram::DesignAbstraction::USESS:
 	case SimpleProgram::DesignAbstraction::MODIFIESS:
 	case SimpleProgram::DesignAbstraction::USESP:
 	case SimpleProgram::DesignAbstraction::MODIFIESP:
 	case SimpleProgram::DesignAbstraction::CALLS:
 	case SimpleProgram::DesignAbstraction::CALLST:
-	  return EntityEvaluator{reader, clause, resultStore}.evaluate();
+	  return EntityEvaluator{reader, clause, resultStore, createTable}.evaluate();
 	case SimpleProgram::DesignAbstraction::PATTERN_ASSIGN:
-	  return AssignPatternEvaluator{reader, clause, resultStore}.evaluate();
+	  return AssignPatternEvaluator{reader, clause, resultStore, createTable}.evaluate();
 	case SimpleProgram::DesignAbstraction::PATTERN_IF:
 	case SimpleProgram::DesignAbstraction::PATTERN_WHILE:
-	  return IfAndWhilePatternEvaluator(reader, clause, resultStore).evaluate();
+	  return IfAndWhilePatternEvaluator{reader, clause, resultStore, createTable}.evaluate();
 	case SimpleProgram::DesignAbstraction::WITH:
-	  return WithEvaluator(reader, clause, resultStore).evaluate();
+	  return WithEvaluator{reader, clause, resultStore, createTable}.evaluate();
 	default:
 	  return false;
   }
@@ -139,5 +141,155 @@ std::vector<int> QueryEvaluator::getIntResults(const PQL::Synonym &syn) const {
   }
 
   return funcMap[syn.entityType]();
+}
+
+std::vector<std::pair<PQL::Clause, bool>> QueryEvaluator::sortClauses(PQL::Query &q) {
+  std::unordered_set<int> clauseIndexSet;
+  clauseIndexSet.reserve(q.clauses.size());
+
+  std::vector<std::pair<PQL::Clause, bool>> sortedClauses;
+  sortedClauses.reserve(q.clauses.size());
+
+  // find clauses without synonyms
+  for (int i = 0; i < q.clauses.size(); ++i) {
+	if (hasNoSynonym(q.clauses[i])) {
+	  sortedClauses.emplace_back(q.clauses[i], false);
+	  clauseIndexSet.insert(i);
+	}
+  }
+
+  // group clauses by their synonyms
+  std::vector<std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>>>
+	  synClausePairs = groupClauses(q.clauses, clauseIndexSet);
+  std::vector<std::string> selectSynonymsIdent;
+  selectSynonymsIdent.reserve(q.selectSynonyms.size());
+  for (const PQL::Synonym &syn : q.selectSynonyms) {
+	selectSynonymsIdent.push_back(syn.identity);
+  }
+  for (const auto &[identities, cls] : synClausePairs) {
+	// if <= 1, means the synonym is only used by this clause, means it's equivalent to a true/false clause
+	// then check if any of the identities is selected, if yes, need to add to filter the initialised result
+	bool createTable = cls.size() > 1 || hasIntersection(identities, selectSynonymsIdent);
+	for (const PQL::Clause &cl : cls) {
+	  sortedClauses.emplace_back(cl, createTable);
+	}
+  }
+
+  return sortedClauses;
+}
+
+bool QueryEvaluator::hasNoSynonym(PQL::Clause &cl) {
+  std::unordered_set<SimpleProgram::DesignAbstraction> clausesWithSynonym = {
+	  SimpleProgram::DesignAbstraction::PATTERN_ASSIGN,
+	  SimpleProgram::DesignAbstraction::PATTERN_IF,
+	  SimpleProgram::DesignAbstraction::PATTERN_WHILE,
+  };
+
+  if (clausesWithSynonym.find(cl.clauseType) != clausesWithSynonym.end()) {
+	return false;
+  }
+
+  // non-pattern clause, only have two arguments, check both
+  return !isSynonym(cl.arguments[0]) && !isSynonym(cl.arguments[1]);
+}
+
+bool QueryEvaluator::isSynonym(const PQL::Synonym &arg) {
+  std::unordered_set<SimpleProgram::DesignEntity> nonSynonymEntities = {
+	  SimpleProgram::DesignEntity::STMT_NO,
+	  SimpleProgram::DesignEntity::INTEGER,
+	  SimpleProgram::DesignEntity::IDENT,
+	  SimpleProgram::DesignEntity::EXPR,
+	  SimpleProgram::DesignEntity::PARTIAL_EXPR,
+	  SimpleProgram::DesignEntity::WILDCARD,
+  };
+
+  return nonSynonymEntities.find(arg.entityType) == nonSynonymEntities.end();
+}
+
+std::vector<std::pair<std::unordered_set<std::string>,
+					  std::vector<PQL::Clause>>> QueryEvaluator::groupClauses(const std::vector<PQL::Clause> &cls,
+																			  const std::unordered_set<int> &noSynonymClauses) {
+  std::unordered_map<int, PQL::Clause> idMap;
+  int i = 0;
+  for (const PQL::Clause &cl : cls) {
+	idMap.insert({i++, cl});
+  }
+
+  std::unordered_map<std::unordered_set<std::string>, std::unordered_set<int>, SetHash> synToClauseIdMap;
+  for (i = 0; i < cls.size(); ++i) {
+	if (noSynonymClauses.find(i) != noSynonymClauses.end()) {
+	  continue;
+	}
+
+	for (const PQL::Synonym &arg : cls[i].arguments) {
+	  if (!isSynonym(arg)) {
+		continue;
+	  }
+
+	  synToClauseIdMap[{arg.identity}].insert(i);
+	}
+  }
+
+  mergeKeyValuePair(synToClauseIdMap);
+
+  std::vector<std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>>> synClausePairs;
+  for (const auto &[id, set] : synToClauseIdMap) {
+	std::vector<PQL::Clause> clsGroup;
+	for (int synId : set) {
+	  clsGroup.emplace_back(idMap.at(synId));
+	}
+
+	synClausePairs.emplace_back(id, clsGroup);
+  }
+  return synClausePairs;
+}
+
+bool QueryEvaluator::hasIntersection(const std::unordered_set<int> &s1, const std::unordered_set<int> &s2) {
+  std::unordered_set<int> smaller = s1;
+  std::unordered_set<int> bigger = s2;
+  if (s1.size() > s2.size()) {
+	std::swap(smaller, bigger);
+  }
+
+  return std::any_of(smaller.begin(), smaller.end(),
+					 [bigger](int id) { return bigger.find(id) != bigger.end(); });
+}
+
+bool QueryEvaluator::hasIntersection(const std::unordered_set<std::string> &set, const std::vector<std::string> &vec) {
+  for (const std::string &s : vec) {
+	if (set.find(s) != set.end()) {
+	  return true;
+	}
+  }
+
+  return false;
+}
+
+void QueryEvaluator::mergeKeyValuePair(std::unordered_map<std::unordered_set<std::string>,
+														  std::unordered_set<int>,
+														  SetHash> &map) {
+  for (auto it1 = map.begin(); it1 != map.end(); ++it1) {
+	for (auto it2 = map.begin(); it2 != map.end(); ++it2) {
+	  if (it1 == it2 || !hasIntersection(it1->second, it2->second)) {
+		continue;
+	  }
+
+	  // has intersection in value, merge the new key and value pair
+	  std::unordered_set<std::string> newKey = it1->first;
+	  newKey.insert(it2->first.begin(), it2->first.end());
+	  std::unordered_set<int> newValues = it1->second;
+	  newValues.insert(it2->second.begin(), it2->second.end());
+
+	  // remove the old key-value pair
+	  map.erase(it1);
+	  map.erase(it2);
+
+	  // insert the new key-value pair and recursively merge the map
+	  map.insert({newKey, newValues});
+	  mergeKeyValuePair(map);
+
+	  return;
+	}
+  }
 }
 }
