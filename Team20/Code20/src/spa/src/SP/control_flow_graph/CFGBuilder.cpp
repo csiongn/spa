@@ -25,7 +25,7 @@ std::shared_ptr<CFG> CFGBuilder::buildCFGProc(const ProcedureNode &procedureNode
     const auto entryNode = statements.front();
     auto uses = usesMap[entryNode->stmtNumber];
     const auto entryCFGNode = std::make_shared<CFGNode>(entryNode->stmtNumber, entryNode->stmtType,
-        usesMap[entryNode->stmtNumber], modifiesMap.at(entryNode->stmtNumber));
+        usesMap[entryNode->stmtNumber], modifiesMap[entryNode->stmtNumber]);
     auto cfg = std::make_shared<CFG>(procedureNode.name, entryNode->stmtNumber, entryCFGNode);
     cfg->addNode(entryNode->stmtNumber, entryCFGNode);
     processBlockNode(body, {cfg->root}, cfg);
@@ -62,7 +62,7 @@ std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processBlockNode(const std::s
 std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processIfNode(const std::shared_ptr<IfNode> &node,
                                                                  const std::vector<std::shared_ptr<CFGNode> > prevNodes,
                                                                  const std::shared_ptr<CFG> &cfg) {
-    auto ifNode = std::make_shared<CFGNode>(node->stmtNumber, SimpleProgram::StatementType::IF, usesMap.at(node->stmtNumber), modifiesMap.at(node->stmtNumber));
+    auto ifNode = std::make_shared<CFGNode>(node->stmtNumber, SimpleProgram::StatementType::IF, usesMap[node->stmtNumber], modifiesMap[node->stmtNumber]);
     cfg->addNode(node->stmtNumber, ifNode);
     connectNodes(prevNodes, {ifNode});
     auto thenBranchNodes = processBlockNode(node->thenBranch, {ifNode}, cfg);
@@ -75,7 +75,7 @@ std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processIfNode(const std::shar
 std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processWhileNode(const std::shared_ptr<WhileNode> &node,
                                                                     const std::vector<std::shared_ptr<CFGNode> >
                                                                     prevNodes, const std::shared_ptr<CFG> &cfg) {
-    auto whileNode = std::make_shared<CFGNode>(node->stmtNumber, SimpleProgram::StatementType::WHILE, usesMap.at(node->stmtNumber), modifiesMap.at(node->stmtNumber));
+    auto whileNode = std::make_shared<CFGNode>(node->stmtNumber, SimpleProgram::StatementType::WHILE, usesMap[node->stmtNumber], modifiesMap[node->stmtNumber]);
     cfg->addNode(node->stmtNumber, whileNode);
     connectNodes(prevNodes, {whileNode});
     auto loopNodes = processBlockNode(node->body, {whileNode}, cfg);
