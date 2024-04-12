@@ -31,6 +31,8 @@ class QueryEvaluator {
 
   std::vector<std::string> getStringResults(const PQL::Synonym &syn) const;
 
+  std::vector<std::string> getStringResults(const PQL::Synonym &syn, int stmtNum) const;
+
   std::vector<int> getIntResults(const PQL::Synonym &syn) const;
 
   std::vector<std::pair<PQL::Clause, bool>> sortClauses(PQL::Query &q);
@@ -61,5 +63,7 @@ class QueryEvaluator {
   static void mergeKeyValuePair(std::unordered_map<std::unordered_set<std::string>,
 												   std::unordered_set<int>,
 												   SetHash> &map);
+
+  void initialiseDoubleColumn(const PQL::Synonym &syn);
 };
 }

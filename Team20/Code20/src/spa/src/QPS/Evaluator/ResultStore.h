@@ -25,6 +25,9 @@ class ResultStore {
 
  private:
   void joinResults();
+
   std::vector<std::string> removeDuplicates(const std::vector<std::string> &v);
+
+  std::string getSelectColName(const PQL::Synonym &selectSyn);
 };
 }

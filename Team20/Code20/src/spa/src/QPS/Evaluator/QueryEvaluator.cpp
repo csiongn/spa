@@ -74,7 +74,9 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause, bool createTable)
 void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
   // Add all declarations to the
   for (const auto &syn : q.declarations) {
-	if (std::find(q.selectSynonyms.begin(), q.selectSynonyms.end(), syn) != q.selectSynonyms.end()) {
+	if (std::any_of(q.selectSynonyms.begin(),
+					q.selectSynonyms.end(),
+					[syn](const PQL::Synonym& selectSyn)->bool{ return syn.identity == selectSyn.identity; })) {
 	  addSynonymToStore(syn);
 	}
   }
@@ -94,10 +96,7 @@ void QueryEvaluator::addSynonymToStore(const PQL::Synonym &syn) {
 	  return;
 
 	case SimpleProgram::DesignEntity::STMT:
-	case SimpleProgram::DesignEntity::READ:
-	case SimpleProgram::DesignEntity::PRINT:
 	case SimpleProgram::DesignEntity::ASSIGN:
-	case SimpleProgram::DesignEntity::CALL:
 	case SimpleProgram::DesignEntity::WHILE:
 	case SimpleProgram::DesignEntity::IF:
 	case SimpleProgram::DesignEntity::CONSTANT:
@@ -108,6 +107,11 @@ void QueryEvaluator::addSynonymToStore(const PQL::Synonym &syn) {
 	  resultStore->createColumn(syn, intRes);
 	  return;
 
+	case SimpleProgram::DesignEntity::CALL:
+	case SimpleProgram::DesignEntity::READ:
+	case SimpleProgram::DesignEntity::PRINT:
+	  initialiseDoubleColumn(syn);
+	  return;
 	default:
 	  return;
   }
@@ -119,6 +123,19 @@ std::vector<std::string> QueryEvaluator::getStringResults(const PQL::Synonym &sy
 	  return reader->getAllProcedures();
 	case SimpleProgram::DesignEntity::VARIABLE:
 	  return reader->getAllVariables();
+	default:
+	  return {};
+  }
+}
+
+std::vector<std::string> QueryEvaluator::getStringResults(const PQL::Synonym &syn, int stmtNum) const {
+  switch (syn.entityType) {
+	case SimpleProgram::DesignEntity::CALL:
+	  return reader->getCallsProcName(stmtNum);
+	case SimpleProgram::DesignEntity::READ:
+	  return reader->getReadVariable(stmtNum);
+	case SimpleProgram::DesignEntity::PRINT:
+	  return reader->getPrintVariable(stmtNum);
 	default:
 	  return {};
   }
@@ -291,5 +308,42 @@ void QueryEvaluator::mergeKeyValuePair(std::unordered_map<std::unordered_set<std
 	  return;
 	}
   }
+}
+
+void QueryEvaluator::initialiseDoubleColumn(const PQL::Synonym &syn) {
+  std::vector<int> intRes = getIntResults(syn);
+  if (intRes.empty()) {
+	return;
+  }
+
+  std::vector<std::pair<std::string, std::string>> results;
+  for (int stmtNum : intRes) {
+	std::vector<std::string> strRes = getStringResults(syn, stmtNum);
+	for (const std::string &ident : strRes) {
+	  results.emplace_back(std::to_string(stmtNum), ident);
+	}
+  }
+
+  std::vector<std::string> lResults;
+  std::vector<std::string> rResults;
+  for (const auto &[stmtNum, ident] : results) {
+	lResults.emplace_back(stmtNum);
+	rResults.emplace_back(ident);
+  }
+
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+
+  std::vector<std::vector<std::string>> table = {lResults, rResults};
+  std::string attrRefColName = syn.identity + "." + attrRefMap[syn.entityType];
+  std::vector<std::string> colNames = {syn.identity, attrRefColName};
+  std::unordered_map<std::string, size_t> colNameToIndex;
+  for (size_t i = 0; i < colNames.size(); i++) {
+	colNameToIndex[colNames[i]] = i;
+  }
+  resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
 }
 }

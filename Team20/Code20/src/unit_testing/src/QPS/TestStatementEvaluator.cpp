@@ -523,9 +523,12 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertNext(2, 3);
 	  writer->insertStatement(3);
 	  writer->insertRead(3);
+	  writer->insertReadVar("testVar1", 3);
 	  writer->insertPrint(3);
+	  writer->insertPrintVar("testVar1", 3);
 	  writer->insertAssign(3);
 	  writer->insertCall(3);
+	  writer->insertCallsProcStmt("testProc", 3);
 	  writer->insertWhile(3);
 	  writer->insertIf(3);
 
@@ -890,9 +893,12 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
+	  writer->insertReadVar("testVar1", 1);
 	  writer->insertPrint(1);
+	  writer->insertPrintVar("testVar1", 1);
 	  writer->insertAssign(1);
 	  writer->insertCall(1);
+	  writer->insertCallsProcStmt("testProc", 1);
 	  writer->insertWhile(1);
 	  writer->insertIf(1);
 
@@ -1257,9 +1263,12 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertNext(1, 2);
 	  writer->insertStatement(2);
 	  writer->insertRead(2);
+	  writer->insertReadVar("testVar1", 2);
 	  writer->insertPrint(2);
+	  writer->insertPrintVar("testVar1", 2);
 	  writer->insertAssign(2);
 	  writer->insertCall(2);
+	  writer->insertCallsProcStmt("testProc", 2);
 	  writer->insertWhile(2);
 	  writer->insertIf(2);
 
@@ -1502,9 +1511,12 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertNext(1, 2);
 	  writer->insertStatement(1);
 	  writer->insertRead(1);
+	  writer->insertReadVar("testVar1", 1);
 	  writer->insertPrint(1);
+	  writer->insertPrintVar("testVar1", 1);
 	  writer->insertAssign(1);
 	  writer->insertCall(1);
+	  writer->insertCallsProcStmt("testProc", 1);
 	  writer->insertWhile(1);
 	  writer->insertIf(1);
 
@@ -1747,9 +1759,12 @@ TEST_CASE("Statement Evaluator") {
 	  writer->insertNext(1, 2);
 	  writer->insertStatement({1, 2});
 	  writer->insertRead({1, 2});
+	  writer->insertReadVar("testVar1", {1, 2});
 	  writer->insertPrint({1, 2});
+	  writer->insertPrintVar("testVar1", {1, 2});
 	  writer->insertAssign({1, 2});
 	  writer->insertCall({1, 2});
+	  writer->insertCallsProcStmt("testProc", {1, 2});
 	  writer->insertWhile({1, 2});
 	  writer->insertIf({1, 2});
 

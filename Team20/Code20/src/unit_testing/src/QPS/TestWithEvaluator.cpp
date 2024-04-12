@@ -41,14 +41,16 @@ TEST_CASE("With Evaluator") {
 	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
 	  std::cout << "Testing query: call c; Select c with c.procName = \"testCall1\";" << std::endl;
 
+	  writer->insertCall({1, 2, 3});
 	  writer->insertCallsProcStmt("testCall1", 1);
 	  writer->insertCallsProcStmt("testCall1", 2);
 	  writer->insertCallsProcStmt("testCall2", 3);
 
 	  auto callSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NAME);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testCall1");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {callSyn, identSyn});
-	  auto q = PQL::Query({callSyn}, {withClause}, {callSyn});
+	  auto q = PQL::Query({callSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2"};
@@ -88,14 +90,16 @@ TEST_CASE("With Evaluator") {
 	  std::cout << "Testing SIMPLE program with only one WITH clause." << std::endl;
 	  std::cout << "Testing query: read r; Select r with r.varName = \"testVar1\";" << std::endl;
 
+	  writer->insertRead({1, 2, 3});
 	  writer->insertReadVar("testVar1", 1);
 	  writer->insertReadVar("testVar1", 2);
 	  writer->insertReadVar("testVar2", 3);
 
 	  auto readSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::NAME);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {readSyn, identSyn});
-	  auto q = PQL::Query({readSyn}, {withClause}, {readSyn});
+	  auto q = PQL::Query({readSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2"};
@@ -117,9 +121,10 @@ TEST_CASE("With Evaluator") {
 	  writer->insertPrintVar("testVar2", 3);
 
 	  auto printSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pr", SimpleProgram::AttributeRef::NAME);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pr", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::IDENT, "testVar1");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {printSyn, identSyn});
-	  auto q = PQL::Query({printSyn}, {withClause}, {printSyn});
+	  auto q = PQL::Query({printSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"1", "2"};
@@ -181,11 +186,13 @@ TEST_CASE("With Evaluator") {
 	  std::cout << "Testing query: read r; Select r with r.stmt = 3;" << std::endl;
 
 	  writer->insertRead({1, 2, 3});
+	  writer->insertReadVar("testVar", {1, 2, 3});
 
 	  auto readSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::INTEGER);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "3");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {readSyn, identSyn});
-	  auto q = PQL::Query({readSyn}, {withClause}, {readSyn});
+	  auto q = PQL::Query({readSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"3"};
@@ -203,11 +210,13 @@ TEST_CASE("With Evaluator") {
 	  std::cout << "Testing query: print pr; Select pr with pr.stmt = 3;" << std::endl;
 
 	  writer->insertPrint({1, 2, 3});
+	  writer->insertPrintVar("testVar", {1, 2, 3});
 
 	  auto printSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pr", SimpleProgram::AttributeRef::INTEGER);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pr", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "3");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {printSyn, identSyn});
-	  auto q = PQL::Query({printSyn}, {withClause}, {printSyn});
+	  auto q = PQL::Query({printSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"3"};
@@ -225,11 +234,13 @@ TEST_CASE("With Evaluator") {
 	  std::cout << "Testing query: call c; Select c with c.stmt = 3;" << std::endl;
 
 	  writer->insertCall({1, 2, 3});
+	  writer->insertCallsProcStmt("testProc", {1, 2, 3});
 
 	  auto callSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::INTEGER);
+	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c", SimpleProgram::AttributeRef::NO_REF);
 	  auto identSyn = PQL::Synonym(SimpleProgram::DesignEntity::INTEGER, "3");
 	  auto withClause = PQL::Clause(SimpleProgram::DesignAbstraction::WITH, {callSyn, identSyn});
-	  auto q = PQL::Query({callSyn}, {withClause}, {callSyn});
+	  auto q = PQL::Query({callSyn}, {withClause}, {selectSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
 	  std::vector<std::string> expectedRes = {"3"};

@@ -1,8 +1,9 @@
 #include "ResultStore.h"
 
-#include <unordered_set>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace QueryEvaluator {
@@ -29,14 +30,13 @@ std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Syno
 	return {};
   }
 
-
   std::shared_ptr<Result> res = results[0];
   if (selectSyns.size() == 1) {
 	if (selectBoolean) {
 	  return {"TRUE"};
 	}
 
-	size_t selectSynIndex = res->colNameToIndex.at(selectSyns[0].identity);
+	size_t selectSynIndex = res->colNameToIndex.at(getSelectColName(selectSyns[0]));
 	std::vector<std::string> selectResult = res->table[selectSynIndex];
 	return removeDuplicates(selectResult);
   } else {
@@ -44,7 +44,7 @@ std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Syno
 	std::vector<size_t> selectSynIndexes;
 	selectSynIndexes.reserve(selectSyns.size());
 	for (const PQL::Synonym &syn : selectSyns) {
-	  selectSynIndexes.push_back(res->colNameToIndex.at(syn.identity));
+	  selectSynIndexes.push_back(res->colNameToIndex.at(getSelectColName(syn)));
 	}
 
 	std::vector<std::string> selectResult;
@@ -104,5 +104,23 @@ std::vector<std::string> ResultStore::removeDuplicates(const std::vector<std::st
   }
 
   return noDuplicates;
+}
+
+std::string ResultStore::getSelectColName(const PQL::Synonym &selectSyn) {
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+  switch (selectSyn.entityType) {
+	case SimpleProgram::DesignEntity::CALL:
+	case SimpleProgram::DesignEntity::READ:
+	case SimpleProgram::DesignEntity::PRINT:
+	  if (selectSyn.attribute == SimpleProgram::AttributeRef::NAME) {
+		return selectSyn.identity + "." + attrRefMap[selectSyn.entityType];
+	  }
+	default:
+	  return selectSyn.identity;
+  }
 }
 }
