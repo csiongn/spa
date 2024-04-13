@@ -135,7 +135,7 @@ class DesignExtractor {
   void insertLiteral(const std::string& var);
   void insertStmt(const int stmtNum);
   void insertAssign(const int stmtNum);
-  void insertCall(const int stmtNum);
+  void insertCall(const int stmtNum, const std::string& calledProc);
   void insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables);
   void insertRead(const int stmtNum, const std::string& variable);
   void insertPrint(const int stmtNum, const std::string& variable);

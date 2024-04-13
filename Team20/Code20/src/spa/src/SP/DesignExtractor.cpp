@@ -169,7 +169,7 @@ void DesignExtractor::visitStmtNode(const StmtNode &node, int parentStmt, std::v
 	updateModifies(stmtNumber, assignNode->varName);
 	visitExprNode(*assignNode->value, stmtNumber);
   } else if (const auto *callNode = dynamic_cast<const CallNode *>(&node)) {
-	insertCall(stmtNumber);
+	insertCall(stmtNumber, callNode->procName);
   	updateCall(ctxt->procName, callNode->procName);
   } else if (const auto *readNode = dynamic_cast<const ReadNode *>(&node)) {
 	insertRead(stmtNumber, readNode->varName);
@@ -296,8 +296,8 @@ void DesignExtractor::insertAssign(const int stmtNum) {
   assignStmts.insert(stmtNum);
 }
 
-void DesignExtractor::insertCall(const int stmtNum) {
-  callStmts[stmtNum] = ctxt->procName;
+void DesignExtractor::insertCall(const int stmtNum, const std::string& calledProc) {
+  callStmts[stmtNum] = calledProc;
 }
 
 void DesignExtractor::insertPrint(const int stmtNum, const std::string& variable) {
