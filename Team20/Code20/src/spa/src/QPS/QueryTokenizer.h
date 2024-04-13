@@ -26,6 +26,8 @@ class QueryTokenizer {
 
   void processString(std::string currentStr);
 
+  bool isAttributeString();
+
  protected:
   // Move stream to an attribute in enclosing class so that helper functions can access
   std::shared_ptr<std::istream> iss;

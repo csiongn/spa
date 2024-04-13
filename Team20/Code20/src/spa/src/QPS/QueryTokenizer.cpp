@@ -34,8 +34,15 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
 	  removeChar();
 	} else if (isCharWhitespace(nextChar)) {
 	  if (!currentStr.empty()) {
-		processString(currentStr);
-		currentStr.clear();
+		if (isAttributeString()) {
+		  processAttribute(currentStr);
+		  currentStr.clear();
+		  nextChar = peekChar();
+		  continue;
+		} else {
+		  processString(currentStr);
+		  currentStr.clear();
+		}
 	  }
 	  removeChar();
 	} else if (isCharStar(nextChar)) {
@@ -252,8 +259,6 @@ void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std:
 }
 
 void QueryTokenizer::processAttribute(std::string currentStr) {
-  // If currentStr is empty, means syntaxError, likely case that there was whitespace before full stop
-  // s        .attrName
   if (currentStr.empty()) {
 	throw QuerySyntaxError("Syntax Error: Invalid whitespace before attribute");
   }
@@ -267,7 +272,12 @@ void QueryTokenizer::processAttribute(std::string currentStr) {
   }
 
   nextChar = peekChar();
-  // Getting attribute field value, unable to validate syntax
+  // Remove whitespace after `.` and before attribute
+  while (isCharWhitespace(nextChar) && nextChar != EOF) {
+	removeChar();
+	nextChar = peekChar();
+  }
+
   while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF && nextChar != Constants::SpecialCharacters::EQUAL) {
 	currAttributeValue += nextChar;
 	removeChar();
@@ -301,6 +311,7 @@ void QueryTokenizer::processTuple() {
 }
 
 void QueryTokenizer::processString(std::string currentStr) {
+
   if (isNum(currentStr) && !currentStr.empty()) {
 	addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr));
   } else if (isValidIDENT(currentStr)) {
@@ -309,4 +320,23 @@ void QueryTokenizer::processString(std::string currentStr) {
 	throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
   }
   return;
+}
+
+bool QueryTokenizer::isAttributeString() {
+  // restore to last position with whitespace
+  std::streampos restorePos;
+  int posToRestore = 0;
+  auto nextChar = peekChar();
+  while (isCharWhitespace(nextChar) && nextChar != EOF) {
+	restorePos = iss->tellg();
+	posToRestore += 1;
+	removeChar();
+	nextChar = peekChar();
+  }
+  if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
+	// All whitespace has been removed
+	return true;
+  }
+  iss->seekg(restorePos);
+  return false;
 }

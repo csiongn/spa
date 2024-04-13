@@ -31,7 +31,6 @@ TEST_CASE("Tokenizer") {
 		"assign a1, a2; variable v; \nSelect s12d such that Follows*(1,\"sasds\") pattern a(_, _\" (x+y)+1   \"_)";
 
 	auto tokens = queryTokenizer.tokenize(query);
-
 	// Compare tokens
 	std::vector<QueryToken> expectedTokensVector = {
 		QueryToken(QPS::TokenType::NAME, "assign"),
@@ -64,7 +63,6 @@ TEST_CASE("Tokenizer") {
 	};
 
 	// check each vector has to had the same typestring and value
-
 	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
   }
 
@@ -374,22 +372,61 @@ TEST_CASE("Tokenizer") {
   }
 
   // Test whitespace before attributes both before full stop and after
-  SECTION("Attribute with whitespace") {
+  SECTION("Attribute with whitespace - 1") {
 	QueryTokenizer queryTokenizer;
-	std::string query1 = "stmt s; Select s with s   .stmt# = 1";
-	std::string query2 = "stmt s; Select s with s.     stmt# = 1";
-	std::string query3 = "stmt s; Select s with s.stmt     # = 1";
-	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query1), QuerySyntaxError);
-	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query2), QuerySyntaxError);
-	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query3), QuerySyntaxError);
+	std::string query = "stmt s; Select s with s   .stmt#=1";
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::NAME, "stmt"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "Select"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "s.stmt#"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::INTEGER, "1")
+	};
+	REQUIRE(checkTokenVectorEqual(queryTokenizer.tokenize(query), expectedTokensVector));
+  }
+  SECTION("Attribute with whitespace - 2") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "stmt s; Select s with s    .      stmt#=1";
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::NAME, "stmt"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "Select"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "s.stmt#"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::INTEGER, "1")
+	};
+	REQUIRE(checkTokenVectorEqual(queryTokenizer.tokenize(query), expectedTokensVector));
+  }
 
+  SECTION("Attribute with whitespace - 3") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "stmt s; Select s with s.stmt#=1";
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::NAME, "stmt"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "Select"),
+		QueryToken(QPS::TokenType::NAME, "s"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::ATTRIBUTE_VALUE, "s.stmt#"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::INTEGER, "1")
+	};
+	REQUIRE(checkTokenVectorEqual(queryTokenizer.tokenize(query), expectedTokensVector));
   }
 
   SECTION("Multi clause") {
 	QueryTokenizer queryTokenizer;
 	std::string query =
 		"while w1; procedure p1; print p1; read r1; variable v1;"\
-        "Select <w1, p1> such that Next(_, pn1) with r1.varName=p1.procName with \"a\"=v1.varName pattern w1(_, _)";
+        "Select <w1, p1> such that Next(_, pn1) with r1.varName   =        p1.procName with \"a\"=      v1.varName pattern w1(_, _)";
 
 	auto tokens = queryTokenizer.tokenize(query);
 	std::vector<QueryToken> expectedTokensVector = {
