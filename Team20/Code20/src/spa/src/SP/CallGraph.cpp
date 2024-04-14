@@ -12,14 +12,6 @@
 #include "PKB/facade/IPKBWriter.h"
 
 void CallGraph::computeTransitiveCall() {
-  /* Single threaded implementation
-  for (int x = 0; x < index; x++) {
-    for (int y = 0; y < index; y++) {
-      for (int z = 0; z < index; z++) {
-        adjMatrix[x][y] = adjMatrix[x][y] || (adjMatrix[x][z] && adjMatrix[z][y]);
-      }
-    }
-  } */
   const int numThreads = std::thread::hardware_concurrency();
   std::vector<std::future<void>> futures;
 
