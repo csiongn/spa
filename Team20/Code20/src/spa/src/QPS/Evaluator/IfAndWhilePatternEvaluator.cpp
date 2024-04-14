@@ -31,8 +31,9 @@ bool IfAndWhilePatternEvaluator::hasRelationship() {
 
   std::vector<int> stmtNums = getAllStmts(lArg.identity);
 
+
   if (clause.isNegated) {
-	stmtNums = negateIntResults(lArg, stmtNums);
+	stmtNums = negateIntResults(patternSyn, stmtNums);
   }
 
   if (stmtNums.empty()) {

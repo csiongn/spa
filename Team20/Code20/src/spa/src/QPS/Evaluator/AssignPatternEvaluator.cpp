@@ -69,7 +69,7 @@ bool AssignPatternEvaluator::hasRelationship() {
 	std::vector<int> assignSynResults = getAssignSynResults({lArg.identity}, partialExprNodes);
 
 	if (clause.isNegated) {
-	  assignSynResults = negateIntResults(lArg, assignSynResults);
+	  assignSynResults = negateIntResults(assignSyn, assignSynResults);
 	}
 
 	isNotEmpty = !assignSynResults.empty();

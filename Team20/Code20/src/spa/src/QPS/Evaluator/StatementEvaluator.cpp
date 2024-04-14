@@ -5,9 +5,8 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
+#include <utility>
 #include <vector>
-
 
 namespace QueryEvaluator {
 
@@ -16,7 +15,8 @@ bool StatementEvaluator::evaluate() {
 
   if (isAlwaysFalse()) {
 	// Handles 7 cases: two same stmtNum (2,2) (overlaps with STMT_NO_1, STMT_NO_2), 7 same synonym (Y,Y)
-	return false;
+	// return false if not isNegated, true if isNegated, same as value of isNegated
+	return clause.isNegated;
   }
 
   PQL::Synonym lArg = clause.arguments[0];
@@ -352,32 +352,45 @@ bool StatementEvaluator::getDoubleSynonym() {
   PQL::Synonym rArg = clause.arguments[1];
   std::vector<int> lValues = getUniqueKeys(lArg);
   std::vector<int> rValues = getUniqueValues(rArg);
-  std::vector<std::string> lResults = {};
-  std::vector<std::string> rResults = {};
+  std::vector<std::pair<std::string, std::string>> result;
 
   for (auto v1 : lValues) {
 	for (auto v2 : rValues) {
-	  if (hasRelationship(clause.clauseType, v1, v2) || clause.isNegated) {
-		lResults.push_back(std::to_string(v1));
-		rResults.push_back(std::to_string(v2));
+	  if (hasRelationship(clause.clauseType, v1, v2)) {
+		result.emplace_back(std::to_string(v1), std::to_string(v2));
 	  }
 	}
   }
 
-  if (lResults.empty()) {
+  if (clause.isNegated) {
+	result = negateDoubleSyn(result);
+  }
+
+  if (result.empty()) {
 	return false;
   }
 
   if (createTable) {
-	std::vector<std::vector<std::string>> table = {lResults, rResults};
-	std::vector<std::string> colNames = {lArg.identity, rArg.identity};
-	std::unordered_map<std::string, size_t> colNameToIndex;
-	for (size_t i = 0; i < colNames.size(); i++) {
-	  colNameToIndex[colNames[i]] = i;
-	}
-	resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
+	insertDoubleColumnResult(result);
   }
 
   return true;
+}
+
+std::vector<std::pair<std::string, std::string>>
+StatementEvaluator::negateDoubleSyn(const std::vector<std::pair<std::string, std::string>> &selected) {
+  std::vector<int> lIntResults = getAllIntResults(clause.arguments[0]);
+  std::vector<int> rIntResults = getAllIntResults(clause.arguments[1]);
+  std::vector<std::pair<std::string, std::string>> negatedRes;
+  for (auto const &s1 : lIntResults) {
+	for (auto const &s2 : rIntResults) {
+	  std::pair<std::string, std::string> pair(std::to_string(s1), std::to_string(s2));
+	  if (std::find(selected.begin(), selected.end(), pair) == selected.end()) {
+		negatedRes.push_back(pair);
+	  }
+	}
+  }
+
+  return negatedRes;
 }
 }

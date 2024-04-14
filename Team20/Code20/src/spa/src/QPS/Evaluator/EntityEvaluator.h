@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "RelationshipEvaluator.h"
@@ -58,5 +59,8 @@ class EntityEvaluator : private RelationshipEvaluator {
   std::vector<std::string> negateStringResults(const PQL::Synonym &syn, const std::vector<std::string> &selected);
 
   std::vector<std::string> getUniqueIdent(const PQL::Synonym &syn);
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected);
 };
 }

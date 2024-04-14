@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "RelationshipEvaluator.h"
@@ -41,5 +43,8 @@ class StatementEvaluator : private RelationshipEvaluator {
   std::vector<int> getUniqueKeys(const PQL::Synonym &syn);
 
   std::vector<int> getUniqueValues(const PQL::Synonym &syn);
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected);
 };
 }

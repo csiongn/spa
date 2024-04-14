@@ -18,8 +18,6 @@ class PatternEvaluator : protected ClauseEvaluator {
 
   bool evaluate() override = 0;
 
-  void insertDoubleColumnResult(const std::vector<std::pair<std::string, std::string>> &result);
-
  private:
   virtual bool hasRelationship() = 0;
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 namespace QueryEvaluator {
 
@@ -290,15 +291,13 @@ bool EntityEvaluator::getDoubleSynonym() {
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
   std::vector<std::string> values = getUniqueValues();
-  std::vector<std::string> lResults = {};
-  std::vector<std::string> rResults = {};
+  std::vector<std::pair<std::string, std::string>> result;
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
 	std::vector<std::string> lValues = getUniqueLeftProcNames();
 	for (const auto &v1 : lValues) {
 	  for (const auto &v2 : values) {
-		if (hasRelationship(clause.clauseType, v1, v2) || clause.isNegated) {
-		  lResults.push_back(v1);
-		  rResults.push_back(v2);
+		if (hasRelationship(clause.clauseType, v1, v2)) {
+		  result.emplace_back(v1, v2);
 		}
 	  }
 	}
@@ -306,27 +305,25 @@ bool EntityEvaluator::getDoubleSynonym() {
 	std::vector<int> lValues = getUniqueStmtNums(lArg);
 	for (auto v1 : lValues) {
 	  for (const auto &v2 : values) {
-		if (hasRelationship(clause.clauseType, v1, v2) || clause.isNegated) {
-		  lResults.push_back(std::to_string(v1));
-		  rResults.push_back(v2);
+		if (hasRelationship(clause.clauseType, v1, v2)) {
+		  result.emplace_back(std::to_string(v1), v2);
 		}
 	  }
 	}
   }
 
-  if (lResults.empty()) {
+  if (clause.isNegated) {
+	result = negateDoubleSyn(result);
+  }
+
+  if (result.empty()) {
 	return false;
   }
 
   if (createTable) {
-	std::vector<std::vector<std::string>> table = {lResults, rResults};
-	std::vector<std::string> colNames = {lArg.identity, rArg.identity};
-	std::unordered_map<std::string, size_t> colNameToIndex;
-	for (size_t i = 0; i < colNames.size(); i++) {
-	  colNameToIndex[colNames[i]] = i;
-	}
-	resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
+	insertDoubleColumnResult(result);
   }
+
   return true;
 }
 
@@ -438,14 +435,40 @@ std::vector<std::string> EntityEvaluator::negateStringResults(const PQL::Synonym
 std::vector<std::string> EntityEvaluator::getUniqueIdent(const PQL::Synonym &syn) {
   std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<std::string>()>> funcMap = {
 	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return reader->getAllVariables(); }},
-	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return reader->getAllVariables(); }},
-	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return reader->getAllVariables(); }},
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return reader->getAllProcedures(); }},
   };
+
+  if (syn.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	if (clause.clauseType == SimpleProgram::DesignAbstraction::CALLS
+		|| clause.clauseType == SimpleProgram::DesignAbstraction::CALLST) {
+	  return reader->getAllProcedures();
+	}
+
+	// uses/modifies, only can have rArg as wildcard, which is only var syn
+	return reader->getAllVariables();
+  }
 
   if (funcMap.find(syn.entityType) == funcMap.end()) {
 	return {};
   }
 
   return funcMap[syn.entityType]();
+}
+
+std::vector<std::pair<std::string, std::string>>
+EntityEvaluator::negateDoubleSyn(const std::vector<std::pair<std::string, std::string>> &selected) {
+  std::vector<std::string> lStringResults = getUniqueIdent(clause.arguments[0]);
+  std::vector<std::string> rStringResults = getUniqueIdent(clause.arguments[1]);
+  std::vector<std::pair<std::string, std::string>> negatedRes;
+  for (auto const &s1 : lStringResults) {
+	for (auto const &s2 : rStringResults) {
+	  std::pair<std::string, std::string> pair(s1, s2);
+	  if (std::find(selected.begin(), selected.end(), pair) == selected.end()) {
+		negatedRes.push_back(pair);
+	  }
+	}
+  }
+
+  return negatedRes;
 }
 }

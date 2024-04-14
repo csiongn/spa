@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Models/PQL.h"
@@ -33,5 +34,7 @@ class ClauseEvaluator {
   std::vector<int> getAllIntResults(const PQL::Synonym &syn);
 
   std::vector<int> negateIntResults(const PQL::Synonym &syn, const std::vector<int> &selected);
+
+  void insertDoubleColumnResult(const std::vector<std::pair<std::string, std::string>> &result);
 };
 }

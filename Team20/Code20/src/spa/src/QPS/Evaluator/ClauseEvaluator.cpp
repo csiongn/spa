@@ -2,6 +2,7 @@
 #include <functional>
 #include <unordered_set>
 #include <unordered_map>
+#include <utility>
 
 #include "ClauseEvaluator.h"
 
@@ -48,5 +49,23 @@ std::vector<int> ClauseEvaluator::negateIntResults(const PQL::Synonym &syn, cons
   }
 
   return negatedResults;
+}
+
+void ClauseEvaluator::insertDoubleColumnResult(const std::vector<std::pair<std::string, std::string>> &result) {
+  PQL::Synonym lSyn = clause.arguments[0];
+  PQL::Synonym rSyn = clause.arguments[1];
+  std::vector<std::vector<std::string>> table = {{}, {}};
+  std::vector<std::string> colNames = {lSyn.identity, rSyn.identity};
+  std::unordered_map<std::string, size_t> colNameToIndex;
+  for (size_t i = 0; i < colNames.size(); i++) {
+	colNameToIndex[colNames[i]] = i;
+  }
+  Result newResult{table, colNames, colNameToIndex};
+
+  for (auto const &pair : result) {
+	newResult.addRow({std::get<0>(pair), std::get<1>(pair)});
+  }
+
+  resultStore->insertResult(std::make_shared<Result>(newResult));
 }
 }
