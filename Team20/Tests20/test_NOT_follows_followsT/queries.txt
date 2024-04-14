@@ -31,7 +31,7 @@ Select s1 such that not Follows(s1, s2)
 7 - stmtSyn, stmtSyn, return all s2 that are the followers
 stmt s1, s2;
 Select s2 such that not Follows(s1, s2)
-1 2 3 4 5 6 7 8 9 10
+1,2,3,4,5,6,7,8,9,10
 5000
 8 - variable, stmtNum - SemanticError
 stmt s;
