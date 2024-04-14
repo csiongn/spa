@@ -280,19 +280,19 @@ std::vector<std::pair<std::string, std::string>> AssignPatternEvaluator::getDoub
 	for (auto const &var : vars) {
 	  for (auto const &node : partialExprNodes) {
 		std::vector<int> stmtNums = reader->getAssignPatternStmtNum(var, node->getHashValue());
-		assignSynResultSet.insert(stmtNums.begin(), stmtNums.end());
+		for (auto &s : stmtNums) {
+		  result.emplace_back(std::to_string(s), var);
+		}
 	  }
 	}
-	assignSynResults = std::vector<int>(assignSynResultSet.begin(), assignSynResultSet.end());
   } else {
 	// (VAR, EXPR)
 	vars = reader->getAssignPatternLHS(exprNode->getHashValue());
 	assignSynResults = getAssignSynResults(vars, {exprNode});
-  }
-
-  for (auto const &var : vars) {
-	for (auto const &stmtNum : assignSynResults) {
-	  result.emplace_back(std::to_string(stmtNum), var);
+	for (auto &stmtNum : assignSynResults) {
+	  for (auto &var : vars) {
+		result.emplace_back(std::to_string(stmtNum), var);
+	  }
 	}
   }
 
