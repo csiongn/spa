@@ -5,6 +5,41 @@
 #include "QPS/QueryTokenizer.h"
 
 TEST_CASE("Parse") {
+  SECTION("Uses IDENT first arg should be UsesP") {
+	QueryTokenizer queryTokenizer{};
+	std::string query =
+		R"(variable v; Select v such that Modifies("a", v))";
+
+	auto tokens = queryTokenizer.tokenize(query);
+	QueryParser queryParser(tokens);
+
+	auto results = queryParser.parse();
+
+	std::vector<PQL::Synonym> expectedDeclarations;
+	expectedDeclarations.emplace_back(
+		SimpleProgram::DesignEntity::VARIABLE, "v");
+
+	std::vector<PQL::Clause> expectedClauses;
+
+	PQL::Synonym expectedSelectSynonym(
+		SimpleProgram::DesignEntity::VARIABLE, "v");
+
+	PQL::Synonym arg1(SimpleProgram::DesignEntity::IDENT, "a");
+	PQL::Synonym arg2(SimpleProgram::DesignEntity::VARIABLE, "v");
+	std::vector<PQL::Synonym> args1;
+	args1.emplace_back(arg1);
+	args1.emplace_back(arg2);
+
+	PQL::Clause clause1 =
+		PQL::Clause(SimpleProgram::DesignAbstraction::MODIFIESP, args1);
+	expectedClauses.emplace_back(clause1);
+
+	PQL::Query expectedQuery = PQL::Query(
+		expectedDeclarations, expectedClauses, {expectedSelectSynonym});
+
+	REQUIRE(results == expectedQuery);
+  }
+
   SECTION("Multi-clause not") {
 	QueryTokenizer queryTokenizer{};
 	std::string query =

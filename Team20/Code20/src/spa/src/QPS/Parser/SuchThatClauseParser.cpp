@@ -118,13 +118,16 @@ PQL::Clause SuchThatClauseParser::parse(
 	auto rArg = QueryEvaluator::ParseUtils::createSynonym(rArgEntityType,
 														  rArgToken);
 
+	bool isUsesModifiesPLArg = lArgEntityType == SimpleProgram::DesignEntity::PROCEDURE
+		|| lArgToken->getType() == QPS::TokenType::CONSTANT_STRING && validator->isValidIdent(lArgToken);
+
 	if (suchThatClauseType == SimpleProgram::DesignAbstraction::MODIFIESS) {
-	  if (lArgEntityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	  if (isUsesModifiesPLArg) {
 		suchThatClauseType =
 			SimpleProgram::DesignAbstraction::MODIFIESP;
 	  }
 	} else {
-	  if (lArgEntityType == SimpleProgram::DesignEntity::PROCEDURE) {
+	  if (isUsesModifiesPLArg) {
 		suchThatClauseType = SimpleProgram::DesignAbstraction::USESP;
 	  }
 	}

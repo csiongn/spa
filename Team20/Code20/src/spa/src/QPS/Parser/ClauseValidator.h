@@ -12,8 +12,6 @@ class ClauseValidator {
   std::vector<PQL::Synonym> declarations;
 
  private:
-  bool isValidIdent(std::shared_ptr<QueryToken> token);
-
   bool isStmtRef(std::shared_ptr<QueryToken> token);
 
   bool isEntRef(std::shared_ptr<QueryToken> token);
@@ -40,6 +38,8 @@ class ClauseValidator {
   void setSemanticError();
 
   bool hasError();
+
+  bool isValidIdent(std::shared_ptr<QueryToken> token);
 
   bool isSynonym(std::shared_ptr<QueryToken> token);
 
