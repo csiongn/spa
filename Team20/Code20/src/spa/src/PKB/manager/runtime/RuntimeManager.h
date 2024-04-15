@@ -42,16 +42,17 @@ class RuntimeManager {
   };
 
   std::vector<int> getNextT(int stmtNum) {
-	return runtimeExtractor->getStatementsNextTTo(stmtNum);
+	return runtimeExtractor->getStatementsNextTFrom(stmtNum);
   };
 
   std::vector<int> getNextTReverse(int stmtNum) {
-	return runtimeExtractor->getStatementsNextTFrom(stmtNum);
+	return runtimeExtractor->getStatementsNextTTo(stmtNum);
   };
 
   std::vector<int> getNextT() {
 	return runtimeExtractor->getStatementsNextTTo();
   };
+
   std::vector<int> getNextTReverse() {
 	return runtimeExtractor->getStatementsNextTFrom();
   };
@@ -78,16 +79,17 @@ class RuntimeManager {
   };
 
   std::vector<int> getAffects(int stmtNum) {
-	return runtimeExtractor->getStatementsAffectsTo(stmtNum);
+	return runtimeExtractor->getStatementsAffectsFrom(stmtNum);
   };
 
   std::vector<int> getAffectsReverse(int stmtNum) {
-	return runtimeExtractor->getStatementsAffectsFrom(stmtNum);
+	return runtimeExtractor->getStatementsAffectsTo(stmtNum);
   };
 
   std::vector<int> getAffects() {
 	return runtimeExtractor->getStatementsAffectsTo();
   };
+
   std::vector<int> getAffectsReverse() {
 	return runtimeExtractor->getStatementsAffectsFrom();
   };

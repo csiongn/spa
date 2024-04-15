@@ -163,211 +163,211 @@ TEST_CASE("Integration test SP to PKB") {
       std::cout << "========== TESTING NextT RUN TIME COMPUTATION ==========" << std::endl;
       const std::vector<int>& expectNextTFrom1 = {2, 3, 4, 5, 6, 7, 8, 9, 10};
       auto start1_1 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom1 = pkbFacade->getNextTReverse(1);
+	  const auto &actualNextTFrom1 = pkbFacade->getNextT(1);
       auto end1_1 = std::chrono::high_resolution_clock::now();
       auto duration1_1 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_1 - start1_1).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom1, actualNextTFrom1));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(1): " << duration1_1 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(1): " << duration1_1 << " ms" << std::endl;
       REQUIRE(duration1_1 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom2 = {3, 4, 5, 6, 7, 8, 9, 10};
       auto start1_2 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom2 = pkbFacade->getNextTReverse(2);
+	  const auto &actualNextTFrom2 = pkbFacade->getNextT(2);
       auto end1_2 = std::chrono::high_resolution_clock::now();
       auto duration1_2 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_2 - start1_2).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom2, actualNextTFrom2));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(2): " << duration1_2 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(2): " << duration1_2 << " ms" << std::endl;
       REQUIRE(duration1_2 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom3 = {4, 5, 6, 7, 9, 10};
       auto start1_3 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom3 = pkbFacade->getNextTReverse(3);
+	  const auto &actualNextTFrom3 = pkbFacade->getNextT(3);
       auto end1_3 = std::chrono::high_resolution_clock::now();
       auto duration1_3 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_3 - start1_3).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom3, actualNextTFrom3));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(3): " << duration1_3 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(3): " << duration1_3 << " ms" << std::endl;
       REQUIRE(duration1_3 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom4 = {5, 6, 7, 9, 10};
       auto start1_4 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom4 = pkbFacade->getNextTReverse(4);
+	  const auto &actualNextTFrom4 = pkbFacade->getNextT(4);
       auto end1_4 = std::chrono::high_resolution_clock::now();
       auto duration1_4 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_4 - start1_4).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom4, actualNextTFrom4));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(4): " << duration1_4 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(4): " << duration1_4 << " ms" << std::endl;
       REQUIRE(duration1_4 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom5 = {6, 7, 9, 10};
       auto start1_5 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom5 = pkbFacade->getNextTReverse(5);
+	  const auto &actualNextTFrom5 = pkbFacade->getNextT(5);
       auto end1_5 = std::chrono::high_resolution_clock::now();
       auto duration1_5 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_5 - start1_5).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom5, actualNextTFrom5));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(5): " << duration1_5 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(5): " << duration1_5 << " ms" << std::endl;
       REQUIRE(duration1_5 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom6 = {9, 10};
       auto start1_6 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom6 = pkbFacade->getNextTReverse(6);
+	  const auto &actualNextTFrom6 = pkbFacade->getNextT(6);
       auto end1_6 = std::chrono::high_resolution_clock::now();
       auto duration1_6 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_6 - start1_6).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom6, actualNextTFrom6));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(6): " << duration1_6 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(6): " << duration1_6 << " ms" << std::endl;
       REQUIRE(duration1_6 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom7 = {9, 10};
       auto start1_7 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom7 = pkbFacade->getNextTReverse(7);
+	  const auto &actualNextTFrom7 = pkbFacade->getNextT(7);
       auto end1_7 = std::chrono::high_resolution_clock::now();
       auto duration1_7 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_7 - start1_7).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom7, actualNextTFrom7));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(7): " << duration1_7 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(7): " << duration1_7 << " ms" << std::endl;
       REQUIRE(duration1_7 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom8 = {9, 10};
       auto start1_8 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom8 = pkbFacade->getNextTReverse(8);
+	  const auto &actualNextTFrom8 = pkbFacade->getNextT(8);
       auto end1_8 = std::chrono::high_resolution_clock::now();
       auto duration1_8 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_8 - start1_8).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom8, actualNextTFrom8));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(8): " << duration1_8 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(8): " << duration1_8 << " ms" << std::endl;
       REQUIRE(duration1_8 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom9 = {9, 10};
       auto start1_9 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom9 = pkbFacade->getNextTReverse(9);
+	  const auto &actualNextTFrom9 = pkbFacade->getNextT(9);
       auto end1_9 = std::chrono::high_resolution_clock::now();
       auto duration1_9 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_9 - start1_9).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom9, actualNextTFrom9));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(9): " << duration1_9 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(9): " << duration1_9 << " ms" << std::endl;
       REQUIRE(duration1_9 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom10 = {9, 10};
       auto start1_10 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom10 = pkbFacade->getNextTReverse(10);
+	  const auto &actualNextTFrom10 = pkbFacade->getNextT(10);
       auto end1_10 = std::chrono::high_resolution_clock::now();
       auto duration1_10 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_10 - start1_10).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom10, actualNextTFrom10));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(10): " << duration1_10 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(10): " << duration1_10 << " ms" << std::endl;
       REQUIRE(duration1_10 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom11 = {12, 13};
       auto start1_11 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom11 = pkbFacade->getNextTReverse(11);
+	  const auto &actualNextTFrom11 = pkbFacade->getNextT(11);
       auto end1_11 = std::chrono::high_resolution_clock::now();
       auto duration1_11 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_11 - start1_11).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom11, actualNextTFrom11));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(11): " << duration1_11 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(11): " << duration1_11 << " ms" << std::endl;
       REQUIRE(duration1_11 <= TIMEOUT);
 
       const std::vector<int>& expectNextTFrom12 = {13};
       auto start1_12 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTFrom12 = pkbFacade->getNextTReverse(12);
+	  const auto &actualNextTFrom12 = pkbFacade->getNextT(12);
       auto end1_12 = std::chrono::high_resolution_clock::now();
       auto duration1_12 = std::chrono::duration_cast<std::chrono::milliseconds>(end1_12 - start1_12).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTFrom12, actualNextTFrom12));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextTReverse(12): " << duration1_12 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextT(12): " << duration1_12 << " ms" << std::endl;
       REQUIRE(duration1_12 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo2 = {1};
       auto start2_1 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo2 = pkbFacade->getNextT(2);
+	  const auto &actualNextTTo2 = pkbFacade->getNextTReverse(2);
       auto end2_1 = std::chrono::high_resolution_clock::now();
       auto duration2_1 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_1 - start2_1).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo2, actualNextTTo2));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(2): " << duration2_1 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(2): " << duration2_1 << " ms" << std::endl;
       REQUIRE(duration2_1 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo3 = {1, 2};
       auto start2_2 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo3 = pkbFacade->getNextT(3);
+	  const auto &actualNextTTo3 = pkbFacade->getNextTReverse(3);
       auto end2_2 = std::chrono::high_resolution_clock::now();
       auto duration2_2 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_2 - start2_2).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo3, actualNextTTo3));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(3): " << duration2_2 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(3): " << duration2_2 << " ms" << std::endl;
       REQUIRE(duration2_2 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo4 = {1, 2, 3};
       auto start2_3 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo4 = pkbFacade->getNextT(4);
+	  const auto &actualNextTTo4 = pkbFacade->getNextTReverse(4);
       auto end2_3 = std::chrono::high_resolution_clock::now();
       auto duration2_3 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_3 - start2_3).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo4, actualNextTTo4));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(4): " << duration2_3 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(4): " << duration2_3 << " ms" << std::endl;
       REQUIRE(duration2_3 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo5 = {1, 2, 3, 4};
       auto start2_4 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo5 = pkbFacade->getNextT(5);
+	  const auto &actualNextTTo5 = pkbFacade->getNextTReverse(5);
       auto end2_4 = std::chrono::high_resolution_clock::now();
       auto duration2_4 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_4 - start2_4).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo5, actualNextTTo5));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(5): " << duration2_4 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(5): " << duration2_4 << " ms" << std::endl;
       REQUIRE(duration2_4 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo6 = {1, 2, 3, 4, 5};
       auto start2_5 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo6 = pkbFacade->getNextT(6);
+	  const auto &actualNextTTo6 = pkbFacade->getNextTReverse(6);
       auto end2_5 = std::chrono::high_resolution_clock::now();
       auto duration2_5 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_5 - start2_5).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo6, actualNextTTo6));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(6): " << duration2_5 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(6): " << duration2_5 << " ms" << std::endl;
       REQUIRE(duration2_5 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo7 = {1, 2, 3, 4, 5};
       auto start2_6 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo7 = pkbFacade->getNextT(7);
+	  const auto &actualNextTTo7 = pkbFacade->getNextTReverse(7);
       auto end2_6 = std::chrono::high_resolution_clock::now();
       auto duration2_6 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_6 - start2_6).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo7, actualNextTTo7));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(7): " << duration2_6 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(7): " << duration2_6 << " ms" << std::endl;
       REQUIRE(duration2_6 <= TIMEOUT);
 
       const std::vector<int>& expectNextTTo8 = {1, 2};
       auto start2_7 = std::chrono::high_resolution_clock::now();
-	  const auto &actualNextTTo8 = pkbFacade->getNextT(8);
+	  const auto &actualNextTTo8 = pkbFacade->getNextTReverse(8);
       auto end2_7 = std::chrono::high_resolution_clock::now();
       auto duration2_7 = std::chrono::duration_cast<std::chrono::milliseconds>(end2_7 - start2_7).count();
 
       REQUIRE(checkVecValuesEqual(expectNextTTo8, actualNextTTo8));
       // Check that query time doesn't exceed 5 seconds
-	  std::cout << "Time taken to compute getNextT(7): " << duration2_7 << " ms" << std::endl;
+	  std::cout << "Time taken to compute getNextTReverse(7): " << duration2_7 << " ms" << std::endl;
       REQUIRE(duration2_7 <= TIMEOUT);
 
       // All NextT Relationships
@@ -446,7 +446,7 @@ TEST_CASE("Integration test SP to PKB") {
 
       const std::vector<int>& expectedAffectsFrom3 = {4, 7};
       auto startAffectsFrom3 = std::chrono::high_resolution_clock::now();
-	  const auto &actualAffectsFrom3 = pkbFacade->getAffectsReverse(3);
+	  const auto &actualAffectsFrom3 = pkbFacade->getAffects(3);
       auto endAffectsFrom3 = std::chrono::high_resolution_clock::now();
       auto durationAffectsFrom3 = std::chrono::duration_cast<std::chrono::milliseconds>(endAffectsFrom3 - startAffectsFrom3).count();
 
