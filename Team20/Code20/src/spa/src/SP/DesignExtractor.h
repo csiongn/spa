@@ -128,7 +128,7 @@ class DesignExtractor {
   void updateParent(int childStmtNumber, int parentStmtNumber);
   void updateUses(int stmtNumber, const std::string& variableName);
   void updateModifies(int stmtNumber, const std::string& variableName);
-  void updateCall(const std::string& callingProc, const std::string& calledProc);
+  void updateCall(const std::string& callingProc, const std::string& calledProc, const int callSite);
 
   void insertProcedure(const std::string& procName);
   void insertVariable(const std::string& var);

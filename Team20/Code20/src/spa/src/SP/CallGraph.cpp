@@ -43,7 +43,7 @@ void CallGraph::computeTransitiveCall() {
   }
 }
 
-// Adds call relationship into the call graph stored as adjacency list
+// Adds call relationship into the call graph stored as adjacency list (without storing call site statement number – to update uses/modifies info for call sites)
 void CallGraph::addCall(const std::string& caller, const std::string& called) {
   if (finalized) {
     throw std::runtime_error("Tried to add call relationship after call graph is finalized.");
@@ -66,6 +66,32 @@ void CallGraph::addCall(const std::string& caller, const std::string& called) {
   int calledIndex = nameToIndex[called];
 
   adjLst.at(callerIndex).insert(calledIndex);
+}
+
+// Adds call relationship into the call graph stored as adjacency list with call site statement number (to update uses/modifies stmt info for call sites later)
+void CallGraph::addCall(const std::string& caller, const std::string& called, const int callSite) {
+    if (finalized) {
+        throw std::runtime_error("Tried to add call relationship after call graph is finalized.");
+    }
+    if (!nameToIndex.count(caller)) {
+        adjLst.emplace_back();
+        nameToIndex[caller] = index;
+        indexToName.push_back(caller);
+        index++;
+    }
+
+    if (!nameToIndex.count(called)) {
+        adjLst.emplace_back();
+        nameToIndex[called] = index;
+        indexToName.push_back(called);
+        index++;
+    }
+
+    int callerIndex = nameToIndex[caller];
+    int calledIndex = nameToIndex[called];
+
+    adjLst.at(callerIndex).insert(calledIndex);
+    nameToCallSite[called].insert(callSite);
 }
 
 // Convert adjacency list to adjacency matrix and compute transitive call relationships
@@ -109,7 +135,11 @@ void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter) {
   }
 }
 
-void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter, std::unordered_map<std::string, std::unordered_set<std::string>> procsUses, std::unordered_map<std::string, std::unordered_set<std::string>> procsModifies) {
+// Push Calls/CallsT relationships and UsesP/ModifiesP/UsesS (for call sites inserted)/ModifiesS (for call sites inserted)
+void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter,
+                          std::unordered_map<std::string, std::unordered_set<std::string>> procsUses,
+                          std::unordered_map<std::string, std::unordered_set<std::string>> procsModifies,
+                          std::unordered_map<int, int> parent) {
   if (!finalized) {
     throw std::runtime_error("Tried to push calls relationships to PKB without finalizing call graph.");
   }
@@ -121,8 +151,12 @@ void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter, std::uno
     }
   }
 
-  // Push CallsT relationships
+  // Push CallsT relationships and uses/modifies relationships of call sites based on CallsT
   for (int callingProc = 0; callingProc < index; callingProc++) {
+    std::string& callingProcName = indexToName[callingProc];
+    // Retrieve all call sites of the calling proc as we need to update the uses/modifies info of the call sites for every called proc
+    std::unordered_set<int>& callSites = nameToCallSite[callingProcName];
+
     for (int calledProc = 0; calledProc < index; calledProc++) {
       if (adjMatrix[callingProc][calledProc]) {
         pkbWriter->insertCallsTProc(indexToName[callingProc], indexToName[calledProc]);
@@ -133,11 +167,34 @@ void CallGraph::pushToPKB(const std::shared_ptr<IPKBWriter>& pkbWriter, std::uno
         for (auto& varName : procsModifies[indexToName[calledProc]]) {
           pkbWriter->insertModifiesProc(indexToName[callingProc], varName);
         }
+
+        // Update uses relationships of called procs for call sites of calling procs
+        for (int stmtNo : callSites) {
+          for (const std::string& usedVar : procsUses[indexToName[calledProc]]) {
+            pkbWriter->insertUsesStmt(stmtNo, usedVar);
+            int parentStmt = stmtNo;
+            while (parent.count(parentStmt)) {
+              parentStmt = parent.at(parentStmt);
+              pkbWriter->insertUsesStmt(parentStmt, usedVar);
+            }
+          }
+        }
+
+        // Do the same for modifies relationships
+        for (int stmtNo : callSites) {
+          for (const std::string& modifiedVar : procsModifies[indexToName[calledProc]]) {
+            pkbWriter->insertModifiesStmt(stmtNo, modifiedVar);
+            int parentStmt = stmtNo;
+            while (parent.count(parentStmt)) {
+              parentStmt = parent.at(parentStmt);
+              pkbWriter->insertModifiesStmt(parentStmt, modifiedVar);
+            }
+          }
+        }
       }
     }
   }
 }
-
 
 bool CallGraph::hasCallsRelationship(const std::string& a, const std::string& b) {
   if (!nameToIndex.count(a) || !nameToIndex.count(b)) {

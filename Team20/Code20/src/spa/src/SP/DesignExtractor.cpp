@@ -8,9 +8,9 @@
 
 void DesignExtractor::extractDesign(const ProgramNode &astRoot) {
   visitProgramNode(astRoot);
-	callGraph->finalize();
+  callGraph->finalize();
   pushToPKB();
-	callGraph->pushToPKB(pkbWriter, procsUses, procsModifies);
+  callGraph->pushToPKB(pkbWriter, procsUses, procsModifies, parent);
 }
 
 void DesignExtractor::pushToPKB() {
@@ -75,6 +75,24 @@ void DesignExtractor::pushToPKB() {
   for (const auto &pair : callStmts) {
   	pkbWriter->insertCall(pair.first);
 	pkbWriter->insertCallsProcStmt(pair.second, pair.first);
+
+    for (auto& usedVar : procsUses[pair.second]) {
+        pkbWriter->insertUsesStmt(pair.first, usedVar);
+        int parentStmt = pair.first;
+        while (parent.count(parentStmt)) {
+            parentStmt = parent.at(parentStmt);
+            pkbWriter->insertUsesStmt(parentStmt, usedVar);
+        }
+    }
+
+    for (auto& modifiedVar : procsModifies[pair.second]) {
+        pkbWriter->insertModifiesStmt(pair.first, modifiedVar);
+        int parentStmt = pair.first;
+        while (parent.count(parentStmt)) {
+            parentStmt = parent.at(parentStmt);
+            pkbWriter->insertModifiesStmt(parentStmt, modifiedVar);
+        }
+    }
   }
 
   for (const auto &pair : readStmts) {
@@ -170,7 +188,7 @@ void DesignExtractor::visitStmtNode(const StmtNode &node, int parentStmt, std::v
 	visitExprNode(*assignNode->value, stmtNumber);
   } else if (const auto *callNode = dynamic_cast<const CallNode *>(&node)) {
 	insertCall(stmtNumber, callNode->procName);
-  	updateCall(ctxt->procName, callNode->procName);
+  	updateCall(ctxt->procName, callNode->procName, stmtNumber);
   } else if (const auto *readNode = dynamic_cast<const ReadNode *>(&node)) {
 	insertRead(stmtNumber, readNode->varName);
 	insertVariable(readNode->varName);
@@ -271,8 +289,8 @@ void DesignExtractor::updateModifies(int stmtNumber, const std::string &variable
   }
 }
 
-void DesignExtractor::updateCall(const std::string &callingProc, const std::string &calledProc) {
-	callGraph->addCall(callingProc, calledProc);
+void DesignExtractor::updateCall(const std::string &callingProc, const std::string &calledProc, const int stmtNo) {
+	callGraph->addCall(callingProc, calledProc, stmtNo);
 }
 
 
