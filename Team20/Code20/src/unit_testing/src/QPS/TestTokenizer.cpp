@@ -267,15 +267,6 @@ TEST_CASE("Tokenizer") {
 	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
   }
 
-
-	// Cannot catch invalid attribute fields
-  SECTION("Tokenize INVALID Attributes value") {
-	QueryTokenizer queryTokenizer;
-	std::string query = "stmt.varName read.procName";
-//        printTokens(queryTokenizer.tokenize(query));
-//        REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
-  }
-
   SECTION("Tokenize Attribute name") {
 	QueryTokenizer queryTokenizer;
 	std::string query = "procedure.procName call.procName variable.varName read.varName print.varName";
@@ -422,6 +413,16 @@ TEST_CASE("Tokenizer") {
 	REQUIRE(checkTokenVectorEqual(queryTokenizer.tokenize(query), expectedTokensVector));
   }
 
+  SECTION("Valid Tuple with whitespace") {
+	QueryTokenizer queryTokenizer;
+	std::string query = " <w1, p1>";
+	auto tokens = queryTokenizer.tokenize(query);
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::TUPLE, "<w1,p1>"),
+	};
+	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+  }
+
   SECTION("Multi clause") {
 	QueryTokenizer queryTokenizer;
 	std::string query =
@@ -486,7 +487,71 @@ TEST_CASE("Tokenizer") {
   SECTION("Tuple") {
 	QueryTokenizer queryTokenizer;
 	std::string query = "assign a; while w; constant c;\n"
-						"Select <a, w> ";
+						"Select <a.stmt#, w.varName,    b.stmt#> ";
 	auto tokens = queryTokenizer.tokenize(query);
   }
+
+  SECTION("Tuple Syntax Error - Comma at the end") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<a , w   , s  , ss,>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Comma at the front") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<,a , w,y,z, g>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Missing comma") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s s1, s2>";
+
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Extra comma") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "stmt s, s1; Select <s, , s1>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Valid - No whitespace") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s,s1,s2,ss,p1,p.varName,a.stmt#>";
+	queryTokenizer.tokenize(query);
+	REQUIRE_NOTHROW(queryTokenizer.tokenize(query));
+  }
+
+  SECTION("Tuple Valid - Valid Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s.stmt#,s1.varName,s2.procName,c.value>";
+	REQUIRE_NOTHROW(queryTokenizer.tokenize(query));
+  }
+
+  SECTION("Tuple Syntax Error - Invalid stmt# Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s.stmt,s1.varName,s2.procName,c.value>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Invalid varName Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s.stmt#,s1.variableName,s2.procName,c.value>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Invalid procName Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s.stmt#,s1.varName,s2.procedureName,c.value>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+  SECTION("Tuple Syntax Error - Invalid value Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query = "<s.stmt#,s1.varName,s2.procName,c.value12>";
+	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
+  }
+
+
 }
