@@ -6,9 +6,14 @@
 #include <unordered_set>
 #include <vector>
 
+#include "../Utils/EvaluatorUtils.h"
+
 namespace QueryEvaluator {
 void ResultStore::insertResult(std::shared_ptr<Result> res) {
   results.push_back(res);
+  for (auto &colName : res->colNames) {
+	addedIdents.insert(colName);
+  }
 }
 
 std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Synonym> &selectSyns) {
@@ -47,19 +52,25 @@ std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Syno
 	  selectSynIndexes.push_back(res->colNameToIndex.at(getSelectColName(syn)));
 	}
 
+	std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash> addedRows;
 	std::vector<std::string> selectResult;
 	size_t numRows = res->table[0].size();
 	selectResult.reserve(numRows);
 	for (size_t rowIndex = 0; rowIndex < numRows; rowIndex++) {
+	  std::vector<std::string> row = getSelectedColsAtRow(res, selectSynIndexes, rowIndex);
+	  if (addedRows.find(row) != addedRows.end()) {
+		continue;
+	  }
+
 	  std::string curr;
-	  for (size_t ind = 0; ind < selectSynIndexes.size(); ind++) {
-		size_t colIndex = selectSynIndexes[ind];
-		curr += res->table[colIndex][rowIndex];
+	  for (size_t ind = 0; ind < row.size(); ind++) {
+		curr += row[ind];
 		if (ind != selectSynIndexes.size() - 1) {
 		  curr += " ";
 		}
 	  }
 	  selectResult.push_back(curr);
+	  addedRows.insert(row);
 	}
 	return selectResult;
   }
@@ -122,5 +133,19 @@ std::string ResultStore::getSelectColName(const PQL::Synonym &selectSyn) {
 	default:
 	  return selectSyn.identity;
   }
+}
+
+bool ResultStore::containsColumn(const std::string &ident) {
+  return addedIdents.find(ident) != addedIdents.end();
+}
+
+std::vector<std::string> ResultStore::getSelectedColsAtRow(std::shared_ptr<Result> res,
+														   const std::vector<size_t> &selectSynIndexes,
+														   size_t rowIndex) {
+  std::vector<std::string> row;
+  for (auto colIndex : selectSynIndexes) {
+	row.push_back(res->table[colIndex][rowIndex]);
+  }
+  return row;
 }
 }

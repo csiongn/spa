@@ -16,13 +16,13 @@
 #include "AssignPatternEvaluator.h"
 #include "IfAndWhilePatternEvaluator.h"
 #include "WithEvaluator.h"
+#include "../Utils/EvaluatorUtils.h"
 
 namespace QueryEvaluator {
 QueryEvaluator::QueryEvaluator(std::shared_ptr<IPKBReader> r) : resultStore(std::make_shared<ResultStore>()),
 																reader(r) {}
 
 std::vector<std::string> QueryEvaluator::evaluateQuery(PQL::Query &q) {
-  initialiseDeclaration(q);
   std::vector<std::pair<PQL::Clause, bool>> sortedClauses = sortClauses(q);
 
   for (const auto &[clause, createTable] : sortedClauses) {
@@ -38,6 +38,7 @@ std::vector<std::string> QueryEvaluator::evaluateQuery(PQL::Query &q) {
 
   // all clauses evaluate to non-empty/TRUE
   // need to select from the results
+  initialiseDeclaration(q);
   std::vector<std::string> selectResult = resultStore->retrieveSelect(q.selectSynonyms);
   return selectResult;
 }
@@ -72,11 +73,12 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause, bool createTable)
 }
 
 void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
-  // Add all declarations to the
   for (const auto &syn : q.declarations) {
-	if (std::any_of(q.selectSynonyms.begin(),
-					q.selectSynonyms.end(),
-					[syn](const PQL::Synonym& selectSyn)->bool{ return syn.identity == selectSyn.identity; })) {
+	if (!resultStore->containsColumn(syn.identity)
+		&& std::any_of(q.selectSynonyms.begin(), q.selectSynonyms.end(),
+					   [syn](const PQL::Synonym &selectSyn) -> bool {
+						 return syn.identity == selectSyn.identity;
+					   })) {
 	  addSynonymToStore(syn);
 	}
   }
@@ -178,6 +180,7 @@ std::vector<std::pair<PQL::Clause, bool>> QueryEvaluator::sortClauses(PQL::Query
   // group clauses by their synonyms
   std::vector<std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>>>
 	  synClausePairs = groupClauses(q.clauses, clauseIndexSet);
+  std::sort(synClausePairs.begin(), synClausePairs.end(), sortByVectorSize);
   std::vector<std::string> selectSynonymsIdent;
   selectSynonymsIdent.reserve(q.selectSynonyms.size());
   for (const PQL::Synonym &syn : q.selectSynonyms) {
@@ -232,7 +235,8 @@ std::vector<std::pair<std::unordered_set<std::string>,
 	idMap.insert({i++, cl});
   }
 
-  std::unordered_map<std::unordered_set<std::string>, std::unordered_set<int>, SetHash> synToClauseIdMap;
+  std::unordered_map<std::unordered_set<std::string>, std::unordered_set<int>, EvaluatorUtils::SetHash>
+	  synToClauseIdMap;
   for (i = 0; i < cls.size(); ++i) {
 	if (noSynonymClauses.find(i) != noSynonymClauses.end()) {
 	  continue;
@@ -256,6 +260,7 @@ std::vector<std::pair<std::unordered_set<std::string>,
 	  clsGroup.emplace_back(idMap.at(synId));
 	}
 
+	std::sort(clsGroup.begin(), clsGroup.end(), compareClause);
 	synClausePairs.emplace_back(id, clsGroup);
   }
   return synClausePairs;
@@ -284,7 +289,7 @@ bool QueryEvaluator::hasIntersection(const std::unordered_set<std::string> &set,
 
 void QueryEvaluator::mergeKeyValuePair(std::unordered_map<std::unordered_set<std::string>,
 														  std::unordered_set<int>,
-														  SetHash> &map) {
+														  EvaluatorUtils::SetHash> &map) {
   for (auto it1 = map.begin(); it1 != map.end(); ++it1) {
 	for (auto it2 = map.begin(); it2 != map.end(); ++it2) {
 	  if (it1 == it2 || !hasIntersection(it1->second, it2->second)) {
@@ -345,5 +350,36 @@ void QueryEvaluator::initialiseDoubleColumn(const PQL::Synonym &syn) {
 	colNameToIndex[colNames[i]] = i;
   }
   resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
+}
+
+bool QueryEvaluator::sortByVectorSize(const std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>> &a,
+									  const std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>> &b) {
+  return a.second.size() > b.second.size();
+}
+
+bool QueryEvaluator::compareClause(const PQL::Clause &c1, const PQL::Clause &c2) {
+  std::string lIdent1 = c1.arguments[0].identity;
+  std::string rIdent1 = c1.arguments[0].identity;
+  if (rIdent1 < lIdent1) {
+	std::swap(lIdent1, rIdent1);
+  }
+
+  std::string lIdent2 = c2.arguments[1].identity;
+  std::string rIdent2 = c2.arguments[1].identity;
+
+  if (rIdent2 < lIdent2) {
+	std::swap(lIdent2, rIdent2);
+  }
+
+  if (lIdent1 < lIdent2) {
+	return true;
+  }
+
+  if (lIdent1 > lIdent2) {
+	return false;
+  }
+
+  // lIdent1 == lIdent2
+  return rIdent1 < rIdent2;
 }
 }

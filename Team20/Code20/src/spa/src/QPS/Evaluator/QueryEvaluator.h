@@ -11,6 +11,7 @@
 #include "PKB/facade/IPKBReader.h"
 #include "Result.h"
 #include "ResultStore.h"
+#include "../Utils/EvaluatorUtils.h"
 
 namespace QueryEvaluator {
 class QueryEvaluator {
@@ -49,21 +50,15 @@ class QueryEvaluator {
 
   static bool hasIntersection(const std::unordered_set<std::string> &s, const std::vector<std::string> &v);
 
-  // Custom hash function to hash a set of string
-  struct SetHash {
-	size_t operator()(const std::unordered_set<std::string> &set) const {
-	  size_t seed = 0;
-	  for (const auto &element : set) {
-		seed ^= std::hash<std::string>()(element) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-	  }
-	  return seed;
-	}
-  };
-
   static void mergeKeyValuePair(std::unordered_map<std::unordered_set<std::string>,
 												   std::unordered_set<int>,
-												   SetHash> &map);
+												   EvaluatorUtils::SetHash> &map);
 
   void initialiseDoubleColumn(const PQL::Synonym &syn);
+
+  static bool sortByVectorSize(const std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>> &a,
+							   const std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>> &b);
+
+  static bool compareClause(const PQL::Clause &c1, const PQL::Clause &c2);
 };
 }
