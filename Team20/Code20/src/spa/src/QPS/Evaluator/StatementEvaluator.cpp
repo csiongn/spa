@@ -134,7 +134,9 @@ bool StatementEvaluator::getForwardRelationship() {
   int leftStmtNum = stoi(clause.arguments[0].identity);
 
   if (rArg.entityType == SimpleProgram::DesignEntity::STMT
-	  || rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  || rArg.entityType == SimpleProgram::DesignEntity::WILDCARD
+	  || (rArg.entityType == SimpleProgram::DesignEntity::ASSIGN
+		  && clause.clauseType == SimpleProgram::DesignAbstraction::AFFECTS)) {
 
 	std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
 		{SimpleProgram::DesignAbstraction::FOLLOWS, [this, leftStmtNum] { return reader->getFollows(leftStmtNum); }},
@@ -218,7 +220,9 @@ bool StatementEvaluator::getReversedRelationship() {
   int rightStmtNum = stoi(clause.arguments[1].identity);
 
   if (lArg.entityType == SimpleProgram::DesignEntity::STMT
-	  || lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	  || lArg.entityType == SimpleProgram::DesignEntity::WILDCARD
+	  || (lArg.entityType == SimpleProgram::DesignEntity::ASSIGN
+		  && clause.clauseType == SimpleProgram::DesignAbstraction::AFFECTS)) {
 
 	std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
 		{SimpleProgram::DesignAbstraction::FOLLOWS,
