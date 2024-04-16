@@ -256,7 +256,7 @@ Select a1 such that not Follows*(a1, a2)
 20 - assignStmtSyn, assignStmtSyn
 assign a1, a2;
 Select a2 such that not Follows*(a1, a2)
-1, 2, 3, 6, 7, 8, 9
+1, 2, 3, 6, 7, 8, 9, 10
 5000
 21 - SyntaxError
 variable v;
@@ -291,7 +291,7 @@ Select s such that not Follows*(ifs, s)
 27 - stmtSyn, ifs
 stmt s; if ifs;
 Select s such that not Follows*(s, ifs)
-1, 2, 3, 4, 5, 6, 8, 9, 10
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 5000
 28 - ifs - SyntaxError
 if ifs;
