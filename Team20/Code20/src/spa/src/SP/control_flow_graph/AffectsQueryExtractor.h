@@ -63,9 +63,8 @@ class AffectsFromStatementQuery : public IAffectsExtractor {
   void visit(CFG& cfg) override;
 
   void execute(CFGManager& cfgManager) override {
-    affectsRelationships.clear();
     auto cfg = cfgManager.getCFG(statementNumber);
-    if (cfg) {
+    if (cfg && cfg->findNode(statementNumber)->stmtType == SimpleProgram::StatementType::ASSIGN) {
       cfg->accept(*this);
     }
   }
@@ -87,11 +86,15 @@ class AffectsFromToStatementQuery : public IShortCircuitAffectsExtractor {
   void visit(CFG& cfg) override;
 
   void execute(CFGManager& cfgManager) override {
-    if (cfgManager.getCFGName(fromStatementNumber) != cfgManager.getCFGName(toStatementNumber)) {
-      // Statements are not within same procedure and cannot have affect relationship
+    if (cfgManager.getCFGName(fromStatementNumber) != cfgManager.getCFGName(toStatementNumber) ||
+    cfgManager.getCFG(fromStatementNumber)->findNode(fromStatementNumber)->stmtType != SimpleProgram::StatementType::ASSIGN ||
+    cfgManager.getCFG(toStatementNumber)->findNode(toStatementNumber)->stmtType != SimpleProgram::StatementType::ASSIGN ) {
+      // Statements are not within same procedure and cannot have affect relationship and
+      // Statements that are not assign statements cannot be part of affects relationships
       result = false;
       return;
     }
+
     auto cfg = cfgManager.getCFG(fromStatementNumber);
     if (cfg) {
       cfg->accept(*this);
@@ -117,7 +120,7 @@ class AffectsContainsFromQuery : public IShortCircuitAffectsExtractor {
 
   void execute(CFGManager& cfgManager) override {
     auto cfg = cfgManager.getCFG(statementNumber);
-    if (cfg) {
+    if (cfg && cfg->findNode(statementNumber)->stmtType == SimpleProgram::StatementType::ASSIGN) {
       cfg->accept(*this);
     }
   }
