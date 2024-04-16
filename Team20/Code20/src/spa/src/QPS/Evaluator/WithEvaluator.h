@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "ClauseEvaluator.h"
@@ -50,11 +52,25 @@ class WithEvaluator : private ClauseEvaluator {
   template<typename T>
   std::vector<T> negateResults(const PQL::Synonym &syn, const std::vector<T> &selected);
 
-  static bool isIntResultsOnly(const PQL::Synonym &syn);
+  static bool hasIntResults(const PQL::Synonym &syn);
 
-  std::vector<int> retrieveIntResults(const PQL::Synonym &syn, const std::vector<std::string> &values);
+  std::pair<std::vector<std::string>, std::vector<std::string>> retrieveIntResults(const PQL::Synonym &syn,
+																				   const std::vector<std::string> &values);
 
   template<typename T>
-  void checkAndInsertResult(const PQL::Synonym &syn, const std::vector<T> &values);
+  void checkAndInsertResult(const PQL::Synonym &lArg,
+							const std::vector<T> &lValues,
+							const PQL::Synonym &rArg,
+							const std::vector<T> &rValues);
+
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+
+  std::string getAttrRefColName(const PQL::Synonym &syn);
+
+  static std::vector<std::string> intToStringVector(const std::vector<int>& v);
 };
 }

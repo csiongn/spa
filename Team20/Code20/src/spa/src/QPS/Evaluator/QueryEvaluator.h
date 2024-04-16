@@ -60,5 +60,15 @@ class QueryEvaluator {
 							   const std::pair<std::unordered_set<std::string>, std::vector<PQL::Clause>> &b);
 
   static bool compareClause(const PQL::Clause &c1, const PQL::Clause &c2);
+
+  bool shouldInitialise(const PQL::Synonym &syn);
+
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+
+  std::string getAttrRefColName(const PQL::Synonym &syn);
 };
 }

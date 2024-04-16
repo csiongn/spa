@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "WithEvaluator.h"
@@ -244,8 +245,7 @@ bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
   }
 
   if (createTable) {
-	checkAndInsertResult(lArg, lValues);
-	checkAndInsertResult(rArg, rValues);
+	checkAndInsertResult(lArg, lValues, rArg, rValues);
   }
   return true;
 }
@@ -289,7 +289,7 @@ std::vector<T> WithEvaluator::negateResults(const PQL::Synonym &syn, const std::
   return {};
 }
 
-bool WithEvaluator::isIntResultsOnly(const PQL::Synonym &syn) {
+bool WithEvaluator::hasIntResults(const PQL::Synonym &syn) {
   std::unordered_set<SimpleProgram::DesignEntity> intResultOnlySet = {
 	  SimpleProgram::DesignEntity::CALL,
 	  SimpleProgram::DesignEntity::READ,
@@ -299,7 +299,8 @@ bool WithEvaluator::isIntResultsOnly(const PQL::Synonym &syn) {
   return intResultOnlySet.find(syn.entityType) != intResultOnlySet.end();
 }
 
-std::vector<int> WithEvaluator::retrieveIntResults(const PQL::Synonym &syn, const std::vector<std::string> &values) {
+std::pair<std::vector<std::string>, std::vector<std::string>> WithEvaluator::retrieveIntResults(const PQL::Synonym &syn,
+																								const std::vector<std::string> &values) {
   std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>(std::string)>> funcMap = {
 	  {SimpleProgram::DesignEntity::CALL,
 	   [this](const std::string &ident) { return reader->getCallsProcStmtNum(ident); }},
@@ -309,26 +310,57 @@ std::vector<int> WithEvaluator::retrieveIntResults(const PQL::Synonym &syn, cons
 	   [this](const std::string &ident) { return reader->getPrintStmtNum(ident); }},
   };
 
-  std::unordered_set<int> intResultSet;
+  std::pair<std::vector<std::string>, std::vector<std::string>> result;
   for (const std::string &ident : values) {
 	std::vector<int> res = funcMap[syn.entityType](ident);
-	intResultSet.insert(res.begin(), res.end());
-  }
-
-  std::vector<int> intResult(intResultSet.begin(), intResultSet.end());
-  return intResult;
-}
-
-template<typename T>
-void WithEvaluator::checkAndInsertResult(const PQL::Synonym &syn, const std::vector<T> &values) {
-  if constexpr (std::is_same_v<T, std::string>) {
-	if (isIntResultsOnly(syn)) {
-	  std::vector<int> intResult = retrieveIntResults(syn, values);
-	  resultStore->createColumn(syn, intResult);
-	  return;
+	for (auto &stmtNum : res) {
+	  std::get<0>(result).push_back(std::to_string(stmtNum));
+	  std::get<1>(result).push_back(ident);
 	}
   }
 
-  resultStore->createColumn(syn, values);
+  return result;
+}
+
+template<typename T>
+void WithEvaluator::checkAndInsertResult(const PQL::Synonym &lArg,
+										 const std::vector<T> &lValues,
+										 const PQL::Synonym &rArg,
+										 const std::vector<T> &rValues) {
+  std::vector<std::vector<std::string>> table;
+  std::vector<std::string> colNames;
+  if constexpr (std::is_same_v<T, std::string>) {
+	table = {lValues, rValues};
+	colNames = {getAttrRefColName(lArg), getAttrRefColName(rArg)};
+  } else {
+	// T == int
+	table = {intToStringVector(lValues), intToStringVector(rValues)};
+	colNames = {lArg.identity, rArg.identity};
+  }
+
+  std::unordered_map<std::string, size_t> colNameToIndex;
+  for (size_t i = 0; i < colNames.size(); i++) {
+	colNameToIndex[colNames[i]] = i;
+  }
+  Result newResult{table, colNames, colNameToIndex};
+  resultStore->insertResult(std::make_shared<Result>(newResult));
+}
+
+std::string WithEvaluator::getAttrRefColName(const PQL::Synonym &syn) {
+  if (attrRefMap.find(syn.entityType) != attrRefMap.end()) {
+	return syn.identity + "." + attrRefMap[syn.entityType];
+  }
+
+  return syn.identity;
+}
+
+std::vector<std::string> WithEvaluator::intToStringVector(const std::vector<int>& v) {
+  std::vector<std::string> stringVec;
+  stringVec.reserve(v.size());
+  for (auto &elem : v) {
+	stringVec.push_back(std::to_string(elem));
+  }
+
+  return stringVec;
 }
 }

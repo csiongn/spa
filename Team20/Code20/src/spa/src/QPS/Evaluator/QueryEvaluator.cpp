@@ -73,12 +73,8 @@ bool QueryEvaluator::evaluateClause(const PQL::Clause &clause, bool createTable)
 }
 
 void QueryEvaluator::initialiseDeclaration(const PQL::Query &q) {
-  for (const auto &syn : q.declarations) {
-	if (!resultStore->containsColumn(syn.identity)
-		&& std::any_of(q.selectSynonyms.begin(), q.selectSynonyms.end(),
-					   [syn](const PQL::Synonym &selectSyn) -> bool {
-						 return syn.identity == selectSyn.identity;
-					   })) {
+  for (const auto &syn : q.selectSynonyms) {
+	if (shouldInitialise(syn)) {
 	  addSynonymToStore(syn);
 	}
   }
@@ -336,12 +332,6 @@ void QueryEvaluator::initialiseDoubleColumn(const PQL::Synonym &syn) {
 	rResults.emplace_back(ident);
   }
 
-  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
-	  {SimpleProgram::DesignEntity::CALL, "procName"},
-	  {SimpleProgram::DesignEntity::READ, "varName"},
-	  {SimpleProgram::DesignEntity::PRINT, "varName"},
-  };
-
   std::vector<std::vector<std::string>> table = {lResults, rResults};
   std::string attrRefColName = syn.identity + "." + attrRefMap[syn.entityType];
   std::vector<std::string> colNames = {syn.identity, attrRefColName};
@@ -381,5 +371,28 @@ bool QueryEvaluator::compareClause(const PQL::Clause &c1, const PQL::Clause &c2)
 
   // lIdent1 == lIdent2
   return rIdent1 < rIdent2;
+}
+
+bool QueryEvaluator::shouldInitialise(const PQL::Synonym &syn) {
+  switch (syn.entityType) {
+
+	case SimpleProgram::DesignEntity::CALL:
+	case SimpleProgram::DesignEntity::READ:
+	case SimpleProgram::DesignEntity::PRINT:
+	  if (syn.attribute != SimpleProgram::AttributeRef::NO_REF) {
+		return !resultStore->containsColumn(syn.identity) || !resultStore->containsColumn(getAttrRefColName(syn));
+	  }
+	  // purposely fall through to check do the rest of the check
+	default:
+	  return !resultStore->containsColumn(syn.identity);
+  }
+}
+
+std::string QueryEvaluator::getAttrRefColName(const PQL::Synonym &syn) {
+  if (attrRefMap.find(syn.entityType) != attrRefMap.end()) {
+	return syn.identity + "." + attrRefMap[syn.entityType];
+  }
+
+  return syn.identity;
 }
 }
