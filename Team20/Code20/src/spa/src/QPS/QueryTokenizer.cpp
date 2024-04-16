@@ -30,6 +30,10 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
 	  processAttribute(currentStr);
 	  currentStr.clear();
 	} else if (nextChar == Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
+	  if (!currentStr.empty()) {
+		processString(currentStr);
+		currentStr.clear();
+	  }
 	  processTuple();
 	  removeChar();
 	} else if (isCharWhitespace(nextChar)) {
@@ -241,7 +245,9 @@ void QueryTokenizer::processSeparator(std::string currentStr, char separatorChar
 	// Cannot start with number, must adhere to IDENT
 	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr)); // string or name
   }
-  addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+  if (separatorChar != Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+  }
 }
 
 void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std::string attributeType) {

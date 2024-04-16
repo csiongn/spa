@@ -553,5 +553,48 @@ TEST_CASE("Tokenizer") {
 	REQUIRE_THROWS_AS(queryTokenizer.tokenize(query), QuerySyntaxError);
   }
 
+  SECTION("Tuple Syntax Error - Invalid value Attribute Fields") {
+	QueryTokenizer queryTokenizer;
+	std::string query2 =
+		"assign a, a1, a2; constant c; Select<c.value, a1> such that Affects(a, a1) with c.value = 6 such that Affects(6, 10)";
+	auto tokens = queryTokenizer.tokenize(query2);
+	std::vector<QueryToken> expectedTokensVector = {
+		QueryToken(QPS::TokenType::NAME, "assign"),
+		QueryToken(QPS::TokenType::NAME, "a"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::NAME, "a1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::NAME, "a2"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "constant"),
+		QueryToken(QPS::TokenType::NAME, "c"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ";"),
+		QueryToken(QPS::TokenType::NAME, "Select"),
+		QueryToken(QPS::TokenType::TUPLE, "<c.value,a1>"),
+		QueryToken(QPS::TokenType::NAME, "such"),
+		QueryToken(QPS::TokenType::NAME, "that"),
+		QueryToken(QPS::TokenType::NAME, "Affects"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "("),
+		QueryToken(QPS::TokenType::NAME, "a"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::NAME, "a1"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ")"),
+		QueryToken(QPS::TokenType::NAME, "with"),
+		QueryToken(QPS::TokenType::ATTRIBUTE_CONSTANT, "c.value"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "="),
+		QueryToken(QPS::TokenType::INTEGER, "6"),
+		QueryToken(QPS::TokenType::NAME, "such"),
+		QueryToken(QPS::TokenType::NAME, "that"),
+		QueryToken(QPS::TokenType::NAME, "Affects"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, "("),
+		QueryToken(QPS::TokenType::INTEGER, "6"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ","),
+		QueryToken(QPS::TokenType::INTEGER, "10"),
+		QueryToken(QPS::TokenType::SPECIAL_CHARACTER, ")")
+	};
+
+	REQUIRE(checkTokenVectorEqual(tokens, expectedTokensVector));
+  }
+
 
 }

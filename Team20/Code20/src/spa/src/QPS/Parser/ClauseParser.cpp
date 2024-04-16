@@ -58,6 +58,7 @@ std::vector<PQL::Synonym> ClauseParser::parseSelectClause() {
 		auto syn = QueryEvaluator::ParseUtils::createAttrSynonym(tupleSynonym, declarations);
 		selectSynonyms.push_back(syn);
 	  } else {
+		validator->validateIsName(tupleSynonym);
 		validator->validateDeclarationExists(tupleSynonym);
 		auto declarationUsed = getDeclarationUsed(tupleSynonym);
 		SimpleProgram::DesignEntity entityType = declarationUsed.entityType;
@@ -81,7 +82,7 @@ std::vector<PQL::Synonym> ClauseParser::parseSelectClause() {
 		return selectSynonyms;
 	  }
 	}
-
+	validator->validateIsName(nextToken->getValue());
 	validator->validateDeclarationExists(nextToken);
 	auto declarationUsed = getDeclarationUsed(nextToken);
 	SimpleProgram::DesignEntity entityType = declarationUsed.entityType;

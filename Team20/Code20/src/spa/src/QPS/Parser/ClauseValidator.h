@@ -95,4 +95,6 @@ class ClauseValidator {
   void validateAttrRef(std::shared_ptr<QueryToken> attrToken);
 
   void validateWith(std::vector<std::shared_ptr<QueryToken>> &withArgs);
+
+  void validateIsName(std::string tokenIdentity);
 };

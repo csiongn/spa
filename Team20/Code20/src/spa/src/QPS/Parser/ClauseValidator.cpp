@@ -487,3 +487,9 @@ void ClauseValidator::validateWith(std::vector<std::shared_ptr<QueryToken>> &rel
 
   validateAttrCompare(relationshipArgs);
 }
+
+void ClauseValidator::validateIsName(std::string tokenIdentity) {
+  if (!QueryEvaluator::ParseUtils::isName(tokenIdentity)) {
+	throw QuerySyntaxError("Syntax Error: Invalid name");
+  }
+}
