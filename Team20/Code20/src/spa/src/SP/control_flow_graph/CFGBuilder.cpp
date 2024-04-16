@@ -18,45 +18,47 @@ std::shared_ptr<CFGManager> CFGBuilder::buildCFG() {
 
 std::shared_ptr<CFG> CFGBuilder::buildCFGProc(const ProcedureNode &procedureNode) {
     std::shared_ptr<BlockNode> body = procedureNode.body;
-    std::vector<std::shared_ptr<StmtNode> > statements = body->statements;
+    std::vector<std::shared_ptr<StmtNode>> statements = body->statements;
     if (statements.empty()) {
         return nullptr;
     }
-    const auto entryNode = statements.front();
-    auto uses = usesMap[entryNode->stmtNumber];
-    const auto entryCFGNode = std::make_shared<CFGNode>(entryNode->stmtNumber, entryNode->stmtType,
-        usesMap[entryNode->stmtNumber], modifiesMap[entryNode->stmtNumber]);
-    auto cfg = std::make_shared<CFG>(procedureNode.name, entryNode->stmtNumber, entryCFGNode);
-    cfg->addNode(entryNode->stmtNumber, entryCFGNode);
-    processBlockNode(body, {cfg->root}, cfg);
+    auto cfg = std::make_shared<CFG>(procedureNode.name, statements.front()->stmtNumber, nullptr);
+
+    auto lastNodes = processBlockNode(body, {}, cfg);
+
+    if (!cfg->root && !statements.empty()) {
+        auto firstStmt = statements.front();
+        cfg->root = cfg->findNode(firstStmt->stmtNumber);
+    }
 
     return cfg;
 }
 
-std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processBlockNode(const std::shared_ptr<BlockNode> &block,
-                                                                    const std::vector<std::shared_ptr<CFGNode> > &
-                                                                    prevNodes,
-                                                                    const std::shared_ptr<CFG> &cfg) {
-    std::vector<std::shared_ptr<CFGNode> > lastNodes = prevNodes;
-    for (const auto &statement: block->statements) {
-        if (lastNodes.front()->stmtNum == statement->stmtNumber) {
-            // Skip processing the first node as it has been handled in buildCFGProc
-            continue;
-        }
-        if (auto whileNode = std::dynamic_pointer_cast<WhileNode>(statement)) {
-            lastNodes = processWhileNode(whileNode, lastNodes, cfg);
-        } else if (auto ifNode = std::dynamic_pointer_cast<IfNode>(statement)) {
-            lastNodes = processIfNode(ifNode, lastNodes, cfg);
-        } else {
-            auto newNode = std::make_shared<CFGNode>(statement->stmtNumber, statement->stmtType,
-                usesMap[statement->stmtNumber], modifiesMap[statement->stmtNumber]);
-            cfg->addNode(statement->stmtNumber, newNode);
-            connectNodes(lastNodes, {newNode});
-            lastNodes = {newNode};
-        }
+std::vector<std::shared_ptr<CFGNode>> CFGBuilder::processBlockNode(const std::shared_ptr<BlockNode>& block,
+                                                                   const std::vector<std::shared_ptr<CFGNode>>& prevNodes,
+                                                                   const std::shared_ptr<CFG>& cfg) {
+    std::vector<std::shared_ptr<CFGNode>> lastNodes = prevNodes;
+    for (const auto& statement : block->statements) {
+        lastNodes = processBlockNodeHelper(statement, lastNodes, cfg);
     }
-
     return lastNodes;
+}
+
+// Helper function to individually process statements.
+std::vector<std::shared_ptr<CFGNode>> CFGBuilder::processBlockNodeHelper(const std::shared_ptr<StmtNode>& statement,
+                                                                         const std::vector<std::shared_ptr<CFGNode>>& prevNodes,
+                                                                         const std::shared_ptr<CFG>& cfg) {
+    if (auto whileNode = std::dynamic_pointer_cast<WhileNode>(statement)) {
+        return processWhileNode(whileNode, prevNodes, cfg);
+    } else if (auto ifNode = std::dynamic_pointer_cast<IfNode>(statement)) {
+        return processIfNode(ifNode, prevNodes, cfg);
+    } else {
+        auto newNode = std::make_shared<CFGNode>(statement->stmtNumber, statement->stmtType,
+                                                 usesMap[statement->stmtNumber], modifiesMap[statement->stmtNumber]);
+        cfg->addNode(statement->stmtNumber, newNode);
+        connectNodes(prevNodes, {newNode});
+        return {newNode};
+    }
 }
 
 std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processIfNode(const std::shared_ptr<IfNode> &node,
