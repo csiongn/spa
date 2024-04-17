@@ -64,7 +64,7 @@ class AffectsFromStatementQuery : public IAffectsExtractor {
 
   void execute(CFGManager& cfgManager) override {
     auto cfg = cfgManager.getCFG(statementNumber);
-    if (cfg && cfg->findNode(statementNumber)->stmtType == SimpleProgram::StatementType::ASSIGN) {
+    if (cfg->findNode(statementNumber) && cfg->findNode(statementNumber)->stmtType == SimpleProgram::StatementType::ASSIGN) {
       cfg->accept(*this);
     }
   }
@@ -89,7 +89,7 @@ class AffectsFromToStatementQuery : public IShortCircuitAffectsExtractor {
     auto cfg = cfgManager.getCFG(fromStatementNumber);
     auto cfgTo = cfgManager.getCFG(fromStatementNumber);
 
-    if (!cfg || !cfgTo) {
+    if (!cfg || !cfgTo || !(cfg->findNode(fromStatementNumber)) || !(cfgTo->findNode(toStatementNumber))) {
       result = false;
       return;
     }

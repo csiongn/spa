@@ -82,7 +82,6 @@ bool RuntimeExtractor::containsAffectsTo(int stmtNo) {
   }
 
   return false;
-  return false;
 }
 
 std::vector<int> RuntimeExtractor::getStatementsAffectsFrom(int stmtNo) {
@@ -92,7 +91,7 @@ std::vector<int> RuntimeExtractor::getStatementsAffectsFrom(int stmtNo) {
   // Convert std::unordered_set to std::vector because QPS requires it as std::vector
   auto setResults = query->getAffectsRelationships();
   std::vector<int> arrResults;
-  for (int affectedStmtNum : setResults.at(stmtNo)) {
+  for (int affectedStmtNum : setResults[stmtNo]) {
       arrResults.emplace_back(affectedStmtNum);
   }
 

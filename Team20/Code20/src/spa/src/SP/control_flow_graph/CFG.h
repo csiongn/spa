@@ -96,7 +96,12 @@ class CFG : public std::enable_shared_from_this<CFG> {
     }
 
     // Methods
-    std::shared_ptr<CFGNode> findNode(const int stmtNum) { return stmtNumToNode[stmtNum]; }
+    std::shared_ptr<CFGNode> findNode(const int stmtNum) {
+        if (!(stmtNumToNode.count(stmtNum))) {
+            return nullptr;
+        }
+        return stmtNumToNode[stmtNum];
+    }
     void addNode(const int stmtNum, std::shared_ptr<CFGNode> cfgNode) { stmtNumToNode[stmtNum] = std::move(cfgNode); }
 
     void accept(ICFGVisitor& visitor);

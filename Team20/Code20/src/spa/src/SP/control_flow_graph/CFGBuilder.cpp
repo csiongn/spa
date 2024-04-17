@@ -81,7 +81,7 @@ std::vector<std::shared_ptr<CFGNode> > CFGBuilder::processWhileNode(const std::s
     cfg->addNode(node->stmtNumber, whileNode);
     connectNodes(prevNodes, {whileNode});
     auto loopNodes = processBlockNode(node->body, {whileNode}, cfg);
-    connectNodes({loopNodes.back()}, {whileNode});
+    connectNodes({loopNodes}, {whileNode});
 
     return {whileNode};
 }

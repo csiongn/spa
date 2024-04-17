@@ -17,6 +17,15 @@ std::vector<int> ClauseEvaluator::getIntersection(std::vector<int> &v1, std::vec
   return intersection;
 }
 
+std::vector<std::string> ClauseEvaluator::getIntersection(std::vector<std::string> &v1, std::vector<std::string> &v2) {
+  std::vector<std::string> intersection;
+  std::sort(v1.begin(), v1.end());
+  std::sort(v2.begin(), v2.end());
+  std::set_intersection(v1.begin(), v1.end(),
+						v2.begin(), v2.end(), std::back_inserter(intersection));
+  return intersection;
+}
+
 std::vector<int> ClauseEvaluator::getAllIntResults(const PQL::Synonym &syn) {
   std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>()>> funcMap = {
 	  {SimpleProgram::DesignEntity::STMT, [this] { return reader->getAllStatementNum(); }},

@@ -1,5 +1,6 @@
 #include "StatementEvaluator.h"
 #include "ClauseEvaluator.h"
+#include "RelationshipEvaluator.h"
 
 #include <functional>
 #include <memory>
@@ -159,7 +160,7 @@ bool StatementEvaluator::getForwardRelationship() {
 	}
 
 	bool isNotEmpty = !rResults.empty();
-	if (rArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty && createTable) {
+	if ((rArg.entityType == SimpleProgram::DesignEntity::STMT || rArg.entityType == SimpleProgram::DesignEntity::ASSIGN) && isNotEmpty && createTable) {
 	  resultStore->createColumn(rArg, rResults);
 	}
 
@@ -248,7 +249,7 @@ bool StatementEvaluator::getReversedRelationship() {
 	}
 
 	bool isNotEmpty = !lResults.empty();
-	if (lArg.entityType == SimpleProgram::DesignEntity::STMT && isNotEmpty && createTable) {
+	if ((lArg.entityType == SimpleProgram::DesignEntity::STMT || lArg.entityType == SimpleProgram::DesignEntity::ASSIGN) && isNotEmpty && createTable) {
 	  resultStore->createColumn(lArg, lResults);
 	}
 	return isNotEmpty;
@@ -355,12 +356,17 @@ std::vector<int> StatementEvaluator::getUniqueValues(const PQL::Synonym &syn) {
 bool StatementEvaluator::getDoubleSynonym() {
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
+
   std::vector<int> lValues = getUniqueKeys(lArg);
   std::vector<int> rValues = getUniqueValues(rArg);
   std::vector<std::pair<std::string, std::string>> result;
 
   for (auto v1 : lValues) {
 	for (auto v2 : rValues) {
+	  if (lArg == rArg && v1 != v2) {
+		// both same syn, need v1 == v2
+		continue;
+	  }
 	  if (hasRelationship(clause.clauseType, v1, v2)) {
 		result.emplace_back(std::to_string(v1), std::to_string(v2));
 	  }

@@ -103,7 +103,10 @@ bool WithEvaluator::handleSingleAttrRef() {
   }
 
   if (hasIntegerAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::INTEGER) {
-	std::vector<int> values = {stoi(rArg.identity)};
+	std::vector<int> values = getAllIntResults(lArg);
+	std::vector<int> fixed = {stoi(rArg.identity)};
+	values = getIntersection(values, fixed);
+
 	if (clause.isNegated) {
 	  values = negateIntResults(lArg, values);
 	}
@@ -119,7 +122,10 @@ bool WithEvaluator::handleSingleAttrRef() {
   }
 
   if (hasNameAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
-	std::vector<std::string> values = {rArg.identity};
+	std::vector<std::string> values = getIdentValues(lArg);
+	std::vector<std::string> fixed = {rArg.identity};
+	values = getIntersection(values, fixed);
+
 	if (clause.isNegated) {
 	  values = negateStringResults(lArg, values);
 	}

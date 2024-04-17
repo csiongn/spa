@@ -296,6 +296,10 @@ bool EntityEvaluator::getDoubleSynonym() {
 	std::vector<std::string> lValues = getUniqueLeftProcNames();
 	for (const auto &v1 : lValues) {
 	  for (const auto &v2 : values) {
+		if (lArg == rArg && v1 != v2) {
+		  // both same syn, need v1 == v2
+		  continue;
+		}
 		if (hasRelationship(clause.clauseType, v1, v2)) {
 		  result.emplace_back(v1, v2);
 		}
