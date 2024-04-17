@@ -1,9 +1,11 @@
 #include <algorithm>
 #include <iterator>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "Result.h"
+#include "../Utils/EvaluatorUtils.h"
 
 namespace QueryEvaluator {
 // inserting one column of string
@@ -110,28 +112,35 @@ std::shared_ptr<Result> Result::hashJoin(QueryEvaluator::Result &result, std::ve
   }
   Result newResult{newTable, newColNames, newColNameToIndex};
 
-  for (auto i = 0; i < getColumn(commonCols[0]).size(); ++i) {
-	for (auto j = 0; j < result.getColumn(commonCols[0]).size(); ++j) {
-	  std::vector<std::string> outerRow = getRow(i);
-	  std::vector<std::string> innerRow = result.getRow(j);
-	  bool add = true;
-	  for (auto &colName : commonCols) {
-		if (outerRow[colNameToIndex.at(colName)] != innerRow[result.colNameToIndex.at(colName)]) {
-		  // different value at the commonColumn, do not add the row.
-		  add = false;
-		  break;
+  std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash> addedRow;
+  std::unordered_map<std::vector<std::string>,
+					 std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash>,
+					 EvaluatorUtils::vectorHash>
+	  outerCommonColMap = getCommonColMap(commonCols);
+  std::unordered_map<std::vector<std::string>,
+					 std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash>,
+					 EvaluatorUtils::vectorHash>
+	  innerCommonColMap = result.getCommonColMap(commonCols);
+
+  for (auto const &[commonColValues, outerRows] : outerCommonColMap) {
+	if (innerCommonColMap.find(commonColValues) == innerCommonColMap.end()) {
+	  continue;
+	}
+
+	for (const auto &outerRow : outerRows) {
+	  for (const auto &innerRow : innerCommonColMap[commonColValues]) {
+		std::vector<std::string> newRow = joinRows(outerRow, colNameToIndex, innerRow, result.colNameToIndex,
+												   newColNameToIndex);
+		if (addedRow.find(newRow) != addedRow.end()) {
+		  continue;
 		}
-	  }
 
-	  if (!add) {
-		continue;
+		newResult.addRow(newRow);
+		addedRow.insert(newRow);
 	  }
-
-	  std::vector<std::string> newRow = joinRows(outerRow, colNameToIndex, innerRow, result.colNameToIndex,
-												 newColNameToIndex);
-	  newResult.addRow(newRow);
 	}
   }
+
   return std::make_shared<Result>(newResult);
 }
 
@@ -200,5 +209,25 @@ std::vector<std::string> Result::getColumnNames(const std::unordered_map<std::st
   }
 
   return colNamesVector;
+}
+
+std::unordered_map<std::vector<std::string>,
+				   std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash>,
+				   EvaluatorUtils::vectorHash> Result::getCommonColMap(std::vector<std::string> commonCols) {
+  std::unordered_map<std::vector<std::string>,
+					 std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash>,
+					 EvaluatorUtils::vectorHash>
+	  commonColMap;
+  for (auto i = 0; i < getColumn(commonCols[0]).size(); ++i) {
+	std::vector<std::string> commonColValues;
+	commonColValues.reserve(commonCols.size());
+	for (auto &colName : commonCols) {
+	  commonColValues.push_back(this->table[this->colNameToIndex.at(colName)][i]);
+	}
+	std::vector<std::string> outerRow = this->getRow(i);
+	commonColMap[commonColValues].insert(outerRow);
+  }
+
+  return commonColMap;
 }
 }

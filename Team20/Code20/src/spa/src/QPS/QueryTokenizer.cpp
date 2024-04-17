@@ -25,31 +25,48 @@ std::vector<std::shared_ptr<QueryToken>> QueryTokenizer::tokenize(const std::str
 	// Process string within apostrophe
 	if (nextChar == Constants::SpecialCharacters::QUOTE) {
 	  processApostrophe(); // until apostrophe is closed
+	  removeChar();
 	} else if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
 	  processAttribute(currentStr);
 	  currentStr.clear();
 	} else if (nextChar == Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
-	  processTuple();
-	} else if (isCharWhitespace(nextChar)) {
 	  if (!currentStr.empty()) {
 		processString(currentStr);
 		currentStr.clear();
 	  }
+	  processTuple();
+	  removeChar();
+	} else if (isCharWhitespace(nextChar)) {
+	  if (!currentStr.empty()) {
+		if (isAttributeString()) {
+		  processAttribute(currentStr);
+		  currentStr.clear();
+		  nextChar = peekChar();
+		  continue;
+		} else {
+		  processString(currentStr);
+		  currentStr.clear();
+		}
+	  }
+	  removeChar();
 	} else if (isCharStar(nextChar)) {
 	  processStar(currentStr);
 	  currentStr.clear();
+	  removeChar();
 	} else if (nextChar == Constants::SpecialCharacters::UNDERSCORE) {
 	  processWildcard();
+	  removeChar();
 	} else if (isCharSeparator(nextChar)) {
 	  // Process Separator character
 	  processSeparator(currentStr, nextChar);
 	  currentStr.clear();
+	  removeChar();
 	} else if (isCharNumeric(nextChar) || isCharAlpha(nextChar)) {
 	  currentStr += nextChar;
+	  removeChar();
 	} else {
 	  throw QuerySyntaxError("Syntax Error for the Invalid token: " + std::string(1, nextChar));
 	}
-	removeChar();
 	nextChar = peekChar();
   }
   // Reach EOF
@@ -106,7 +123,7 @@ bool QueryTokenizer::isCharStar(char &c) const {
 
 bool QueryTokenizer::isCharWhitespace(char &c) const {
   return Constants::SpecialCharacters::WHITESPACE_CHARACTERS.find(c)
-	  != Constants::SpecialCharacters::FACTOR_CHARACTERS.end();
+	  != Constants::SpecialCharacters::WHITESPACE_CHARACTERS.end();
 }
 
 bool QueryTokenizer::containsFactor(const std::string &str) const {
@@ -228,7 +245,9 @@ void QueryTokenizer::processSeparator(std::string currentStr, char separatorChar
 	// Cannot start with number, must adhere to IDENT
 	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr)); // string or name
   }
-  addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+  if (separatorChar != Constants::SpecialCharacters::LEFT_ANGLE_BRACKET) {
+	addToken(std::make_shared<QueryToken>(QPS::TokenType::SPECIAL_CHARACTER, std::string(1, separatorChar)));
+  }
 }
 
 void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std::string attributeType) {
@@ -239,13 +258,16 @@ void QueryTokenizer::processAttributeToken(std::string currentAttributeStr, std:
 	  {"value", QPS::TokenType::ATTRIBUTE_CONSTANT}
   };
   std::string attributeTokenValue = currentAttributeStr + attributeType;
-  if (attributeValueMap.find(attributeType) == attributeValueMap.end()) {
+  if (!isValidAttributeField(attributeType)) {
 	throw QuerySyntaxError("Syntax Error: Invalid attribute type: " + attributeType);
   }
   addToken(std::make_shared<QueryToken>(attributeValueMap[attributeType], attributeTokenValue));
 }
 
 void QueryTokenizer::processAttribute(std::string currentStr) {
+  if (currentStr.empty()) {
+	throw QuerySyntaxError("Syntax Error: Invalid whitespace before attribute");
+  }
   std::string currAttributeString = currentStr;
   std::string currAttributeValue = "";
   // Process until whitespace
@@ -256,8 +278,13 @@ void QueryTokenizer::processAttribute(std::string currentStr) {
   }
 
   nextChar = peekChar();
-  // Getting attribute field value, unable to validate syntax
-  while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF) {
+  // Remove whitespace after `.` and before attribute
+  while (isCharWhitespace(nextChar) && nextChar != EOF) {
+	removeChar();
+	nextChar = peekChar();
+  }
+
+  while (nextChar != Constants::SpecialCharacters::SPACE && nextChar != EOF && nextChar != Constants::SpecialCharacters::EQUAL) {
 	currAttributeValue += nextChar;
 	removeChar();
 	nextChar = peekChar();
@@ -274,28 +301,166 @@ void QueryTokenizer::processTuple() {
   currentStr += nextChar;
   removeChar();
   nextChar = peekChar();
-  while (nextChar != Constants::SpecialCharacters::RIGHT_ANGLE_BRACKET) {
+  std::string currArg;
+  bool isFirstArg = true;
+  while (nextChar != Constants::SpecialCharacters::RIGHT_ANGLE_BRACKET && nextChar != EOF) {
 	// Not whitespace
 	if (Constants::SpecialCharacters::WHITESPACE_CHARACTERS.find(nextChar)
 		== Constants::SpecialCharacters::WHITESPACE_CHARACTERS.end()) {
-	  currentStr += nextChar;
+	  if (nextChar == Constants::SpecialCharacters::COMMA) {
+		// immediately add comma to currStr dont wait till in else block
+		if (currArg.empty()) {
+		  currentStr += nextChar;
+		  removeChar();
+		  nextChar = peekChar();
+		  continue;
+		} else if (currArg.find(Constants::SpecialCharacters::FULL_STOP) != std::string::npos) {
+		  // exclude fullstop
+		  auto attributeValue = currArg.substr(currArg.find(Constants::SpecialCharacters::FULL_STOP) + 1);
+		  if (!isValidAttributeField(attributeValue)) {
+			throw QuerySyntaxError("Syntax Error: Invalid attribute type: " + attributeValue);
+		  } else {
+			// Valid attribute add to currentStr first thn add comma
+			if (!isFirstArg) {
+			  if (currentStr.back() != Constants::SpecialCharacters::COMMA
+				  && currArg.front() != Constants::SpecialCharacters::COMMA) {
+				throw QuerySyntaxError(
+					"Syntax Error: [COMMA BRANCH ADD ATTR]Invalid tuple No Comma before arg");
+			  }
+			}
+			currentStr += currArg;
+			isFirstArg = false;
+			currArg.clear();
+		  }
+		} else {
+		  if (!isFirstArg) {
+			if (currentStr.back() != Constants::SpecialCharacters::COMMA
+				&& currArg.front() != Constants::SpecialCharacters::COMMA) {
+			  throw QuerySyntaxError("Syntax Error: [COMMA BRANCH Not ATTR]Invalid tuple No Comma before arg");
+			}
+		  }
+		  currentStr += currArg;
+		  isFirstArg = false;
+		  currArg.clear();
+		}
+	  }
+	  currArg += nextChar;
+	} else {
+	  if (!currArg.empty()) {
+		checkTupleAttribute(currArg);
+		if (!isFirstArg) {
+		  if (currentStr.back() != Constants::SpecialCharacters::COMMA
+			  && currArg != std::string(1, Constants::SpecialCharacters::COMMA)) {
+			throw QuerySyntaxError("Syntax Error: [WS branch]Invalid tuple No Comma before arg" + currentStr + currArg);
+		  }
+		}
+		currentStr += currArg;
+		isFirstArg = false;
+		currArg.clear();
+	  }
 	}
 	removeChar();
 	nextChar = peekChar();
   }
+  if (nextChar != Constants::SpecialCharacters::RIGHT_ANGLE_BRACKET) {
+	throw QuerySyntaxError("Syntax Error: Invalid tuple Missing `>`: " + currentStr);
+  }
+  if (!currArg.empty()) {
+	if (!isFirstArg) {
+	  if (currentStr.back() != Constants::SpecialCharacters::COMMA
+		  && currArg.front() != Constants::SpecialCharacters::COMMA) {
+		throw QuerySyntaxError(
+			"Syntax Error: [Exit While]Invalid tuple No Comma before arg" + currentStr + " " + currArg);
+	  }
+	}
+	currentStr += currArg;
+  }
+
+  checkTupleAttribute(currArg);
   // Add right angle bracket
   currentStr += nextChar;
+  checkTupleComma(currentStr);
+
   addToken(std::make_shared<QueryToken>(QPS::TokenType::TUPLE, currentStr));
   return;
 }
 
 void QueryTokenizer::processString(std::string currentStr) {
+
   if (isNum(currentStr) && !currentStr.empty()) {
 	addToken(std::make_shared<QueryToken>(QPS::TokenType::INTEGER, currentStr));
   } else if (isValidIDENT(currentStr)) {
 	addToken(std::make_shared<QueryToken>(QPS::TokenType::NAME, currentStr));
   } else {
 	throw QuerySyntaxError("Syntax Error: Invalid IDENT " + currentStr);
+  }
+  return;
+}
+
+bool QueryTokenizer::isAttributeString() {
+  // restore to last position with whitespace
+  std::streampos restorePos;
+  int posToRestore = 0;
+  auto nextChar = peekChar();
+  while (isCharWhitespace(nextChar) && nextChar != EOF) {
+	restorePos = iss->tellg();
+	posToRestore += 1;
+	removeChar();
+	nextChar = peekChar();
+  }
+  if (nextChar == Constants::SpecialCharacters::FULL_STOP) {
+	// All whitespace has been removed
+	return true;
+  }
+  iss->seekg(restorePos);
+  return false;
+}
+
+bool QueryTokenizer::isValidAttributeField(std::string attributeField) {
+  std::unordered_map<std::string, QPS::TokenType> attributeValueMap = {
+	  {"stmt#", QPS::TokenType::ATTRIBUTE_VALUE},
+	  {"procName", QPS::TokenType::ATTRIBUTE_NAME},
+	  {"varName", QPS::TokenType::ATTRIBUTE_NAME},
+	  {"value", QPS::TokenType::ATTRIBUTE_CONSTANT}
+  };
+  if (attributeValueMap.find(attributeField) == attributeValueMap.end()) {
+	return false;
+  }
+  return true;
+}
+
+void QueryTokenizer::checkTupleComma(std::string tupleString) {
+  // Check if currentStr contains comma
+  // Strip away left and right angle brackets
+  auto tupleContent = tupleString.substr(1, tupleString.size() - 2);
+  // Split tuple content into string by comma
+  std::stringstream ss(tupleContent);
+  std::string token;
+  std::vector<std::string> tupleTokens;
+  while (std::getline(ss, token, Constants::SpecialCharacters::COMMA)) {
+	tupleTokens.push_back(token);
+  }
+
+  if (!tupleContent.empty() && tupleContent.back() == Constants::SpecialCharacters::COMMA) {
+	tupleTokens.push_back("");
+  }
+
+  for (const auto &tupleToken : tupleTokens) {
+	if (tupleToken.empty()) {
+	  throw QuerySyntaxError("Syntax Error: Invalid tuple " + tupleString);
+	}
+  }
+  return;
+}
+
+// Throws error if is a attribute and have invalid attribute field
+void QueryTokenizer::checkTupleAttribute(std::string currArg) {
+  if (currArg.find(Constants::SpecialCharacters::FULL_STOP) != std::string::npos) {
+	// exclude fullstop
+	auto attributeValue = currArg.substr(currArg.find(Constants::SpecialCharacters::FULL_STOP) + 1);
+	if (!isValidAttributeField(attributeValue)) {
+	  throw QuerySyntaxError("Syntax Error: Invalid attribute type: " + attributeValue);
+	}
   }
   return;
 }

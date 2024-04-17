@@ -20,18 +20,6 @@ class SPController {
 
   void populatePKB();
 
-  void insertEntity(SimpleProgram::DesignEntity entity, const std::unordered_set<int> &value);
-  void insertEntity(SimpleProgram::DesignEntity entity, const std::unordered_set<std::string> &value);
-
-  void insertRelationship(SimpleProgram::DesignAbstraction relationship,
-						  const std::unordered_map<int, std::unordered_set<int>> &map);
-  void insertRelationship(SimpleProgram::DesignAbstraction relationship, int key, const std::unordered_set<int> &value);
-  void insertRelationship(SimpleProgram::DesignAbstraction relationship,
-						  const std::unordered_map<int, std::unordered_set<std::string>> &map);
-  void insertRelationship(SimpleProgram::DesignAbstraction relationship,
-						  int key,
-						  const std::unordered_set<std::string> &value);
-
  private:
   DesignExtractor designExtractor;
   Tokenizer tokenizer;

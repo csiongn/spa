@@ -8,50 +8,50 @@ procedure p, q;
 Select p.procName such that Calls (p, q)
 First, Second
 5000
-2.1 - Which procedures directly call procedure "Third" and modify the variable "i"?
+2.1 - Which procedures directly call procedure Third and modify the variable i?
 procedure p, q;
 Select p such that Calls (p, q) with q.procName = "Third" such that Modifies (p, "i")
 Second
 5000
-2.2 - Which procedures directly call procedure "Third" and modify the variable "i"?
+2.2 - Which procedures directly call procedure Third and modify the variable i?
 procedure p;
 Select p such that Calls (p, "Third") and Modifies (p, "i")
 Second
 5000
-3 - Which procedures call procedure "Third" directly or indirectly?
+3 - Which procedures call procedure Third directly or indirectly?
 procedure p;
 Select p such that Calls* (p, "Third")
 First, Second
 5000
-4 - Which procedures are called from "Second" in a while loop?
+4 - Which procedures are called from Second in a while loop?
 procedure p; call c; while w;
 Select p such that Calls ("Second", p) and Parent (w, c) with c.procName = p.procName
 Third
 5000
-5 - Is there an execution path from statement 2 to statement 9?
-none
-Select BOOLEAN such that Next* (2, 9)
+5 - Is there an execution path from statement 2 to statement 9? bump up by 3 as we add FIRST procedure
+
+Select BOOLEAN such that Next* (5, 12)
 TRUE
 5000
 6 -  Is there an execution path from statement 2 to statement 9 that passes through statement 8?
-none
+
 Select BOOLEAN such that Next* (2, 8) and Next* (8, 9)
 FALSE
 5000
-7.1 - Find assignments to variable "x" located in a loop, that can be reached (in terms of control flow) from statement 1.
+7.1 - Find assignments to variable x located in a loop, that can be reached (in terms of control flow) from statement 1.
 assign a; while w;
-Select a pattern a ("x", _) such that Parent* (w, a) and Next* (1, a)
-4
+Select a pattern a ("x", _) such that Parent* (w, a) and Next* (4, a)
+7
 5000
-7.2 - Find assignments to variable "x" located in a loop, that can be reached (in terms of control flow) from statement 1.
+7.2 - Find assignments to variable x located in a loop, that can be reached (in terms of control flow) from statement 1.
 assign a; while w;
-Select a such that Modifies (a, "x") and Parent* (w, a) and Next* (1, a)
-4
+Select a such that Modifies (a, "x") and Parent* (w, a) and Next* (4, a)
+7
 5000
 8 - Which statements can be executed between statement 5 and statement 12?
 stmt s;
-Select s such that Next* (5, s) and Next* (s, 12)
-3, 4, 5, 6, 7, 8, 9, 10, 11
+Select s such that Next* (8, s) and Next* (s, 15)
+6, 7, 8, 9, 10, 11, 12, 13, 14
 5000
 11 - Which statements can be executed between statement 5 and statement 12?
 procedure p, q;

@@ -22,6 +22,15 @@ enum class DesignEntity {
   BOOLEAN
 };
 
+enum class StatementType {
+  READ,
+  PRINT,
+  ASSIGN,
+  CALL,
+  WHILE,
+  IF,
+};
+
 enum class DesignAbstraction {
   INVALID,
   FOLLOWS,

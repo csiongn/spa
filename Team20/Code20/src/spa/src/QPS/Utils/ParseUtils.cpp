@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -158,100 +159,213 @@ std::shared_ptr<ExprNode> QueryEvaluator::ParseUtils::getExprNode(const std::str
   return node;
 }
 
-SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getSynonymType(std::shared_ptr<QueryToken>& token) {
-    std::string tokenValue = token->getValue();
-    if (tokenValue == "procedure") {
-        return SimpleProgram::DesignEntity::PROCEDURE;
-    } else if (tokenValue == "stmt") {
-        return SimpleProgram::DesignEntity::STMT;
-    } else if (tokenValue == "read") {
-        return SimpleProgram::DesignEntity::READ;
-    } else if (tokenValue == "print") {
-        return SimpleProgram::DesignEntity::PRINT;
-    } else if (tokenValue == "assign") {
-        return SimpleProgram::DesignEntity::ASSIGN;
-    } else if (tokenValue == "call") {
-        return SimpleProgram::DesignEntity::CALL;
-    } else if (tokenValue == "while") {
-        return SimpleProgram::DesignEntity::WHILE;
-    } else if (tokenValue == "if") {
-        return SimpleProgram::DesignEntity::IF;
-    } else if (tokenValue == "variable") {
-        return SimpleProgram::DesignEntity::VARIABLE;
-    } else if (tokenValue == "constant") {
-        return SimpleProgram::DesignEntity::CONSTANT;
-    } else {
-        return SimpleProgram::DesignEntity::INVALID;
-    }
+SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getSynonymType(std::shared_ptr<QueryToken> &token) {
+  std::string tokenValue = token->getValue();
+  if (tokenValue == "procedure") {
+	return SimpleProgram::DesignEntity::PROCEDURE;
+  } else if (tokenValue == "stmt") {
+	return SimpleProgram::DesignEntity::STMT;
+  } else if (tokenValue == "read") {
+	return SimpleProgram::DesignEntity::READ;
+  } else if (tokenValue == "print") {
+	return SimpleProgram::DesignEntity::PRINT;
+  } else if (tokenValue == "assign") {
+	return SimpleProgram::DesignEntity::ASSIGN;
+  } else if (tokenValue == "call") {
+	return SimpleProgram::DesignEntity::CALL;
+  } else if (tokenValue == "while") {
+	return SimpleProgram::DesignEntity::WHILE;
+  } else if (tokenValue == "if") {
+	return SimpleProgram::DesignEntity::IF;
+  } else if (tokenValue == "variable") {
+	return SimpleProgram::DesignEntity::VARIABLE;
+  } else if (tokenValue == "constant") {
+	return SimpleProgram::DesignEntity::CONSTANT;
+  } else {
+	return SimpleProgram::DesignEntity::INVALID;
+  }
 }
 
-PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType, std::shared_ptr<QueryToken>& token) {
-    return {entityType, token->getValue()};
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType,
+													   std::shared_ptr<QueryToken> &token) {
+  return {entityType, token->getValue()};
 }
 
-PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType, std::string synonymIdentity) {
-    return {entityType, synonymIdentity};
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType,
+													   std::string synonymIdentity) {
+  return {entityType, synonymIdentity};
 }
 
-std::vector<std::string> QueryEvaluator::ParseUtils::splitTuple(std::shared_ptr<QueryToken>& tupleToken) {
-    std::string tokenValue = tupleToken->getValue();
-    const std::regex pattern("<|>");
-    auto removedBracketsStr = std::regex_replace(tokenValue, pattern, "");
-
-    std::vector<std::string> res;
-    std::istringstream iss(removedBracketsStr);
-    std::string token;
-    while (std::getline(iss, token, ',')) {
-        res.push_back(token);
-    }
-    return res;
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonym(SimpleProgram::DesignEntity entityType,
+													   std::string synonymIdentity,
+													   SimpleProgram::AttributeRef attrRef) {
+  return {entityType, synonymIdentity, attrRef};
 }
 
-std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::splitTokens(std::vector<std::shared_ptr<QueryToken>>& tokens, int start, int end) {
-    return {tokens.begin() + start, tokens.begin() + end};
+std::vector<std::string> QueryEvaluator::ParseUtils::splitTuple(std::shared_ptr<QueryToken> &tupleToken) {
+  std::string tokenValue = tupleToken->getValue();
+  const std::regex pattern("<|>");
+  auto removedBracketsStr = std::regex_replace(tokenValue, pattern, "");
+
+  std::vector<std::string> res;
+  std::istringstream iss(removedBracketsStr);
+  std::string token;
+  while (std::getline(iss, token, ',')) {
+	res.push_back(token);
+  }
+  return res;
 }
 
-SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getEntityType(std::shared_ptr<QueryToken>& token, std::vector<PQL::Synonym>& declarations) {
-    std::string tokenValue = token->getValue();
-    for (auto& declaration : declarations) {
-        if (declaration.identity == tokenValue) {
-            return declaration.entityType;
-        }
-    }
+std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::splitTokens(std::vector<std::shared_ptr<QueryToken>> &tokens,
+																				 int start,
+																				 int end) {
+  return {tokens.begin() + start, tokens.begin() + end};
 }
 
-std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::removeBracketsAndCommas(std::vector<std::shared_ptr<QueryToken>>& tokens) {
-    std::vector<std::shared_ptr<QueryToken>> res;
-    std::copy_if(tokens.begin(), tokens.end(), std::back_inserter(res), [](std::shared_ptr<QueryToken> token) {
-        return token->getValue() != "," && token->getValue() != "(" && token->getValue() != ")";
-    });
-    return res;
+SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getEntityType(std::shared_ptr<QueryToken> &token,
+																	  std::vector<PQL::Synonym> &declarations) {
+  std::string tokenValue = token->getValue();
+  for (auto &declaration : declarations) {
+	if (declaration.identity == tokenValue) {
+	  return declaration.entityType;
+	}
+  }
+}
+
+SimpleProgram::DesignEntity QueryEvaluator::ParseUtils::getEntityType(std::string synonymIdentity,
+																	  std::vector<PQL::Synonym> &declarations) {
+  for (auto &declaration : declarations) {
+	if (declaration.identity == synonymIdentity) {
+	  return declaration.entityType;
+	}
+  }
+}
+
+std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::removeBracketsAndCommas(std::vector<std::shared_ptr<
+	QueryToken>> &tokens) {
+  std::vector<std::shared_ptr<QueryToken>> res;
+  std::copy_if(tokens.begin(), tokens.end(), std::back_inserter(res), [](std::shared_ptr<QueryToken> token) {
+	return token->getValue() != "," && token->getValue() != "(" && token->getValue() != ")";
+  });
+  return res;
 }
 
 bool QueryEvaluator::ParseUtils::isLetter(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
 bool QueryEvaluator::ParseUtils::isDigit(char c) {
-    return c >= '0' && c <= '9';
+  return c >= '0' && c <= '9';
 }
 
 bool QueryEvaluator::ParseUtils::isName(const std::string &str) {
-    if (str.empty()) {
-        return false; // Empty string is not a valid name
-    }
+  if (str.empty()) {
+	return false; // Empty string is not a valid name
+  }
 
-    // Check if the first character is a letter
-    if (!isLetter(str[0])) {
-        return false;
-    }
+  // Check if the first character is a letter
+  if (!isLetter(str[0])) {
+	return false;
+  }
 
-    // Check if the remaining characters are letters or digits
-    for (size_t i = 1; i < str.size(); ++i) {
-        if (!isLetter(str[i]) && !isDigit(str[i])) {
-            return false;
-        }
-    }
+  // Check if the remaining characters are letters or digits
+  for (size_t i = 1; i < str.size(); ++i) {
+	if (!isLetter(str[i]) && !isDigit(str[i])) {
+	  return false;
+	}
+  }
 
-    return true;
+  return true;
+}
+
+std::vector<std::shared_ptr<QueryToken>> QueryEvaluator::ParseUtils::getClause(std::shared_ptr<std::vector<std::shared_ptr<
+	QueryToken>>> &relationshipClauseTokens) {
+  std::vector<std::shared_ptr<QueryToken>> patternClauseTokens;
+  int start = 0;
+  int curr = start;
+  while (curr < relationshipClauseTokens->size()) {
+	auto token = relationshipClauseTokens->at(curr);
+
+	auto tokenValue = token->getValue();
+	if (tokenValue == ")") {
+	  curr++;
+	  break;
+	}
+	curr++;
+  }
+
+  patternClauseTokens = QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens, start, curr);
+  relationshipClauseTokens =
+	  std::make_shared<std::vector<std::shared_ptr<QueryToken>>>(QueryEvaluator::ParseUtils::splitTokens(*relationshipClauseTokens,
+																										 curr,
+																										 relationshipClauseTokens->size()));
+  return patternClauseTokens;
+}
+
+std::vector<std::string> QueryEvaluator::ParseUtils::splitStrByFirstDelim(std::string str, std::string delim) {
+  std::string delimiter = ".";
+  std::string first = str.substr(0, str.find(delim));
+  std::string second = str.substr(str.find(delim) + 1, str.length());
+  return {first, second};
+};
+
+std::vector<std::string> QueryEvaluator::ParseUtils::splitAttrToken(std::shared_ptr<QueryToken> attrToken) {
+  std::string attrTokenValue = attrToken->getValue();
+  return splitStrByFirstDelim(attrTokenValue, ".");
+}
+
+SimpleProgram::AttributeRef QueryEvaluator::ParseUtils::getAttrRef(std::string attrRefStr) {
+  std::unordered_map<std::string, SimpleProgram::AttributeRef> strToAttrRef = {
+	  {"procName", SimpleProgram::AttributeRef::NAME},
+	  {"varName", SimpleProgram::AttributeRef::NAME},
+	  {"value", SimpleProgram::AttributeRef::INTEGER},
+	  {"stmt#", SimpleProgram::AttributeRef::INTEGER}
+  };
+
+  return strToAttrRef.at(attrRefStr);
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createSynonymFromAttrToken(std::shared_ptr<QueryToken> attrToken,
+																	std::vector<PQL::Synonym> declarations) {
+  std::vector<std::string> splitted = QueryEvaluator::ParseUtils::splitAttrToken(attrToken);
+  auto synonymValue = splitted[0];
+  auto attrRefStr = splitted[1];
+  auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
+  auto attrRef = getAttrRef(attrRefStr);
+  return QueryEvaluator::ParseUtils::createSynonym(entityType, synonymValue, attrRef);
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createAttrSynonym(std::shared_ptr<QueryToken> operandToken,
+														   std::vector<PQL::Synonym> declarations) {
+  PQL::Synonym operandSynonym = PQL::Synonym::createInvalidSynonym();
+  QPS::TokenType operandTokenType = operandToken->getType();
+  if (operandTokenType == QPS::TokenType::ATTRIBUTE_NAME || operandTokenType == QPS::TokenType::ATTRIBUTE_CONSTANT
+	  || operandTokenType == QPS::TokenType::ATTRIBUTE_VALUE) {
+	operandSynonym = createSynonymFromAttrToken(operandToken, declarations);
+  } else {
+	SimpleProgram::DesignEntity operandEntity = SimpleProgram::DesignEntity::INVALID;
+
+	if (operandTokenType == QPS::TokenType::INTEGER) {
+	  operandEntity = SimpleProgram::DesignEntity::INTEGER;
+	} else if (operandTokenType == QPS::TokenType::CONSTANT_STRING) {
+	  operandEntity = SimpleProgram::DesignEntity::IDENT;
+	} else {
+	  throw QuerySyntaxError("Syntax Error: Invalid attribute reference");
+	}
+
+	operandSynonym = QueryEvaluator::ParseUtils::createSynonym(operandEntity, operandToken->getValue());
+  }
+  return operandSynonym;
+}
+
+PQL::Synonym QueryEvaluator::ParseUtils::createAttrSynonym(std::string attrRefStr,
+														   std::vector<PQL::Synonym> declarations) {
+  std::vector<std::string> splittedAttr = splitStrByFirstDelim(attrRefStr, ".");
+
+  auto synonymValue = splittedAttr[0];
+  auto attrName = splittedAttr[1];
+  auto attrRef = getAttrRef(attrName);
+  auto entityType = QueryEvaluator::ParseUtils::getEntityType(synonymValue, declarations);
+
+  return QueryEvaluator::ParseUtils::createSynonym(entityType, synonymValue, attrRef);
 }

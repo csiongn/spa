@@ -8,6 +8,8 @@
 #include <utility>
 #include <limits>
 
+#include "Models/SimpleProgram.h"
+
 // 0. Abstract Base Node
 class ASTNode {
  public:
@@ -230,10 +232,12 @@ class VariableNode : public UnaryNode {
 // 2a. Abstract Statement Nodes
 class StmtNode : public ASTNode {
  public:
-  uint16_t stmtNumber;
+  int stmtNumber;
+  SimpleProgram::StatementType stmtType;
 
   // Constructor
-  explicit StmtNode(uint16_t stmtNumber) : stmtNumber(stmtNumber) {}
+  explicit StmtNode(const int stmtNumber, const SimpleProgram::StatementType stmtType) :
+	stmtNumber(stmtNumber), stmtType(stmtType) {}
 };
 
 // BlockNode for statement lists
@@ -292,7 +296,8 @@ class AssignNode : public StmtNode {
   std::shared_ptr<ExprNode> value;
 
   AssignNode(uint16_t stmtNumber, std::string varName, std::shared_ptr<ExprNode> value)
-	  : StmtNode(stmtNumber), varName(std::move(varName)), value(std::move(value)) {}
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::ASSIGN), varName(std::move(varName)),
+	value(std::move(value)) {}
 
   std::string serialize() const override {
 	return "Assign-" + std::to_string(this->stmtNumber) + " " + varName + " [" + value->serialize() + "]";
@@ -304,7 +309,7 @@ class CallNode : public StmtNode {
   std::string procName;
 
   CallNode(uint16_t stmtNumber, std::string procName)
-	  : StmtNode(stmtNumber), procName(std::move(procName)) {}
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::CALL), procName(std::move(procName)) {}
 
   std::string serialize() const override {
 	return "Call-" + std::to_string(this->stmtNumber) + " " + procName;
@@ -316,7 +321,7 @@ class ReadNode : public StmtNode {
   std::string varName;
 
   ReadNode(uint16_t stmtNumber, std::string varName)
-	  : StmtNode(stmtNumber), varName(std::move(varName)) {}
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::READ), varName(std::move(varName)) {}
 
   std::string serialize() const override {
 	return "Read-" + std::to_string(this->stmtNumber) + " " + varName;
@@ -328,7 +333,7 @@ class PrintNode : public StmtNode {
   std::string varName;
 
   explicit PrintNode(uint16_t stmtNumber, std::string varName)
-	  : StmtNode(stmtNumber), varName(std::move(varName)) {}
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::PRINT), varName(std::move(varName)) {}
 
   std::string serialize() const override {
 	return "Print-" + std::to_string(this->stmtNumber) + " " + varName;
@@ -341,7 +346,8 @@ class WhileNode : public StmtNode {
   std::shared_ptr<BlockNode> body;
 
   WhileNode(uint16_t stmtNumber, std::shared_ptr<ExprNode> condition, std::shared_ptr<BlockNode> body)
-	  : StmtNode(stmtNumber), condition(std::move(condition)), body(std::move(body)) {}
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::WHILE), condition(std::move(condition)),
+	body(std::move(body)) {}
 
   std::string serialize() const override {
 	return "While-" + std::to_string(this->stmtNumber) + " [" + condition->serialize() + "] [" + body->serialize()
@@ -359,7 +365,7 @@ class IfNode : public StmtNode {
 		 std::shared_ptr<ExprNode> condition,
 		 std::shared_ptr<BlockNode> thenBranch,
 		 std::shared_ptr<BlockNode> elseBranch)
-	  : StmtNode(stmtNumber),
+	  : StmtNode(stmtNumber, SimpleProgram::StatementType::IF),
 		condition(std::move(condition)),
 		thenBranch(std::move(thenBranch)),
 		elseBranch(std::move(elseBranch)) {}

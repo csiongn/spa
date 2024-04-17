@@ -6,6 +6,8 @@
 
 #include "SP/AST.h"
 
+class RuntimeExtractor;
+
 class IPKBWriter {
 
  public:
@@ -141,4 +143,7 @@ class IPKBWriter {
   // While
   virtual void insertWhilePattern(std::string const &variable, const int &stmtNum) = 0;
   virtual void insertWhilePattern(std::string const &variable, const std::unordered_set<int> &stmtSet) = 0;
+
+  // Runtime, insert extractor
+  virtual void insertRuntimeExtractor(std::shared_ptr<RuntimeExtractor> runtimeExtractor) = 0;
 };

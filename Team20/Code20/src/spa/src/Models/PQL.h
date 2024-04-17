@@ -31,15 +31,20 @@ struct Synonym {
 struct Clause {
   SimpleProgram::DesignAbstraction clauseType;
   std::vector<Synonym> arguments;
+  bool isNegated = false;
 
   Clause(const SimpleProgram::DesignAbstraction &abstraction, const std::vector<Synonym> &args);
 
+  static Clause createEmptyClause();
+
+  void setNotClause();
+
   bool operator==(const Clause &other) const {
-	return clauseType == other.clauseType && arguments == other.arguments;
+	return clauseType == other.clauseType && arguments == other.arguments && isNegated == other.isNegated;
   };
 
   bool operator!=(const Clause &other) const {
-	return clauseType != other.clauseType || arguments != other.arguments;
+	return clauseType != other.clauseType || arguments != other.arguments || isNegated != other.isNegated;
   };
 };
 

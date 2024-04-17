@@ -1,0 +1,47 @@
+1 - 
+
+Select BOOLEAN such that not Calls("First", "Second")
+FALSE
+5000
+2 - 
+constant c;
+Select c with not 5 = 10
+0, 1, 2, 5
+5000
+3 - 
+procedure p;
+Select p such that not Calls* (p, "Third")
+Third
+5000
+4 - 
+procedure q;
+Select q such that not Calls* (_, q)
+First
+5000
+5 - 
+while w;
+Select w pattern not w("y", _)
+6
+5000
+6 - 
+assign a;
+Select a with not 10 = a.stmt#
+4,5,7,9,11,12,13,14,15,16,17
+5000
+7 - 
+procedure p, q;
+Select p such that not Calls* (p, q)
+First, Second, Third
+5000
+8 - 
+while w; variable v;
+Select <w, v> pattern not w(v, _)
+6 v, 6 x, 6 y, 6 z
+5000
+9 - 
+while w; constant c;
+Select c with not c.value = w.stmt#
+0, 1, 2, 5
+5000
+
+

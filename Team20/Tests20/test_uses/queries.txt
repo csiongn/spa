@@ -81,12 +81,12 @@ Select s such that Uses(s, _)
 1.12 - Uses(c, _)
 call c;
 Select c such that Uses(c, _)
-SemanticError
+none
 5000
 2.1 - uses wildcard / variable, incorrect declaration
 stmt s;
 Select s such that Uses(_, v)
-none
+SemanticError
 5000
 2.2 - uses wildcard, wildcard
 stmt s;
@@ -98,17 +98,12 @@ stmt s; procedure p1;
 Select s such that Uses(s, p1)
 SemanticError
 5000
-2.4 - Uses (pn, v) - false declaration
-print stmt pn;
-Select pn such that Uses(pn, "east")
-none
-5000
-2.5 - Uses (s, IDENT) fake ident
+2.4 - Uses (s, IDENT) fake ident
 stmt s; 
 Select s such that Uses(s, "test")
 none
 5000
-2.6 - Uses exceed statement num
+2.5 - Uses exceed statement num
 stmt s; 
 Select s such that Uses(601, "test")
 none

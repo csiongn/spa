@@ -176,6 +176,7 @@ TEST_CASE("Query Evaluator") {
 	  std::cout << "Testing query: read r; Select r;" << std::endl;
 
 	  writer->insertRead(1);
+	  writer->insertReadVar("testVar", 1);
 
 	  auto readDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
@@ -201,6 +202,7 @@ TEST_CASE("Query Evaluator") {
 	  writer->insertRead(3);
 	  writer->insertRead(4);
 	  writer->insertRead(5);
+	  writer->insertReadVar("testVar", {1, 2, 3, 4, 5});
 
 	  auto readDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::READ, "r");
@@ -241,6 +243,7 @@ TEST_CASE("Query Evaluator") {
 	  std::cout << "Testing query: print pn; Select pn;" << std::endl;
 
 	  writer->insertPrint(1);
+	  writer->insertPrintVar("testVar", 1);
 
 	  auto printDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
@@ -266,6 +269,7 @@ TEST_CASE("Query Evaluator") {
 	  writer->insertPrint(3);
 	  writer->insertPrint(4);
 	  writer->insertPrint(5);
+	  writer->insertPrintVar("testVar", {1, 2, 3, 4, 5});
 
 	  auto printDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::PRINT, "pn");
@@ -371,6 +375,7 @@ TEST_CASE("Query Evaluator") {
 	  std::cout << "Testing query: call c; Select c;" << std::endl;
 
 	  writer->insertCall(1);
+	  writer->insertCallsProcStmt("testProc", 1);
 
 	  auto callDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
@@ -396,6 +401,7 @@ TEST_CASE("Query Evaluator") {
 	  writer->insertCall(3);
 	  writer->insertCall(4);
 	  writer->insertCall(5);
+	  writer->insertCallsProcStmt("testProc", {1, 2, 3, 4, 5});
 
 	  auto callDeclaration = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
 	  auto selectSyn = PQL::Synonym(SimpleProgram::DesignEntity::CALL, "c");
@@ -747,7 +753,9 @@ TEST_CASE("Query Evaluator") {
 	  auto q = PQL::Query({varSyn}, {followClause}, {lArgSyn, rArgSyn, varSyn});
 
 	  auto res = evaluator.evaluateQuery(q);
-	  std::vector<std::string> expectedRes = {"1 2 testVar1", "1 3 testVar1", "2 3 testVar1", "3 5 testVar1", "4 5 testVar1", "1 2 testVar2", "1 3 testVar2", "2 3 testVar2", "3 5 testVar2", "4 5 testVar2"};
+	  std::vector<std::string> expectedRes =
+		  {"1 2 testVar1", "1 3 testVar1", "2 3 testVar1", "3 5 testVar1", "4 5 testVar1", "1 2 testVar2",
+		   "1 3 testVar2", "2 3 testVar2", "3 5 testVar2", "4 5 testVar2"};
 	  REQUIRE(checkVecValuesEqual(res, expectedRes));
 	}
   }

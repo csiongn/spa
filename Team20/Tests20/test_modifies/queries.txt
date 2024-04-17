@@ -86,12 +86,12 @@ none
 2.3 - Modifies (_, _)
 stmt s;
 Select s such that Modifies(_, _)
-none
+SemanticError
 5000
 2.4 - Modifies (_, v)
 stmt s; variable v;
 Select s such that Modifies(_, v)
-none
+SemanticError
 5000
 2.5 - Modifies with undeclared synonym
 stmt s;
@@ -138,5 +138,3 @@ variable v; procedure p; call c;
 Select p such that Modifies(c, p)
 SemanticError
 5000
-
-

@@ -26,6 +26,14 @@ class QueryTokenizer {
 
   void processString(std::string currentStr);
 
+  bool isAttributeString();
+
+  bool isValidAttributeField(std::string currentStr);
+
+  void checkTupleComma(std::string tupleString);
+
+  void checkTupleAttribute(std::string currArg);
+
  protected:
   // Move stream to an attribute in enclosing class so that helper functions can access
   std::shared_ptr<std::istream> iss;

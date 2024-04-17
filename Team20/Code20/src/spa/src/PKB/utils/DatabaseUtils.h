@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <utility>
 
 #include "PKB/manager/entity/EntityManager.h"
 
@@ -276,4 +277,83 @@ class DatabaseUtils {
 									manager) {
 	return manager->hasPattern();
   };
+
+  static void insertRuntimeExtractor(std::shared_ptr<RuntimeManager> manager,
+									 std::shared_ptr<RuntimeExtractor> runtimeExtractor) {
+	manager->insert(runtimeExtractor);
+  };
+
+  // NextT
+  static std::vector<int> getNextT(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->getNextT(stmtNum);
+  };
+
+  static std::vector<int> getNextTReverse(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->getNextTReverse(stmtNum);
+  };
+
+  static std::vector<int> getNextT(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getNextT();
+  };
+
+  static std::vector<int> getNextTReverse(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getNextTReverse();
+  };
+
+  static std::vector<std::pair<int, int>> getNextTRelationships(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getNextTRelationships();
+  }
+
+  static bool containsNextT(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->containsNextT(stmtNum);
+  };
+
+  static bool containsNextTReverse(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->containsNextTReverse(stmtNum);
+  };
+
+  static bool containsNextTRelationship(std::shared_ptr<RuntimeManager> manager, int stmtNum, int nextStmtNum) {
+	return manager->containsNextTRelationship(stmtNum, nextStmtNum);
+  };
+
+  static bool hasNextTRelationship(std::shared_ptr<RuntimeManager> manager) {
+	return manager->hasNextTRelationship();
+  };
+
+  // Affects
+  static std::vector<int> getAffects(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->getAffects(stmtNum);
+  };
+
+  static std::vector<int> getAffectsReverse(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->getAffectsReverse(stmtNum);
+  };
+
+  static std::vector<int> getAffects(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getAffects();
+  };
+
+  static std::vector<int> getAffectsReverse(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getAffectsReverse();
+  };
+
+  static std::vector<std::pair<int, int>> getAffectsRelationships(std::shared_ptr<RuntimeManager> manager) {
+	return manager->getAffectsRelationships();
+  }
+  static bool containsAffects(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->containsAffects(stmtNum);
+  };
+
+  static bool containsAffectsReverse(std::shared_ptr<RuntimeManager> manager, int stmtNum) {
+	return manager->containsAffectsReverse(stmtNum);
+  };
+
+  static bool containsAffectsRelationship(std::shared_ptr<RuntimeManager> manager, int stmtNum, int stmtNumTo) {
+	return manager->containsAffectsRelationship(stmtNum, stmtNumTo);
+  };
+
+  static bool hasAffectsRelationship(std::shared_ptr<RuntimeManager> manager) {
+	return manager->hasAffectsRelationship();
+  };
+
 };

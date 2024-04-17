@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -328,4 +329,30 @@ class PKBFacade : public IPKBWriter, public IPKBReader {
   bool containsWhilePatternStmt(int stmtNum) override;
   bool containsWhilePatternVariable(std::string const &variable) override;
   bool hasWhilePattern() override;
+
+  // Runtime relationship: NextT, Affects
+  void insertRuntimeExtractor(std::shared_ptr<RuntimeExtractor> runtimeExtractor) override;
+
+  // NextT
+  std::vector<int> getNextT(int stmtNum) override;
+  std::vector<int> getNextTReverse(int stmtNum) override;
+  std::vector<int> getNextT() override;
+  std::vector<int> getNextTReverse() override;
+  std::vector<std::pair<int, int>> getNextTRelationships() override;
+  bool containsNextT(int stmtNum) override;
+  bool containsNextTReverse(int stmtNum) override;
+  bool containsNextTRelationship(int stmtNum, int nextStmtNum) override;
+  bool hasNextTRelationship() override;
+
+  // Affects
+  std::vector<int> getAffects(int stmtNum) override;
+  std::vector<int> getAffectsReverse(int stmtNum) override;
+  std::vector<int> getAffects() override;
+  std::vector<int> getAffectsReverse() override;
+  std::vector<std::pair<int, int>> getAffectsRelationships() override;
+  bool containsAffects(int stmtNum) override;
+  bool containsAffectsReverse(int stmtNum) override;
+  bool containsAffectsRelationship(int stmtNum, int stmtNumTo) override;
+  bool hasAffectsRelationship() override;
+
 };

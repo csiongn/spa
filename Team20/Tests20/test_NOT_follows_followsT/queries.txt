@@ -1,0 +1,310 @@
+1 - stmtNum, stmtSyn
+stmt s;
+Select s such that not Follows(1, s)
+1,3,4,5,6,7,8,9,10
+5000
+2 - stmtNum, stmtSyn
+stmt s;
+Select s such that not Follows(s, _)
+6,7,8,9,10
+5000
+3 - stmtSyn, stmtNum
+stmt s;
+Select s such that not Follows(s, 3)
+1,3,4,5,6,7,8,9,10
+5000
+4 - wildcard, stmtNum, return all s that are the followee
+stmt s;
+Select s such that not Follows(s, _)
+6,7,8,9,10
+5000
+5 - stmtNum, wildcard, return all s that are the followers
+stmt s;
+Select s such that not Follows(_, s)
+1,5,6,7,9
+5000
+6 - stmtSyn, stmtSyn, return all s1 that are the followee
+stmt s1, s2;
+Select s1 such that not Follows(s1, s2)
+1,2,3,4,5,6,7,8,9,10
+5000
+7 - stmtSyn, stmtSyn, return all s2 that are the followers
+stmt s1, s2;
+Select s2 such that not Follows(s1, s2)
+1,2,3,4,5,6,7,8,9,10
+5000
+8 - variable, stmtNum - SemanticError
+stmt s;
+Select v such that not Follows(1, s)
+SemanticError
+5000
+9 - stmtNum, variable - SemanticError
+stmt s;
+Select s such that not Follows(s, v)
+SemanticError
+5000
+10 - same stmtSyn - Valid
+stmt s;
+Select s such that not Follows(s, s)
+1,2,3,4,5,6,7,8,9,10
+5000
+11 - same stmtNum - Valid
+stmt s;
+Select s such that not Follows(1, 1)
+1,2,3,4,5,6,7,8,9,10
+5000
+12 - stmtNum, stmtNum - Valid
+stmt s;
+Select s such that not Follows(1, 3)
+1,2,3,4,5,6,7,8,9,10
+5000
+13 - wildcard, wildcard
+stmt s;
+Select s such that not Follows(_, _)
+none
+5000
+14 - stmtNum, stmtSyn
+assign a;
+Select a such that not Follows(1, a)
+1,3,6,7,8,9,10
+5000
+15 - stmtNum, stmtSyn
+assign a;
+Select a such that not Follows(3, a)
+1,2,3,6,7,8,9,10
+5000
+16 - stmtSyn, stmtNum
+assign a;
+Select a such that not Follows(a, 3)
+1,3,6,7,8,9,10
+5000
+17 - wildcard, stmtNum - return all a that are the followee
+assign a;
+Select a such that not Follows(a, _)
+6,7,8,9,10
+5000
+18 - stmtNum, wildcard - return all a that are the followers
+assign a;
+Select a such that not Follows(_, a)
+1,6,7,9
+5000
+19 - assignStmtSyn, assignStmtSyn - return all a1 that are the followee
+assign a1, a2;
+Select a1 such that not Follows(a1, a2)
+1,2,3,6,7,8,9,10
+5000
+20 - assignStmtSyn, assignStmtSyn - return all a2 that are the followers
+assign a1, a2;
+Select a2 such that not Follows(a1, a2)
+1,2,3,6,7,8,9,10
+5000
+21 - SyntaxError
+variable v;
+Select v;
+SyntaxError
+5000
+22 - SyntaxError
+stmt s;
+select s;
+SyntaxError
+5000
+23 - stmtNum, ifs
+if ifs;
+Select ifs such that not Follows(1, ifs)
+4,5
+5000
+24 - ifs, stmtNum
+if ifs;
+Select ifs such that not Follows(ifs, 10)
+5
+5000
+25 - ifs, wildcard
+if ifs;
+Select ifs such that not Follows(ifs, _)
+none
+5000
+26 - ifs, stmtSyn
+if ifs;stmt s;
+Select s such that not Follows(ifs, s)
+1,2,3,4,5,6,7,8,9,10
+5000
+27 - stmtSyn, ifs
+stmt s;if ifs;
+Select s such that not Follows(s, ifs)
+1,2,3,4,5,6,7,8,9,10
+5000
+28 - ifs - SyntaxError
+if ifs;
+select ifs;
+SyntaxError
+5000
+29 - assign - SyntaxError - non semi colon not working
+assign a;
+select a
+SyntaxError
+5000
+30 - while
+while w;
+Select w such that not Follows(1, w)
+none
+5000
+31 - variable - Valid Follows
+variable v;
+Select v such that not Follows(1, 2)
+none
+5000
+32 - constant - Valid Follows
+constant c;
+Select c such that not Follows(1, 2)
+none
+5000
+1 - stmtNum, stmtSyn
+stmt s;
+Select s such that not Follows*(1, s)
+1,5,6,7,8,9
+5000
+2 - stmtNum, stmtSyn
+stmt s;
+Select s such that not Follows*(3, s)
+1,2,3,5,6,7,8,9
+5000
+3 - stmtSyn, stmtNum
+stmt s;
+Select s such that not Follows*(s, 3)
+3,4,5,6,7,8,9,10
+5000
+4 - wildcard, stmtNum
+stmt s;
+Select s such that not Follows*(s, _)
+6, 7, 8, 9, 10
+5000
+5 - stmtNum, wildcard
+stmt s;
+Select s such that not Follows*(_, s)
+1, 5, 6, 7, 9
+5000
+6 - stmtSyn, stmtSyn
+stmt s1, s2;
+Select s1 such that not Follows*(s1, s2)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+7 - stmtSyn, stmtSyn
+stmt s1, s2;
+Select s2 such that not Follows*(s1, s2)
+1,2,3,4,5,6,7,8,9,10
+5000
+8 - v not declared - SemanticError
+stmt s;
+Select v such that not Follows*(1, s)
+SemanticError
+5000
+9 - v not declared - SemanticError
+stmt s;
+Select s such that not Follows*(s, v)
+SemanticError
+5000
+10 - same stmtSyn - Valid
+stmt s;
+Select s such that not Follows*(s, s)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+11 - same stmtNum - Valid
+stmt s;
+Select s such that not Follows*(1, 1)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+12 - stmtNum, stmtNum - Relationship does not exist
+stmt s;
+Select s such that not Follows*(1, 5)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+13 - wildcard, wildcard
+stmt s;
+Select s such that not Follows*(_, _)
+none
+5000
+14 - stmtNum, stmtSyn
+assign a;
+Select a such that not Follows*(1, a)
+1, 6, 7, 8, 9
+5000
+15 - stmtNum, stmtSyn
+assign a;
+Select a such that not Follows*(3, a)
+1, 2, 3, 6, 7, 8, 9
+5000
+16 - stmtSyn, stmtNum
+assign a;
+Select a such that not Follows*(a, 3)
+3, 6, 7, 8, 9, 10
+5000
+17 - wildcard, stmtNum
+assign a;
+Select a such that not Follows*(a, _)
+6, 7, 8, 9, 10
+5000
+18 - stmtNum, wildcard
+assign a;
+Select a such that not Follows*(_, a)
+1, 6, 7, 9
+5000
+19 - assignStmtSyn, assignStmtSyn
+assign a1, a2;
+Select a1 such that not Follows*(a1, a2)
+1, 2, 3, 6, 7, 8, 9, 10
+5000
+20 - assignStmtSyn, assignStmtSyn
+assign a1, a2;
+Select a2 such that not Follows*(a1, a2)
+1, 2, 3, 6, 7, 8, 9, 10
+5000
+21 - SyntaxError
+variable v;
+Select v;
+SyntaxError
+5000
+22 - SyntaxError
+stmt s;
+select s;
+SyntaxError
+5000
+23 - stmtNum, ifs
+if ifs;
+Select ifs such that not Follows*(1, ifs)
+5
+5000
+24 - ifs, stmtNum
+if ifs;
+Select ifs such that not Follows*(ifs, 10)
+5
+5000
+25 - ifs, wildcard
+if ifs;
+Select ifs such that not Follows*(ifs, _)
+none
+5000
+26 - ifs, stmtSyn
+if ifs; stmt s;
+Select s such that not Follows*(ifs, s)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+27 - stmtSyn, ifs
+stmt s; if ifs;
+Select s such that not Follows*(s, ifs)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+5000
+28 - ifs - SyntaxError
+if ifs;
+select ifs;
+SyntaxError
+5000
+29 - assign - SyntaxError - no semi colon
+assign a;
+select a
+SyntaxError
+5000
+30 - while
+while w;
+Select w such that not Follows*(1, w)
+none
+5000

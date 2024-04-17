@@ -9,8 +9,11 @@
 namespace QueryEvaluator {
 class RelationshipEvaluator : protected ClauseEvaluator {
  public:
-  RelationshipEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {};
+  RelationshipEvaluator(std::shared_ptr<IPKBReader> r,
+						const PQL::Clause &cl,
+						std::shared_ptr<ResultStore> resultStore,
+						bool createTable)
+	  : ClauseEvaluator(r, cl, resultStore, createTable) {};
 
   bool evaluate() override = 0;
 

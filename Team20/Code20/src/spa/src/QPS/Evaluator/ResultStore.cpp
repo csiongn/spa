@@ -1,29 +1,47 @@
 #include "ResultStore.h"
 
-#include <unordered_set>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
+
+#include "../Utils/EvaluatorUtils.h"
 
 namespace QueryEvaluator {
 void ResultStore::insertResult(std::shared_ptr<Result> res) {
   results.push_back(res);
+  for (auto &colName : res->colNames) {
+	addedIdents.insert(colName);
+  }
 }
 
 std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Synonym> &selectSyns) {
+  bool selectBoolean = selectSyns[0].entityType == SimpleProgram::DesignEntity::BOOLEAN;
   if (results.empty()) {
-	// no result
+	if (selectBoolean) {
+	  // All clauses are T/F clauses and there is no result added/initialised
+	  return {"TRUE"};
+	}
 	return {};
   }
 
   joinResults();
   if (results.empty()) {
+	if (selectBoolean) {
+	  // result after joining became empty
+	  return {"FALSE"};
+	}
 	return {};
   }
 
   std::shared_ptr<Result> res = results[0];
   if (selectSyns.size() == 1) {
-	size_t selectSynIndex = res->colNameToIndex.at(selectSyns[0].identity);
+	if (selectBoolean) {
+	  return {"TRUE"};
+	}
+
+	size_t selectSynIndex = res->colNameToIndex.at(getSelectColName(selectSyns[0]));
 	std::vector<std::string> selectResult = res->table[selectSynIndex];
 	return removeDuplicates(selectResult);
   } else {
@@ -31,22 +49,28 @@ std::vector<std::string> ResultStore::retrieveSelect(const std::vector<PQL::Syno
 	std::vector<size_t> selectSynIndexes;
 	selectSynIndexes.reserve(selectSyns.size());
 	for (const PQL::Synonym &syn : selectSyns) {
-	  selectSynIndexes.push_back(res->colNameToIndex.at(syn.identity));
+	  selectSynIndexes.push_back(res->colNameToIndex.at(getSelectColName(syn)));
 	}
 
+	std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash> addedRows;
 	std::vector<std::string> selectResult;
 	size_t numRows = res->table[0].size();
 	selectResult.reserve(numRows);
 	for (size_t rowIndex = 0; rowIndex < numRows; rowIndex++) {
+	  std::vector<std::string> row = getSelectedColsAtRow(res, selectSynIndexes, rowIndex);
+	  if (addedRows.find(row) != addedRows.end()) {
+		continue;
+	  }
+
 	  std::string curr;
-	  for (size_t ind = 0; ind < selectSynIndexes.size(); ind++) {
-		size_t colIndex = selectSynIndexes[ind];
-		curr += res->table[colIndex][rowIndex];
+	  for (size_t ind = 0; ind < row.size(); ind++) {
+		curr += row[ind];
 		if (ind != selectSynIndexes.size() - 1) {
 		  curr += " ";
 		}
 	  }
 	  selectResult.push_back(curr);
+	  addedRows.insert(row);
 	}
 	return selectResult;
   }
@@ -75,7 +99,7 @@ void ResultStore::joinResults() {
 
 	results.erase(results.begin());
 	results.erase(results.begin());
-	results.push_back(newResult);
+	results.insert(results.begin(), newResult);
   }
 }
 
@@ -91,5 +115,37 @@ std::vector<std::string> ResultStore::removeDuplicates(const std::vector<std::st
   }
 
   return noDuplicates;
+}
+
+std::string ResultStore::getSelectColName(const PQL::Synonym &selectSyn) {
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+  switch (selectSyn.entityType) {
+	case SimpleProgram::DesignEntity::CALL:
+	case SimpleProgram::DesignEntity::READ:
+	case SimpleProgram::DesignEntity::PRINT:
+	  if (selectSyn.attribute == SimpleProgram::AttributeRef::NAME) {
+		return selectSyn.identity + "." + attrRefMap[selectSyn.entityType];
+	  }
+	default:
+	  return selectSyn.identity;
+  }
+}
+
+bool ResultStore::containsColumn(const std::string &ident) {
+  return addedIdents.find(ident) != addedIdents.end();
+}
+
+std::vector<std::string> ResultStore::getSelectedColsAtRow(std::shared_ptr<Result> res,
+														   const std::vector<size_t> &selectSynIndexes,
+														   size_t rowIndex) {
+  std::vector<std::string> row;
+  for (auto colIndex : selectSynIndexes) {
+	row.push_back(res->table[colIndex][rowIndex]);
+  }
+  return row;
 }
 }

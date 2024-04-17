@@ -1,4 +1,8 @@
+#include <functional>
 #include <string>
+#include <unordered_set>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "WithEvaluator.h"
@@ -7,11 +11,13 @@ namespace QueryEvaluator {
 
 bool WithEvaluator::evaluate() {
   if (isAlwaysTrue()) {
-	return true;
+	// return true if not isNegated, false if isNegated, opposite of isNegated
+	return !clause.isNegated;
   }
 
   if (isAlwaysFalse()) {
-	return false;
+	// return false if not isNegated, true if isNegated, same as value of isNegated
+	return clause.isNegated;
   }
 
   // the two on top should have already handled both non-AttrRef
@@ -26,7 +32,6 @@ bool WithEvaluator::evaluate() {
 	return handleSingleAttrRef();
   }
 
-  // uncaught cases
   return false;
 }
 
@@ -73,33 +78,65 @@ bool WithEvaluator::handleSingleAttrRef() {
 
   if (hasMultiAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
 	// CALL/READ/PRINT & IDENT, NEED TO QUERY PKB TO GET THE RESULT
+	std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>()>> funcMap = {
+		{SimpleProgram::DesignEntity::CALL, [this, rArg] { return reader->getCallsProcStmtNum(rArg.identity); }},
+		{SimpleProgram::DesignEntity::READ, [this, rArg] { return reader->getReadStmtNum(rArg.identity); }},
+		{SimpleProgram::DesignEntity::PRINT, [this, rArg] { return reader->getPrintStmtNum(rArg.identity); }},
+	};
+
 	std::vector<int> stmtNums;
-	switch (lArg.entityType) {
-	  case SimpleProgram::DesignEntity::CALL:
-		stmtNums = reader->getCallsProcStmtNum(rArg.identity);
-		break;
-	  case SimpleProgram::DesignEntity::READ:
-		stmtNums = reader->getReadStmtNum(rArg.identity);
-		break;
-	  case SimpleProgram::DesignEntity::PRINT:
-		stmtNums = reader->getPrintStmtNum(rArg.identity);
-		break;
-	  default:
-		stmtNums = {};
+	if (funcMap.find(lArg.entityType) != funcMap.end()) {
+	  stmtNums = funcMap[lArg.entityType]();
 	}
 
+	if (clause.isNegated) {
+	  stmtNums = negateIntResults(lArg, stmtNums);
+	}
 	if (stmtNums.empty()) {
 	  return false;
 	}
 
-	resultStore->createColumn(lArg, stmtNums);
+	if (createTable) {
+	  resultStore->createColumn(lArg, stmtNums);
+	}
 	return true;
   }
 
-  if ((hasIntegerAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::INTEGER)
-	  || (hasNameAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT)) {
-	std::vector<std::string> values = {rArg.identity};
-	resultStore->createColumn(lArg, values);
+  if (hasIntegerAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::INTEGER) {
+	std::vector<int> values = getAllIntResults(lArg);
+	std::vector<int> fixed = {stoi(rArg.identity)};
+	values = getIntersection(values, fixed);
+
+	if (clause.isNegated) {
+	  values = negateIntResults(lArg, values);
+	}
+
+	if (values.empty()) {
+	  return false;
+	}
+
+	if (createTable) {
+	  resultStore->createColumn(lArg, values);
+	}
+	return true;
+  }
+
+  if (hasNameAttrRef(lArg) && rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
+	std::vector<std::string> values = getIdentValues(lArg);
+	std::vector<std::string> fixed = {rArg.identity};
+	values = getIntersection(values, fixed);
+
+	if (clause.isNegated) {
+	  values = negateStringResults(lArg, values);
+	}
+
+	if (values.empty()) {
+	  return false;
+	}
+
+	if (createTable) {
+	  resultStore->createColumn(lArg, values);
+	}
 	return true;
   }
 
@@ -114,8 +151,8 @@ bool WithEvaluator::handleDoubleAttrRef() {
   }
 
   if (lArg.attribute == SimpleProgram::AttributeRef::INTEGER) {
-	std::vector<int> lValues = ClauseEvaluator::getStmtNums(lArg);
-	std::vector<int> rValues = ClauseEvaluator::getStmtNums(rArg);
+	std::vector<int> lValues = ClauseEvaluator::getAllIntResults(lArg);
+	std::vector<int> rValues = ClauseEvaluator::getAllIntResults(rArg);
 	return createDoubleColumnResult(lArg, rArg, lValues, rValues);
   } else if (lArg.attribute == SimpleProgram::AttributeRef::NAME) {
 	std::vector<std::string> lValues = getIdentValues(lArg);
@@ -168,40 +205,168 @@ bool WithEvaluator::canCompare(const PQL::Synonym &lArg, const PQL::Synonym &rAr
 }
 
 std::vector<std::string> WithEvaluator::getIdentValues(const PQL::Synonym &syn) {
-  switch (syn.entityType) {
-	case SimpleProgram::DesignEntity::PROCEDURE:
-	  return reader->getAllProcedures();
-	case SimpleProgram::DesignEntity::CALL:
-	  return reader->getCallsProcName();
-	case SimpleProgram::DesignEntity::VARIABLE:
-	  return reader->getAllVariables();
-	case SimpleProgram::DesignEntity::READ:
-	  return reader->getReadVariable();
-	case SimpleProgram::DesignEntity::PRINT:
-	  return reader->getPrintVariable();
-	default:
-	  return {};
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return reader->getAllProcedures(); }},
+	  {SimpleProgram::DesignEntity::CALL, [this] { return reader->getCallsProcName(); }},
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return reader->getAllVariables(); }},
+	  {SimpleProgram::DesignEntity::READ, [this] { return reader->getReadVariable(); }},
+	  {SimpleProgram::DesignEntity::PRINT, [this] { return reader->getPrintVariable(); }},
+  };
+
+  if (funcMap.find(syn.entityType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[syn.entityType]();
 }
 
 template<typename T>
 bool WithEvaluator::createDoubleColumnResult(const PQL::Synonym &lArg,
 											 const PQL::Synonym &rArg,
 											 std::vector<T> &lValues,
-											 const std::vector<T> &rValues) {
+											 std::vector<T> &rValues) {
   if (lValues.empty() || rValues.empty()) {
 	return false;
   }
 
-  // use the smaller result in hope of shorter join time
-  if (rValues.size() < lValues.size()) {
-	// lValue will always be the smaller size one
-	lValues = rValues;
+  std::vector<T> intersection;
+  if constexpr (std::is_same_v<T, int>) {
+	intersection = ClauseEvaluator::getIntersection(lValues, rValues);
+  } else if constexpr (std::is_same_v<T, std::string>) {
+	intersection = getStringIntersection(lValues, rValues);
+  } else {
+	return false;
   }
 
-  resultStore->createColumn(lArg, lValues);
-  resultStore->createColumn(rArg, lValues);
+  if (clause.isNegated) {
+	lValues = negateResults(lArg, intersection);
+	rValues = negateResults(rArg, intersection);
+  } else {
+	lValues = intersection;
+	rValues = intersection;
+  }
 
+  if (lValues.empty() || rValues.empty()) {
+	return false;
+  }
+
+  if (createTable) {
+	checkAndInsertResult(lArg, lValues, rArg, rValues);
+  }
   return true;
+}
+
+std::vector<std::string> WithEvaluator::getStringIntersection(std::vector<std::string> &v1,
+															  std::vector<std::string> &v2) {
+  std::unordered_set<std::string> stringSet = std::unordered_set<std::string>(v1.begin(), v1.end());
+  std::vector<std::string> res;
+
+  for (auto &v : v2) {
+	if (stringSet.find(v) != stringSet.end()) {
+	  res.push_back(v);
+	}
+  }
+  return res;
+}
+
+std::vector<std::string> WithEvaluator::negateStringResults(const PQL::Synonym &syn,
+															const std::vector<std::string> &selected) {
+  std::vector<std::string> stringResults = getIdentValues(syn);
+  std::vector<std::string> isNegatedResults;
+  std::unordered_set<std::string> selectedSet = std::unordered_set<std::string>(selected.begin(), selected.end());
+
+  for (auto const &val : stringResults) {
+	if (selectedSet.find(val) == selectedSet.end()) {
+	  isNegatedResults.push_back(val);
+	}
+  }
+
+  return isNegatedResults;
+}
+
+template<typename T>
+std::vector<T> WithEvaluator::negateResults(const PQL::Synonym &syn, const std::vector<T> &selected) {
+  if constexpr (std::is_same_v<T, int>) {
+	return negateIntResults(syn, selected);
+  } else if constexpr (std::is_same_v<T, std::string>) {
+	return negateStringResults(syn, selected);
+  }
+
+  return {};
+}
+
+bool WithEvaluator::hasIntResults(const PQL::Synonym &syn) {
+  std::unordered_set<SimpleProgram::DesignEntity> intResultOnlySet = {
+	  SimpleProgram::DesignEntity::CALL,
+	  SimpleProgram::DesignEntity::READ,
+	  SimpleProgram::DesignEntity::PRINT
+  };
+
+  return intResultOnlySet.find(syn.entityType) != intResultOnlySet.end();
+}
+
+std::pair<std::vector<std::string>, std::vector<std::string>> WithEvaluator::retrieveIntResults(const PQL::Synonym &syn,
+																								const std::vector<std::string> &values) {
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<int>(std::string)>> funcMap = {
+	  {SimpleProgram::DesignEntity::CALL,
+	   [this](const std::string &ident) { return reader->getCallsProcStmtNum(ident); }},
+	  {SimpleProgram::DesignEntity::READ,
+	   [this](const std::string &ident) { return reader->getReadStmtNum(ident); }},
+	  {SimpleProgram::DesignEntity::PRINT,
+	   [this](const std::string &ident) { return reader->getPrintStmtNum(ident); }},
+  };
+
+  std::pair<std::vector<std::string>, std::vector<std::string>> result;
+  for (const std::string &ident : values) {
+	std::vector<int> res = funcMap[syn.entityType](ident);
+	for (auto &stmtNum : res) {
+	  std::get<0>(result).push_back(std::to_string(stmtNum));
+	  std::get<1>(result).push_back(ident);
+	}
+  }
+
+  return result;
+}
+
+template<typename T>
+void WithEvaluator::checkAndInsertResult(const PQL::Synonym &lArg,
+										 const std::vector<T> &lValues,
+										 const PQL::Synonym &rArg,
+										 const std::vector<T> &rValues) {
+  std::vector<std::vector<std::string>> table;
+  std::vector<std::string> colNames;
+  if constexpr (std::is_same_v<T, std::string>) {
+	table = {lValues, rValues};
+	colNames = {getAttrRefColName(lArg), getAttrRefColName(rArg)};
+  } else {
+	// T == int
+	table = {intToStringVector(lValues), intToStringVector(rValues)};
+	colNames = {lArg.identity, rArg.identity};
+  }
+
+  std::unordered_map<std::string, size_t> colNameToIndex;
+  for (size_t i = 0; i < colNames.size(); i++) {
+	colNameToIndex[colNames[i]] = i;
+  }
+  Result newResult{table, colNames, colNameToIndex};
+  resultStore->insertResult(std::make_shared<Result>(newResult));
+}
+
+std::string WithEvaluator::getAttrRefColName(const PQL::Synonym &syn) {
+  if (attrRefMap.find(syn.entityType) != attrRefMap.end()) {
+	return syn.identity + "." + attrRefMap[syn.entityType];
+  }
+
+  return syn.identity;
+}
+
+std::vector<std::string> WithEvaluator::intToStringVector(const std::vector<int>& v) {
+  std::vector<std::string> stringVec;
+  stringVec.reserve(v.size());
+  for (auto &elem : v) {
+	stringVec.push_back(std::to_string(elem));
+  }
+
+  return stringVec;
 }
 }

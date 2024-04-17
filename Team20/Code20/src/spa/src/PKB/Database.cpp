@@ -111,3 +111,7 @@ std::shared_ptr<IfPatternManager> Database::getIfPatternManager() {
 std::shared_ptr<WhilePatternManager> Database::getWhilePatternManager() {
   return whilePatternManager;
 }
+
+std::shared_ptr<RuntimeManager> Database::getRuntimeManager() {
+  return runtimeManager;
+}

@@ -1,9 +1,12 @@
 #include "EntityEvaluator.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
 
 namespace QueryEvaluator {
 
@@ -34,18 +37,20 @@ bool EntityEvaluator::evaluate() {
 	  return getReversedRelationship();
 	}
   }
-  // 7 cases = (SYN, IDENT)
-  if (rArg.entityType == SimpleProgram::DesignEntity::IDENT) {
-	return getReversedRelationship();
+
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return getDoubleSynonym(); }},
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return getDoubleSynonym(); }},
+	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return getSynonymWildcard(); }},
+	  {SimpleProgram::DesignEntity::IDENT, [this] { return getReversedRelationship(); }},
+  };
+
+  if (funcMap.find(rArg.entityType) == funcMap.end()) {
+	// unhandled cases
+	return false;
   }
 
-  // 7 cases = (SYN, _)
-  if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-	return getSynonymWildcard();
-  }
-
-  // 7 cases = (SYN, VAR)
-  return getDoubleSynonym();
+  return funcMap[rArg.entityType]();
 }
 
 bool EntityEvaluator::isAlwaysFalse() {
@@ -56,61 +61,81 @@ bool EntityEvaluator::isAlwaysFalse() {
 bool EntityEvaluator::hasRelationship() {
   PQL::Synonym lArg = clause.arguments[0];
   std::string rIdent = clause.arguments[1].identity;
+  bool isNotEmpty = false;
 
   if (lArg.entityType == SimpleProgram::DesignEntity::STMT_NO) {
 	// handles XXX(STMT_NO, IDENT) = USES & MODIFIES STATEMENT
 	int stmtNum = stoi(clause.arguments[0].identity);
 
-	return hasRelationship(clause.clauseType, stmtNum, rIdent);
+	isNotEmpty = hasRelationship(clause.clauseType, stmtNum, rIdent);
   } else {
 	// handles XXX(IDENT, IDENT) = USESP & MODIFIESP & CALLS & CALLST
 	std::string lIdent = clause.arguments[0].identity;
 
-	return hasRelationship(clause.clauseType, lIdent, rIdent);
+	isNotEmpty = hasRelationship(clause.clauseType, lIdent, rIdent);
+  }
+
+  if (clause.isNegated) {
+	return !isNotEmpty;
+  } else {
+	return isNotEmpty;
   }
 }
 
 bool EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, int stmtNum,
 									  const std::string &ident) {
-  switch (relationship) {
-	case SimpleProgram::DesignAbstraction::USESS:
-	  return reader->containsUsesRelationship(stmtNum, ident);
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
-	  return reader->containsModifiesRelationship(stmtNum, ident);
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return false;
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESS,
+	   [this, stmtNum, ident] { return reader->containsUsesRelationship(stmtNum, ident); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESS,
+	   [this, stmtNum, ident] { return reader->containsModifiesRelationship(stmtNum, ident); }},
+  };
+
+  if (funcMap.find(relationship) == funcMap.end()) {
+	return false;
   }
+
+  return funcMap[relationship]();
 }
 
 bool
 EntityEvaluator::hasRelationship(const SimpleProgram::DesignAbstraction &relationship, const std::string &lIdent,
 								 const std::string &rIdent) {
-  switch (relationship) {
-	case SimpleProgram::DesignAbstraction::USESP:
-	  return reader->containsUsesProcRelationship(lIdent, rIdent);
-	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  return reader->containsModifiesProcRelationship(lIdent, rIdent);
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  return reader->containsCallsProcRelationship(lIdent, rIdent);
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  return reader->containsCallsTProcRelationship(lIdent, rIdent);
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return false;
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESP,
+	   [this, lIdent, rIdent] { return reader->containsUsesProcRelationship(lIdent, rIdent); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESP,
+	   [this, lIdent, rIdent] { return reader->containsModifiesProcRelationship(lIdent, rIdent); }},
+	  {SimpleProgram::DesignAbstraction::CALLS,
+	   [this, lIdent, rIdent] { return reader->containsCallsProcRelationship(lIdent, rIdent); }},
+	  {SimpleProgram::DesignAbstraction::CALLST,
+	   [this, lIdent, rIdent] { return reader->containsCallsTProcRelationship(lIdent, rIdent); }},
+  };
+
+  if (funcMap.find(relationship) == funcMap.end()) {
+	return false;
   }
+
+  return funcMap[relationship]();
 }
 
 bool EntityEvaluator::hasAtLeastOneRelationship() {
   // handles CALLS/CALLST (_, _),
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  return reader->hasCallsProcRelationship();
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  return reader->hasCallsTProcRelationship();
-	default:
-	  return false;
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::CALLS, [this] { return reader->hasCallsProcRelationship(); }},
+	  {SimpleProgram::DesignAbstraction::CALLST, [this] { return reader->hasCallsTProcRelationship(); }},
+  };
+
+  bool isNotEmpty = false;
+  if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	isNotEmpty = funcMap[clause.clauseType]();
   }
+
+  if (clause.isNegated) {
+	return !isNotEmpty;
+  }
+
+  return isNotEmpty;
 }
 
 bool EntityEvaluator::getForwardRelationship() {
@@ -123,40 +148,26 @@ bool EntityEvaluator::getRightResults() {
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
 
-  std::vector<std::string> vars;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:
-	  vars = reader->getUsesVariable(stoi(lArg.identity));
-	  break;
-	case SimpleProgram::DesignAbstraction::USESP:
-	  vars = reader->getUsesProcVariable(lArg.identity);
-	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
-	  vars = reader->getModifiesVariable(stoi(lArg.identity));
-	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  vars = reader->getModifiesProcVariable(lArg.identity);
-	  break;
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  vars = reader->getCallsProcCallee(lArg.identity);
-	  break;
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  vars = reader->getCallsTProcCallee(lArg.identity);
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for statement only queries
-	  vars = {};
-  }
-
+  std::vector<std::string> rResults = getUniqueValues(lArg);
   if (rArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-	return !vars.empty();
+	if (clause.isNegated) {
+	  return rResults.empty();
+	} else {
+	  return !rResults.empty();
+	}
   }
 
-  if (vars.empty()) {
+  if (clause.isNegated) {
+	rResults = negateStringResults(rArg, rResults);
+  }
+
+  if (rResults.empty()) {
 	return false;
   }
 
-  resultStore->createColumn(rArg, vars);
+  if (createTable) {
+	resultStore->createColumn(rArg, rResults);
+  }
   return true;
 }
 
@@ -175,44 +186,48 @@ bool EntityEvaluator::getLeftResults() {
 	  || lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	// USESP/MODIFIESP/CALLS/CALLST
 	std::vector<std::string> procNames = getUniqueLeftProcNames(ident);
+
+	if (clause.isNegated) {
+	  procNames = negateStringResults(lArg, procNames);
+	}
+
 	if (procNames.empty()) {
 	  return false;
 	}
 
-	if (lArg.entityType != SimpleProgram::DesignEntity::WILDCARD) {
+	if (lArg.entityType != SimpleProgram::DesignEntity::WILDCARD && createTable) {
 	  resultStore->createColumn(lArg, procNames);
 	}
 	return true;
   } else {
+	std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+		{SimpleProgram::DesignAbstraction::USESS, [this, ident] { return reader->getUsesStmt(ident); }},
+		{SimpleProgram::DesignAbstraction::MODIFIESS, [this, ident] { return reader->getModifiesStmt(ident); }},
+	};
+
 	std::vector<int> stmtNums;
-	switch (clause.clauseType) {
-	  case SimpleProgram::DesignAbstraction::USESS:
-		stmtNums = reader->getUsesStmt(ident);
-		break;
-	  case SimpleProgram::DesignAbstraction::MODIFIESS:
-		stmtNums = reader->getModifiesStmt(ident);
-		break;
-	  default:
-		// TODO: throw illegal argument, not allowed relationship type for statement only queries
-		stmtNums = {};
+	if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	  stmtNums = funcMap[clause.clauseType]();
 	}
 
 	if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
 	  return !stmtNums.empty();
 	}
 
-	if (stmtNums.empty()) {
-	  return false;
-	}
-
-	std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(lArg);
+	std::vector<int> synStmtNums = ClauseEvaluator::getAllIntResults(lArg);
 	std::vector<int> lResults = ClauseEvaluator::getIntersection(synStmtNums, stmtNums);
+
+	if (clause.isNegated) {
+	  lResults = negateIntResults(lArg, lResults);
+	}
 
 	if (lResults.empty()) {
 	  return false;
 	}
 
-	resultStore->createColumn(lArg, lResults);
+	if (createTable) {
+	  resultStore->createColumn(lArg, lResults);
+	}
 	return true;
   }
 }
@@ -222,20 +237,33 @@ bool EntityEvaluator::getSynonymWildcard() {
   PQL::Synonym lArg = clause.arguments[0];
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
 	std::vector<std::string> lResults = getUniqueLeftProcNames();
+
+	if (clause.isNegated) {
+	  lResults = negateStringResults(lArg, lResults);
+	}
+
 	if (lResults.empty()) {
 	  return false;
 	}
 
-	resultStore->createColumn(lArg, lResults);
+	if (createTable) {
+	  resultStore->createColumn(lArg, lResults);
+	}
 	return true;
   } else {
 	std::vector<int> lResults = getUniqueStmtNums(lArg);
 
+	if (clause.isNegated) {
+	  lResults = negateIntResults(lArg, lResults);
+	}
+
 	if (lResults.empty()) {
 	  return false;
 	}
 
-	resultStore->createColumn(lArg, lResults);
+	if (createTable) {
+	  resultStore->createColumn(lArg, lResults);
+	}
 	return true;
   }
 }
@@ -245,11 +273,16 @@ bool EntityEvaluator::getWildcardSynonym() {
   PQL::Synonym rArg = clause.arguments[1];
   std::vector<std::string> rResults = getUniqueValues();
 
+  if (clause.isNegated) {
+	rResults = negateStringResults(rArg, rResults);
+  }
   if (rResults.empty()) {
 	return false;
   }
 
-  resultStore->createColumn(rArg, rResults);
+  if (createTable) {
+	resultStore->createColumn(rArg, rResults);
+  }
   return true;
 }
 
@@ -258,15 +291,17 @@ bool EntityEvaluator::getDoubleSynonym() {
   PQL::Synonym lArg = clause.arguments[0];
   PQL::Synonym rArg = clause.arguments[1];
   std::vector<std::string> values = getUniqueValues();
-  std::vector<std::string> lResults = {};
-  std::vector<std::string> rResults = {};
+  std::vector<std::pair<std::string, std::string>> result;
   if (lArg.entityType == SimpleProgram::DesignEntity::PROCEDURE) {
 	std::vector<std::string> lValues = getUniqueLeftProcNames();
 	for (const auto &v1 : lValues) {
 	  for (const auto &v2 : values) {
+		if (lArg == rArg && v1 != v2) {
+		  // both same syn, need v1 == v2
+		  continue;
+		}
 		if (hasRelationship(clause.clauseType, v1, v2)) {
-		  lResults.push_back(v1);
-		  rResults.push_back(v2);
+		  result.emplace_back(v1, v2);
 		}
 	  }
 	}
@@ -275,94 +310,169 @@ bool EntityEvaluator::getDoubleSynonym() {
 	for (auto v1 : lValues) {
 	  for (const auto &v2 : values) {
 		if (hasRelationship(clause.clauseType, v1, v2)) {
-		  lResults.push_back(std::to_string(v1));
-		  rResults.push_back(v2);
+		  result.emplace_back(std::to_string(v1), v2);
 		}
 	  }
 	}
   }
 
-  std::vector<std::vector<std::string>> table = {lResults, rResults};
-  std::vector<std::string> colNames = {lArg.identity, rArg.identity};
-  std::unordered_map<std::string, size_t> colNameToIndex;
-  for (size_t i = 0; i < colNames.size(); i++) {
-	colNameToIndex[colNames[i]] = i;
+  if (clause.isNegated) {
+	result = negateDoubleSyn(result);
   }
-  resultStore->insertResult(std::make_shared<Result>(table, colNames, colNameToIndex));
+
+  if (result.empty()) {
+	return false;
+  }
+
+  if (createTable) {
+	insertDoubleColumnResult(result);
+  }
+
   return true;
 }
 
 std::vector<int> EntityEvaluator::getUniqueStmtNums(const PQL::Synonym &syn) {
   // get all possible stmtNum that satisfies the relationship
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESS, [this] { return reader->getUsesStmt(); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESS, [this] { return reader->getModifiesStmt(); }},
+  };
+
   std::vector<int> keyStmtNums;
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:
-	  keyStmtNums = reader->getUsesStmt();
-	  break;
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
-	  keyStmtNums = reader->getModifiesStmt();
-	  break;
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return {};
+  if (funcMap.find(clause.clauseType) != funcMap.end()) {
+	keyStmtNums = funcMap[clause.clauseType]();
   }
 
-  std::vector<int> synStmtNums = ClauseEvaluator::getStmtNums(syn);
+  if (keyStmtNums.empty()) {
+	return {};
+  }
+
+  std::vector<int> synStmtNums = ClauseEvaluator::getAllIntResults(syn);
   return ClauseEvaluator::getIntersection(keyStmtNums, synStmtNums);
 }
 
 std::vector<std::string> EntityEvaluator::getUniqueLeftProcNames() {
   // get all possible procedure names for left arg
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESP:
-	  return reader->getUsesProcName();
-	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  return reader->getModifiesProcName();
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  return reader->getCallsProcCaller();
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  return reader->getCallsTProcCaller();
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return {};
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESP, [this] { return reader->getUsesProcName(); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESP, [this] { return reader->getModifiesProcName(); }},
+	  {SimpleProgram::DesignAbstraction::CALLS, [this] { return reader->getCallsProcCaller(); }},
+	  {SimpleProgram::DesignAbstraction::CALLST, [this] { return reader->getCallsTProcCaller(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[clause.clauseType]();
 }
 
 std::vector<std::string> EntityEvaluator::getUniqueLeftProcNames(const std::string &ident) {
   // get all possible procedure names that satisfies the relationship for left arg
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESP:
-	  return reader->getUsesProcName(ident);
-	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  return reader->getModifiesProcName(ident);
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  return reader->getCallsProcCaller(ident);
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  return reader->getCallsTProcCaller(ident);
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return {};
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESP, [this, ident] { return reader->getUsesProcName(ident); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESP, [this, ident] { return reader->getModifiesProcName(ident); }},
+	  {SimpleProgram::DesignAbstraction::CALLS, [this, ident] { return reader->getCallsProcCaller(ident); }},
+	  {SimpleProgram::DesignAbstraction::CALLST, [this, ident] { return reader->getCallsTProcCaller(ident); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[clause.clauseType]();
 }
 
 std::vector<std::string> EntityEvaluator::getUniqueValues() {
   // get all possible values that satisfies the relationship for right arg
-  switch (clause.clauseType) {
-	case SimpleProgram::DesignAbstraction::USESS:
-	  return reader->getUsesVariable();
-	case SimpleProgram::DesignAbstraction::USESP:
-	  return reader->getUsesProcVariable();
-	case SimpleProgram::DesignAbstraction::MODIFIESS:
-	  return reader->getModifiesVariable();
-	case SimpleProgram::DesignAbstraction::MODIFIESP:
-	  return reader->getModifiesProcVariable();
-	case SimpleProgram::DesignAbstraction::CALLS:
-	  return reader->getCallsProcCallee();
-	case SimpleProgram::DesignAbstraction::CALLST:
-	  return reader->getCallsTProcCallee();
-	default:
-	  // TODO: throw illegal argument, not allowed relationship type for queries with entity reference
-	  return {};
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESS, [this] { return reader->getUsesVariable(); }},
+	  {SimpleProgram::DesignAbstraction::USESP, [this] { return reader->getUsesProcVariable(); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESS, [this] { return reader->getModifiesVariable(); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESP, [this] { return reader->getModifiesProcVariable(); }},
+	  {SimpleProgram::DesignAbstraction::CALLS, [this] { return reader->getCallsProcCallee(); }},
+	  {SimpleProgram::DesignAbstraction::CALLST, [this] { return reader->getCallsTProcCallee(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
   }
+
+  return funcMap[clause.clauseType]();
+}
+
+std::vector<std::string> EntityEvaluator::getUniqueValues(const PQL::Synonym lArg) {
+  // get all possible values that satisfies the relationship for right arg
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::USESS, [this, lArg] { return reader->getUsesVariable(stoi(lArg.identity)); }},
+	  {SimpleProgram::DesignAbstraction::USESP, [this, lArg] { return reader->getUsesProcVariable(lArg.identity); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESS,
+	   [this, lArg] { return reader->getModifiesVariable(stoi(lArg.identity)); }},
+	  {SimpleProgram::DesignAbstraction::MODIFIESP,
+	   [this, lArg] { return reader->getModifiesProcVariable(lArg.identity); }},
+	  {SimpleProgram::DesignAbstraction::CALLS, [this, lArg] { return reader->getCallsProcCallee(lArg.identity); }},
+	  {SimpleProgram::DesignAbstraction::CALLST, [this, lArg] { return reader->getCallsTProcCallee(lArg.identity); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
+  }
+
+  return funcMap[clause.clauseType]();
+}
+
+std::vector<std::string> EntityEvaluator::negateStringResults(const PQL::Synonym &syn,
+															  const std::vector<std::string> &selected) {
+  std::vector<std::string> stringResults = getUniqueIdent(syn);
+  std::vector<std::string> negatedResults;
+  std::unordered_set<std::string> selectedSet(selected.begin(), selected.end());
+
+  for (auto const &val : stringResults) {
+	if (selectedSet.find(val) == selectedSet.end()) {
+	  negatedResults.push_back(val);
+	}
+  }
+
+  return negatedResults;
+}
+
+std::vector<std::string> EntityEvaluator::getUniqueIdent(const PQL::Synonym &syn) {
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return reader->getAllVariables(); }},
+	  {SimpleProgram::DesignEntity::PROCEDURE, [this] { return reader->getAllProcedures(); }},
+  };
+
+  if (syn.entityType == SimpleProgram::DesignEntity::WILDCARD) {
+	if (clause.clauseType == SimpleProgram::DesignAbstraction::CALLS
+		|| clause.clauseType == SimpleProgram::DesignAbstraction::CALLST) {
+	  return reader->getAllProcedures();
+	}
+
+	// uses/modifies, only can have rArg as wildcard, which is only var syn
+	return reader->getAllVariables();
+  }
+
+  if (funcMap.find(syn.entityType) == funcMap.end()) {
+	return {};
+  }
+
+  return funcMap[syn.entityType]();
+}
+
+std::vector<std::pair<std::string, std::string>>
+EntityEvaluator::negateDoubleSyn(const std::vector<std::pair<std::string, std::string>> &selected) {
+  std::vector<std::string> lStringResults = getUniqueIdent(clause.arguments[0]);
+  std::vector<std::string> rStringResults = getUniqueIdent(clause.arguments[1]);
+  std::vector<std::pair<std::string, std::string>> negatedRes;
+  for (auto const &s1 : lStringResults) {
+	for (auto const &s2 : rStringResults) {
+	  std::pair<std::string, std::string> pair(s1, s2);
+	  if (std::find(selected.begin(), selected.end(), pair) == selected.end()) {
+		negatedRes.push_back(pair);
+	  }
+	}
+  }
+
+  return negatedRes;
 }
 }

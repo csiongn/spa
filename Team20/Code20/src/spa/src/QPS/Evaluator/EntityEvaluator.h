@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "RelationshipEvaluator.h"
@@ -9,8 +10,11 @@
 namespace QueryEvaluator {
 class EntityEvaluator : private RelationshipEvaluator {
  public:
-  EntityEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
-	  : RelationshipEvaluator(r, cl, resultStore) {};
+  EntityEvaluator(std::shared_ptr<IPKBReader> r,
+				  const PQL::Clause &cl,
+				  std::shared_ptr<ResultStore> resultStore,
+				  bool createTable)
+	  : RelationshipEvaluator(r, cl, resultStore, createTable) {};
 
   bool evaluate() override;
 
@@ -49,5 +53,14 @@ class EntityEvaluator : private RelationshipEvaluator {
   std::vector<std::string> getUniqueLeftProcNames(const std::string &ident);
 
   std::vector<std::string> getUniqueValues();
+
+  std::vector<std::string> getUniqueValues(const PQL::Synonym lArg);
+
+  std::vector<std::string> negateStringResults(const PQL::Synonym &syn, const std::vector<std::string> &selected);
+
+  std::vector<std::string> getUniqueIdent(const PQL::Synonym &syn);
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected);
 };
 }

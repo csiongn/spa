@@ -1,24 +1,27 @@
 #include "IfAndWhilePatternEvaluator.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 #include <unordered_map>
 
 namespace QueryEvaluator {
 bool IfAndWhilePatternEvaluator::evaluate() {
-  PQL::Synonym lArg = clause.arguments[1];
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignEntity::VARIABLE, [this] { return getForwardRelationship(); }},
+	  {SimpleProgram::DesignEntity::WILDCARD, [this] { return hasAtLeastOneRelationship(); }},
+	  {SimpleProgram::DesignEntity::IDENT, [this] { return hasRelationship(); }},
+  };
 
-  if (lArg.entityType == SimpleProgram::DesignEntity::VARIABLE) {
-	// (VAR, _)
-	return getForwardRelationship();
-  } else if (lArg.entityType == SimpleProgram::DesignEntity::WILDCARD) {
-	// (_, _)
-	return hasAtLeastOneRelationship();
-  } else {
-	// ("IDENT", _)
-	return hasRelationship();
+  PQL::Synonym lArg = clause.arguments[1];
+  if (funcMap.find(lArg.entityType) == funcMap.end()) {
+	// unhandled cases
+	return false;
   }
+
+  return funcMap[lArg.entityType]();
 }
 
 bool IfAndWhilePatternEvaluator::hasRelationship() {
@@ -26,11 +29,11 @@ bool IfAndWhilePatternEvaluator::hasRelationship() {
   PQL::Synonym patternSyn = clause.arguments[0];
   PQL::Synonym lArg = clause.arguments[1];
 
-  std::vector<int> stmtNums;
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	stmtNums = reader->getIfPatternStmtNum(lArg.identity);
-  } else {
-	stmtNums = reader->getWhilePatternStmtNum(lArg.identity);
+  std::vector<int> stmtNums = getAllStmts(lArg.identity);
+
+
+  if (clause.isNegated) {
+	stmtNums = negateIntResults(patternSyn, stmtNums);
   }
 
   if (stmtNums.empty()) {
@@ -38,7 +41,9 @@ bool IfAndWhilePatternEvaluator::hasRelationship() {
   }
 
   // add the if/while SYN to result store
-  resultStore->createColumn(patternSyn, stmtNums);
+  if (createTable) {
+	resultStore->createColumn(patternSyn, stmtNums);
+  }
   return true;
 }
 
@@ -46,12 +51,22 @@ bool IfAndWhilePatternEvaluator::hasAtLeastOneRelationship() {
   // handles (_, _)
   // not adding IF_SYN/WHILE_SYN to result store, result same as all if/while statements
   // already added during initialise SYN in QueryEvaluator
+  std::unordered_map<SimpleProgram::DesignEntity, std::function<bool()>> funcMap = {
+	  {SimpleProgram::DesignEntity::IF, [this] { return reader->hasIfPattern(); }},
+	  {SimpleProgram::DesignEntity::WHILE, [this] { return reader->hasWhilePattern(); }},
+  };
+
   PQL::Synonym patternSyn = clause.arguments[0];
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	return reader->hasIfPattern();
+  bool isNotEmpty = false;
+  if (funcMap.find(patternSyn.entityType) != funcMap.end()) {
+	isNotEmpty = funcMap[patternSyn.entityType]();
   }
 
-  return reader->hasWhilePattern();
+  if (clause.isNegated) {
+	isNotEmpty = !isNotEmpty;
+  }
+
+  return isNotEmpty;
 }
 
 bool IfAndWhilePatternEvaluator::getForwardRelationship() {
@@ -61,46 +76,94 @@ bool IfAndWhilePatternEvaluator::getForwardRelationship() {
 
 bool IfAndWhilePatternEvaluator::getSynonymWildcard() {
   // Handles (VAR, _) / (VAR, _, _)
-	return getLeftResults();
+  return getLeftResults();
 }
 
 bool IfAndWhilePatternEvaluator::getLeftResults() {
   // Handles (VAR, _) / (VAR, _, _)
-  PQL::Synonym patternSyn = clause.arguments[0];
-  PQL::Synonym lArg = clause.arguments[1];
-  std::vector<std::string> vars;
-  std::vector<int> stmtNums;
+  std::vector<std::pair<std::string, std::string>> res = getDoubleSynResult();
 
-  if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	vars = reader->getIfPatternVariable();
-  } else {
-	vars = reader->getWhilePatternVariable();
+  if (clause.isNegated) {
+	res = negateDoubleSyn(res);
   }
 
-  if (vars.empty()) {
+  if (res.empty()) {
 	return false;
   }
 
-  std::vector<std::vector<std::string>> table = {{}, {}};
-  std::vector<std::string> colNames = {patternSyn.identity, lArg.identity};
-  std::unordered_map<std::string, size_t> colNameToIndex;
-  for (size_t i = 0; i < colNames.size(); i++) {
-	colNameToIndex[colNames[i]] = i;
+  if (createTable) {
+	insertDoubleColumnResult(res);
   }
-  Result newResult{table, colNames, colNameToIndex};
-
-  for (auto const &var : vars) {
-	if (patternSyn.entityType == SimpleProgram::DesignEntity::IF) {
-	  stmtNums = reader->getIfPatternStmtNum(var);
-	} else {
-	  stmtNums = reader->getWhilePatternStmtNum(var);
-	}
-	for (int stmtNum : stmtNums) {
-	  newResult.addRow({std::to_string(stmtNum), var});
-	}
-  }
-
-  resultStore->insertResult(std::make_shared<Result>(newResult));
   return true;
+}
+
+std::vector<int> IfAndWhilePatternEvaluator::getAllStmts() {
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this] { return reader->getIfPatternStmtNum(); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this] { return reader->getWhilePatternStmtNum(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
+  }
+
+  return funcMap[clause.clauseType]();
+}
+
+std::vector<int> IfAndWhilePatternEvaluator::getAllStmts(const std::string &var) {
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<int>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this, var] { return reader->getIfPatternStmtNum(var); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this, var] { return reader->getWhilePatternStmtNum(var); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
+  }
+
+  return funcMap[clause.clauseType]();
+}
+
+std::vector<std::string> IfAndWhilePatternEvaluator::getAllVariables() {
+  std::unordered_map<SimpleProgram::DesignAbstraction, std::function<std::vector<std::string>()>> funcMap = {
+	  {SimpleProgram::DesignAbstraction::PATTERN_IF, [this] { return reader->getIfPatternVariable(); }},
+	  {SimpleProgram::DesignAbstraction::PATTERN_WHILE, [this] { return reader->getWhilePatternVariable(); }},
+  };
+
+  if (funcMap.find(clause.clauseType) == funcMap.end()) {
+	return {};
+  }
+
+  return funcMap[clause.clauseType]();
+}
+
+std::vector<std::pair<std::string, std::string>> IfAndWhilePatternEvaluator::getDoubleSynResult() {
+  std::vector<std::string> vars = getAllVariables();
+  std::vector<int> stmtNums;
+  std::vector<std::pair<std::string, std::string>> res;
+  for (auto const &var : vars) {
+	stmtNums = getAllStmts(var);
+	for (int stmtNum : stmtNums) {
+	  res.emplace_back(std::to_string(stmtNum), var);
+	}
+  }
+
+  return res;
+}
+
+std::vector<std::pair<std::string, std::string>>
+IfAndWhilePatternEvaluator::negateDoubleSyn(const std::vector<std::pair<std::string, std::string>> &selected) {
+  std::vector<int> stmtNums = getAllStmts();
+  std::vector<std::string> vars = reader->getAllVariables();
+  std::vector<std::pair<std::string, std::string>> negatedRes;
+  for (auto const &stmt : stmtNums) {
+	for (auto const &v : vars) {
+	  std::pair<std::string, std::string> pair(std::to_string(stmt), v);
+	  if (std::find(selected.begin(), selected.end(), pair) == selected.end()) {
+		negatedRes.push_back(pair);
+	  }
+	}
+  }
+
+  return negatedRes;
 }
 }

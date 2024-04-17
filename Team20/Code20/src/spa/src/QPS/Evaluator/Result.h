@@ -3,10 +3,11 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "Models/PQL.h"
+#include "../Utils/EvaluatorUtils.h"
 
 namespace QueryEvaluator {
 class Result {
@@ -52,5 +53,9 @@ class Result {
 					  const std::unordered_map<std::string, size_t> &colNamesToIndex2);
 
   static std::vector<std::string> getColumnNames(const std::unordered_map<std::string, size_t> &colNameToIndexMap);
+
+  std::unordered_map<std::vector<std::string>,
+					 std::unordered_set<std::vector<std::string>, EvaluatorUtils::vectorHash>,
+					 EvaluatorUtils::vectorHash> getCommonColMap(std::vector<std::string> commonCols);
 };
 }

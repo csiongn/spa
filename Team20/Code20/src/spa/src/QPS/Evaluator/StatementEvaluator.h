@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "RelationshipEvaluator.h"
@@ -9,8 +11,8 @@ namespace QueryEvaluator {
 class StatementEvaluator : private RelationshipEvaluator {
  public:
   StatementEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl,
-					 std::shared_ptr<ResultStore> resultStore)
-	  : RelationshipEvaluator(r, cl, resultStore) {
+					 std::shared_ptr<ResultStore> resultStore, bool createTable)
+	  : RelationshipEvaluator(r, cl, resultStore, createTable) {
   };
 
   bool evaluate() override;
@@ -41,5 +43,8 @@ class StatementEvaluator : private RelationshipEvaluator {
   std::vector<int> getUniqueKeys(const PQL::Synonym &syn);
 
   std::vector<int> getUniqueValues(const PQL::Synonym &syn);
+
+  std::vector<std::pair<std::string, std::string>> negateDoubleSyn(const std::vector<std::pair<std::string,
+																							   std::string>> &selected);
 };
 }

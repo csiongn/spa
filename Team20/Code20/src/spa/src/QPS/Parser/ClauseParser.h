@@ -20,11 +20,14 @@ class ClauseParser {
 						std::vector<PQL::Synonym> &declarations,
 						std::shared_ptr<ClauseValidator> &validator);
 
-  PQL::Synonym getDeclarationUsed(std::shared_ptr<QueryToken> synonymToken);
-
-  PQL::Synonym getDeclarationUsed(std::string synonymIdentity);
-
   std::vector<PQL::Synonym> parseSelectClause();
 
   std::vector<PQL::Clause> parseRelationshipClause();
+
+ private:
+  bool doesDeclarationExist(std::shared_ptr<QueryToken> token);
+
+  PQL::Synonym getDeclarationUsed(std::shared_ptr<QueryToken> synonymToken);
+
+  PQL::Synonym getDeclarationUsed(std::string synonymIdentity);
 };

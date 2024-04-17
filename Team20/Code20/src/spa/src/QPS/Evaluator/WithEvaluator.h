@@ -2,16 +2,20 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
-
 
 #include "ClauseEvaluator.h"
 
 namespace QueryEvaluator {
 class WithEvaluator : private ClauseEvaluator {
  public:
-  WithEvaluator(std::shared_ptr<IPKBReader> r, const PQL::Clause &cl, std::shared_ptr<ResultStore> resultStore)
-	  : ClauseEvaluator(r, cl, resultStore) {
+  WithEvaluator(std::shared_ptr<IPKBReader> r,
+				const PQL::Clause &cl,
+				std::shared_ptr<ResultStore> resultStore,
+				bool createTable)
+	  : ClauseEvaluator(r, cl, resultStore, createTable) {
   };
 
   bool evaluate() override;
@@ -39,6 +43,34 @@ class WithEvaluator : private ClauseEvaluator {
   bool createDoubleColumnResult(const PQL::Synonym &lArg,
 								const PQL::Synonym &rArg,
 								std::vector<T> &lValues,
-								const std::vector<T> &rValues);
+								std::vector<T> &rValues);
+
+  std::vector<std::string> getStringIntersection(std::vector<std::string> &v1, std::vector<std::string> &v2);
+
+  std::vector<std::string> negateStringResults(const PQL::Synonym &syn, const std::vector<std::string> &selected);
+
+  template<typename T>
+  std::vector<T> negateResults(const PQL::Synonym &syn, const std::vector<T> &selected);
+
+  static bool hasIntResults(const PQL::Synonym &syn);
+
+  std::pair<std::vector<std::string>, std::vector<std::string>> retrieveIntResults(const PQL::Synonym &syn,
+																				   const std::vector<std::string> &values);
+
+  template<typename T>
+  void checkAndInsertResult(const PQL::Synonym &lArg,
+							const std::vector<T> &lValues,
+							const PQL::Synonym &rArg,
+							const std::vector<T> &rValues);
+
+  std::unordered_map<SimpleProgram::DesignEntity, std::string> attrRefMap = {
+	  {SimpleProgram::DesignEntity::CALL, "procName"},
+	  {SimpleProgram::DesignEntity::READ, "varName"},
+	  {SimpleProgram::DesignEntity::PRINT, "varName"},
+  };
+
+  std::string getAttrRefColName(const PQL::Synonym &syn);
+
+  static std::vector<std::string> intToStringVector(const std::vector<int>& v);
 };
 }

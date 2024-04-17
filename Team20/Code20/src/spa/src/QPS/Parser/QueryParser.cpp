@@ -15,12 +15,14 @@ QueryParser::QueryParser(std::vector<std::shared_ptr<QueryToken>> tokens) : toke
 
 PQL::Query QueryParser::parse() {
   std::vector<int> semicolonPos = parseSemicolons();
-  auto declarationTokens = QueryEvaluator::ParseUtils::splitTokens(tokens, 0, semicolonPos.back() + 1);
+  int declarationsEndPos = semicolonPos.size() != 0 ? semicolonPos.back() + 1 : 0;
+
+  auto declarationTokens = QueryEvaluator::ParseUtils::splitTokens(tokens, 0, declarationsEndPos);
   auto declarationsValidator = std::make_shared<DeclarationsValidator>(DeclarationsValidator{});
   DeclarationsParser declarationsParser = DeclarationsParser(declarationTokens, semicolonPos, declarationsValidator);
   auto declarations = declarationsParser.parseDeclarations();
 
-  auto clauseTokens = QueryEvaluator::ParseUtils::splitTokens(tokens, semicolonPos.back() + 1, tokens.size());
+  auto clauseTokens = QueryEvaluator::ParseUtils::splitTokens(tokens, declarationsEndPos, tokens.size());
   auto clauseValidator = std::make_shared<ClauseValidator>(ClauseValidator(declarations));
   ClauseParser clauseParser = ClauseParser(clauseTokens, declarations, clauseValidator);
   auto selectSynonym = clauseParser.parseSelectClause();

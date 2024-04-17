@@ -15,7 +15,7 @@ class DesignExtractor {
   // Stores code context during traversal of Source program
   class SourceContext {
    public:
-    int currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
+    uint16_t currentStmtNumber = 0; // Keeps track of the statement numbers as we traverse
     std::string procName; // Keep track of current procedure as we traverse
   };
 
@@ -42,7 +42,7 @@ class DesignExtractor {
     return parentT;
   }
 
-  const std::unordered_map<int, std::unordered_set<std::string>>& getUses() const {
+  std::unordered_map<int, std::unordered_set<std::string>>& getUses() {
     return uses;
   }
 
@@ -50,7 +50,7 @@ class DesignExtractor {
     return procsUses;
   }
 
-  const std::unordered_map<int, std::unordered_set<std::string>>& getModifies() const {
+  std::unordered_map<int, std::unordered_set<std::string>>& getModifies() {
     return modifies;
   }
 
@@ -128,14 +128,14 @@ class DesignExtractor {
   void updateParent(int childStmtNumber, int parentStmtNumber);
   void updateUses(int stmtNumber, const std::string& variableName);
   void updateModifies(int stmtNumber, const std::string& variableName);
-  void updateCall(const std::string& callingProc, const std::string& calledProc);
+  void updateCall(const std::string& callingProc, const std::string& calledProc, const int callSite);
 
   void insertProcedure(const std::string& procName);
   void insertVariable(const std::string& var);
   void insertLiteral(const std::string& var);
   void insertStmt(const int stmtNum);
   void insertAssign(const int stmtNum);
-  void insertCall(const int stmtNum);
+  void insertCall(const int stmtNum, const std::string& calledProc);
   void insertIf(const int stmtNum, std::unordered_set<std::string> controlVariables);
   void insertRead(const int stmtNum, const std::string& variable);
   void insertPrint(const int stmtNum, const std::string& variable);
