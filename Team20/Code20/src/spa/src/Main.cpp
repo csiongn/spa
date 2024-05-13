@@ -22,10 +22,6 @@ std::unique_ptr<std::string> readSource(const std::string& filename) {
     return program;
 }
 
-void runInputLoop() {
-
-}
-
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         std::cout << "Usage: " << argv[0] << " <source_code>" << std::endl;
