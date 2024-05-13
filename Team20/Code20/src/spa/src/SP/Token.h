@@ -56,10 +56,8 @@ const static std::vector<SP::TokenType> keywords = {
 	SP::TokenType::KEYWORD_WHILE
 };
 
-/// <summary>
 /// Maps token types to specific strings.
 /// excludes INTEGER and NAME as they do not have 1:1 mapping with a string
-/// </summary>
 const std::unordered_map<std::string, SP::TokenType> tokenMapping = {
 	{"=", SP::TokenType::EQUAL},
 	{"+", SP::TokenType::PLUS},
@@ -115,11 +113,7 @@ struct Token {
 	return !(*this == other);
   }
 
-  /// <summary>
   /// Checks the SP::TokenType of a given token_string
-  /// </summary>
-  /// <param name="token_string"></param>
-  /// <returns>SP::TokenType type: type of the token</returns>
   static SP::TokenType TokenType(const std::string &token_string) {
 	auto it = tokenMapping.find(token_string);
 	if (it != tokenMapping.end()) {
@@ -149,23 +143,15 @@ struct Token {
 	return SP::TokenType::INTEGER;
   }
 
-  /// <summary>
   /// Checks if string is in token mapping.
-  /// </summary>
-  /// <param name="key">String input</param>
-  /// <returns>True if string is in mapping</returns>
   static bool isStringInTokenMapping(const std::string &key) {
 	auto result = tokenMapping.find(key);
 	return result != tokenMapping.end();
   }
 
-  /// <summary>
   /// Checks if string is supposed to be a unique symbol I.e.
   /// - It is len(1)
   /// - It does not have any combination with any other symbol e.g. =, > is not counted as it can form >=
-  /// </summary>
-  /// <param name="key">String input</param>
-  /// <returns>True if string is brace or parenthesis.</returns>
   static bool isUniqueSymbol(const std::string &key) {
 	auto result = tokenMapping.find(key);
 	if (result != tokenMapping.end()) {
@@ -182,11 +168,7 @@ struct Token {
 	}
   }
 
-  /// <summary>
   /// Returns string representation of token with value and line_num
-  /// TODO: Implement token type to string (difficult with scoped enums)
-  /// </summary>
-  /// <returns></returns>
   std::string toString() const {
 	return "Token(" + value + "\", " + std::to_string(line_num) + ")";
   }
