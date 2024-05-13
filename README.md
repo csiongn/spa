@@ -32,13 +32,51 @@ cd src/spa
 ./main <SOURCE_CODE_PATH>
 ```
 
+Example SIMPLE source code
+```text
+    procedure main {
+      flag = 0;
+      call computeCentroid;
+      call printResults;
+    }
+    procedure readPoint {
+      read x;
+      read y;
+    }
+    procedure printResults {
+      print flag;
+      print cenX;
+      print cenY;
+      print normSq;
+    }
+    procedure computeCentroid {
+      count = 0;
+      cenX = 0;
+      cenY = 0;
+      call readPoint;
+      while ((x != 0) && (y != 0)) {
+          count = count + 1;
+          cenX = cenX + x;
+          cenY = cenY + y;
+          call readPoint;
+      }
+      if (count == 0) then {
+          flag = 1;
+      } else {
+          cenX = cenX / count;
+          cenY = cenY / count;
+      }
+      normSq = cenX * cenX + cenY * cenY;
+  }
+```
+
 Example Program Query Language (PQL) queries to run
 ```
 1. Select all statement numbers
 stmt s; Select s 
 
-2. Select all procedures that call procedure "Third" directly or indirectly
-Select p such that Calls* (p, "Third")
+2. Select all procedures that call procedure "readPoint" directly or indirectly
+procedure p; Select p such that Calls* (p, "readPoint")
 
 3. Select statement number of all assignment statements to variable "x" located in a loop, that can be reached (in terms of control flow) from statement 1.
 assign a; while w; Select a pattern a ("x", _) such that Parent* (w, a) and Next* (1, a)
