@@ -2,12 +2,12 @@
 
 This is a static analysis tool to understand program relationships written in a toy language SIMPLE. The executable takes in a path to source code written in SIMPLE and extracts relationships from it. Queries against the extracted relationships are made in another toy language PQL.
 
-## Language Reference
+### Language Reference
 - [SIMPLE Language](https://nus-cs3203.github.io/course-website/contents/basic-spa-requirements/simple-programming.html)
 - [Basic Program Query Language (PQL)](https://nus-cs3203.github.io/course-website/contents/basic-spa-requirements/program-query-language/introduction.html)
 - [Extensions to PQL](https://nus-cs3203.github.io/course-website/contents/advanced-spa-requirements/pql.html)
 
-## Prerequisites
+### Prerequisites
 - CMake (version 3.20.2 or higher)
 - C++ compiler (supporting C++ 17 or newer)
 
